@@ -7,7 +7,7 @@ import crypto from 'node:crypto';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
-const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/evidence/qwen-placement/'];
+const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/'];
 const assets = ['/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt'];
 const failures = [];
 let checks = 0;

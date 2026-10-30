@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Correct, placed, paid for: two grafts and a dispatch floor · MacBrains Labs</title>
+<meta name="description" content="Two numerically correct Core ML grafts on the Neural Engine: a ring-buffer speculative attention graph placed 0 of 115 ops on ANE, and an EAGLE draft head added milliseconds per call against a measured 63 to 66% acceptance. Plus a flat 14 to 15 ms per-call floor.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Correct, placed, paid for: two grafts and a dispatch floor">
+<meta property="og:description" content="Two numerically correct Core ML grafts on the Neural Engine: a ring-buffer speculative attention graph placed 0 of 115 ops on ANE, and an EAGLE draft head added milliseconds per call against a measured 63 to 66% acceptance. Plus a flat 14 to 15 ms per-call floor.">
+<meta property="og:url" content="https://macbrainslabs.org/notes/graft-costs/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/notes/graft-costs/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/" aria-current="page">Notes</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Field notes</a> / N/005</p>
+<h1>Correct, placed, paid for.</h1>
+<p class="lede">Two grafts passed every numerical check. One never reached the Neural Engine. The other did, made every call slower, and has to earn that back through accepted drafts. Correctness, placement and cost are separate gates.</p>
+<dl class="facts">
+<div><dt>Note</dt><dd>N/005</dd></div>
+<div><dt>Ring graft</dt><dd>0 / 115 ops on ANE</dd></div>
+<div><dt>EAGLE graft</dt><dd>+4 to +6.6 ms per call</dd></div>
+<div><dt>Call floor</dt><dd>14–15 ms</dd></div>
+<div><dt>Verdict</dt><dd>One negative, one open</dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="Field note N/005">
+<span class="label">Field note N/005</span>
+<ol>
+<li><a href="#ring">Ring graft</a></li>
+<li><a href="#eagle">EAGLE graft</a></li>
+<li><a href="#floor">Call floor</a></li>
+<li><a href="#meaning">Meaning</a></li>
+<li><a href="#integrity">Integrity</a></li>
+</ol>
+<div class="toc-out"><a href="/notes/">All field notes</a></div>
+</nav>
+<article class="article">
+<h2 id="ring"><span class="sec">01</span>A correct graph that ran on the CPU</h2>
+<p>The ring graft is a speculative-attention graph for a ring-buffer key/value cache. Each call writes two provisional key/value proposals, takes an acceptance count from the host, and attends only over committed history, including after the ring wraps.</p>
+<p>On 27 August 2026 it passed its end-to-end check at two cache sizes. Rejected proposals that were physically present in the cache stayed out of attention in every poison case.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Cache slots</th><th scope="col" class="numeric">Calls</th><th scope="col" class="numeric">Wraps</th><th scope="col" class="numeric">Poison cases isolated</th><th scope="col">Correctness</th></tr></thead>
+<tbody>
+<tr><td>16</td><td class="numeric">41</td><td class="numeric">3</td><td class="numeric">10 / 10</td><td class="pass">Pass</td></tr>
+<tr><td>514</td><td class="numeric">15</td><td class="numeric">1</td><td class="numeric">7 / 7</td><td class="pass">Pass</td></tr>
+</tbody></table></div>
+<p>Those runs requested the Neural Engine. A separate placement census of the exact compiled artifacts then asked MLComputePlan where each operation goes. The answer was the CPU, for every operation that has a device, at both sizes, under both <code>.cpuAndNeuralEngine</code> and <code>.all</code>.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Cache slots</th><th scope="col" class="numeric">Ops</th><th scope="col" class="numeric">ANE</th><th scope="col" class="numeric">CPU</th><th scope="col" class="numeric">No device</th><th scope="col" class="numeric">CPU share of cost</th></tr></thead>
+<tbody>
+<tr><td>16</td><td class="numeric">115</td><td class="numeric">0</td><td class="numeric">72</td><td class="numeric">43</td><td class="numeric">100%</td></tr>
+<tr><td>514</td><td class="numeric">115</td><td class="numeric">0</td><td class="numeric">72</td><td class="numeric">43</td><td class="numeric">100%</td></tr>
+</tbody></table></div>
+<p class="table-caption">The 43 operations with no device are constants. The census reports Core ML’s preferred placement; it is not a trace of execution.</p>
+
+<h2 id="eagle"><span class="sec">02</span>A correct draft head that makes every call slower</h2>
+<p>An EAGLE-3 draft head was grafted into the single-token function of a LUT4 Qwen2.5 model, so one call returns both the verified token and a draft. On 24 June 2026 the grafted subgraph matched the PyTorch reference at three internal stages on two independent inputs: relative L2 at most 0.00195 and cosine at least 0.999998.</p>
+<p>The graft is not free. A breakdown of one build, timed as the fastest of 120 calls on the same Mac:</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Build</th><th scope="col" class="numeric">Fastest call</th><th scope="col" class="numeric">Added</th></tr></thead>
+<tbody>
+<tr><td>Base, graft removed by the compiler</td><td class="numeric">20.83 ms</td><td class="numeric">—</td></tr>
+<tr><td>Graft, draft logits out</td><td class="numeric">24.66 ms</td><td class="numeric">+3.83 ms</td></tr>
+<tr><td>Graft with on-device argmax</td><td class="numeric">27.41 ms</td><td class="numeric">+2.75 ms</td></tr>
+</tbody></table></div>
+<p>That build added 6.58 ms, or 31.6%, per call. The largest single piece is the draft’s argmax over a 151,936-token vocabulary, which runs as 17 CPU operations.</p>
+<p>A separate settled-loop measurement with a different harness recorded 18.98 ms per base call and 22.98 ms per graft call, and a draft acceptance of 63.16% open-loop and 65.66% against an oracle, over 80 rounds on 3 prompts. A graft call that yields about 1.6 tokens can cover a call that is about 21% longer. The tokens-per-second figures in that receipt are calculated from those two measurements, not timed generation, so we do not quote them as a speedup.</p>
+<p>The one timed generation run forced every draft to be accepted: 65.1 against 37.7 tokens per second, over three 50-token trials. That is an upper bound, not a result at real acceptance.</p>
+
+<h2 id="floor"><span class="sec">03</span>The per-call floor</h2>
+<p>The cost of a call shows up plainly in a simpler test. Five fixed-shape builds of a two-layer LFM2.5 slice processed 1, 4, 8, 16 and 64 tokens per call. Each ran 21 timed calls after one warmup, with seeded random inputs.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col" class="numeric">Tokens per call</th><th scope="col" class="numeric">Ops</th><th scope="col" class="numeric">Fastest call</th><th scope="col" class="numeric">Median call</th><th scope="col" class="numeric">Per token</th></tr></thead>
+<tbody>
+<tr><td class="numeric">1</td><td class="numeric">151</td><td class="numeric">14.09 ms</td><td class="numeric">15.14 ms</td><td class="numeric">14.09 ms</td></tr>
+<tr><td class="numeric">4</td><td class="numeric">771</td><td class="numeric">15.16 ms</td><td class="numeric">15.96 ms</td><td class="numeric">3.79 ms</td></tr>
+<tr><td class="numeric">8</td><td class="numeric">799</td><td class="numeric">14.42 ms</td><td class="numeric">15.19 ms</td><td class="numeric">1.80 ms</td></tr>
+<tr><td class="numeric">16</td><td class="numeric">855</td><td class="numeric">14.89 ms</td><td class="numeric">15.76 ms</td><td class="numeric">0.93 ms</td></tr>
+<tr><td class="numeric">64</td><td class="numeric">1191</td><td class="numeric">15.26 ms</td><td class="numeric">16.21 ms</td><td class="numeric">0.24 ms</td></tr>
+</tbody></table></div>
+<p>A 64-fold range of tokens and an eightfold range of operations moved the call time by about a millisecond. At this depth the call is the cost. That is what speculative decoding and batching try to amortize, and it is why a graft that adds milliseconds to every call has to earn them back. A full model does far more work per call, so this floor is a property of shallow graphs, as <a href="/notes/decode-regimes/">N/003</a> found for batch sweeps.</p>
+
+<h2 id="meaning"><span class="sec">04</span>What this does and does not show</h2>
+<div class="callout"><span class="label">Experimental takeaway</span><p>Prove correctness, then check placement with MLComputePlan, then time the call. A graph can pass the first gate and fail either of the others, and “requested the Neural Engine” is not “ran on the Neural Engine”.</p></div>
+<p>The ring graft is a negative result for that design as measured: correct, but not on the Neural Engine. The EAGLE graft is on the Neural Engine and correct, and its net value is still open until generation is timed at real acceptance. Neither result says what other designs can do.</p>
+
+<h2 id="integrity"><span class="sec">05</span>Reproducibility boundary</h2>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Receipt</th><th scope="col">Date</th><th scope="col">SHA-256 (first 16)</th></tr></thead>
+<tbody>
+<tr><td><code>ringgraft_phaseb_l4_speculative_attention_e2e_20260827.md</code></td><td>27 Aug 2026</td><td><code>a99573dc5dcf649f</code></td></tr>
+<tr><td><code>RINGGRAFT_ANE_PLACEMENT_PROOF_20260827.md</code></td><td>27 Aug 2026</td><td><code>0a07dbfa7122487b</code></td></tr>
+<tr><td><code>talon_d1/RESULTS.md</code> (EAGLE numerics)</td><td>24 Jun 2026</td><td><code>1970b64dfa33c8b4</code></td></tr>
+<tr><td><code>talon_d1/D3_overhead.md</code> (EAGLE dispatch)</td><td>25 Jun 2026</td><td><code>9dfdc9a1921ba1b2</code></td></tr>
+<tr><td><code>e2e_bench_d061.json</code> (EAGLE acceptance)</td><td>24 Jun 2026</td><td><code>ccbafc1765ba2e9e</code></td></tr>
+<tr><td><code>e2e_bench_d059.txt</code> (forced acceptance)</td><td>24 Jun 2026</td><td><code>a802e93f7ec5c3af</code></td></tr>
+<tr><td><code>spec_decode_latency_2026-07-27.md</code></td><td>27 Jul 2026</td><td><code>27ece053b77cf0dc</code></td></tr>
+</tbody></table></div>
+<p>The ring graft placement receipt pins the compiled artifact tree hashes (<code>6f085676c39b25cc</code>… for 16 slots, <code>39baaf80ff547d11</code>… for 514) and its placement JSONs. The call-floor receipt records compiler 3520.5.1. None of these receipts records the device model or OS version, and the EAGLE receipts were committed to the repository on 24 and 25 June 2026.</p>
+<p class="table-caption">Source: ane-re receipts and data directories. Referenced artifacts are not public downloads.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
