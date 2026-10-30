@@ -67,7 +67,7 @@
 <p>Every figure below names the artifact it was measured on. None of them describes every model, every graph or every Core ML release.</p></div>
 </div>
 <div class="results">
-<div class="result"><span class="label">Throughput</span><span class="result-value">102.1<small>tok/s</small></span><p>Qwen2.5 1.5B LUT4 decode substrate, batch of 4, aggregate across lanes, on-device. Five interleaved steady-state rounds.</p><p class="source">D028 batch sweep · <a href="/notes/decode-regimes/">N/003</a></p></div>
+<div class="result"><span class="label">Throughput</span><span class="result-value">102.1<small>tok/s</small></span><p>Qwen2.5 1.5B LUT4 decode substrate, batch of 4, aggregate across lanes, on-device. Five interleaved steady-state rounds. Throughput only: single-function probe artifacts whose output quality was not validated.</p><p class="source">D028 batch sweep · <a href="/notes/decode-regimes/">N/003</a></p></div>
 <div class="result"><span class="label">Placement</span><span class="result-value">743<small>/ 743</small></span><p>LFM S2 sealed production artifact: compute operations assigned to the ANE by MLComputePlan.</p><p class="source">LFM S2 native parity receipt, 2026-07-18 · <a href="/notes/lfm-parity/">N/002</a></p></div>
 <div class="result"><span class="label">Model quality</span><span class="result-value">16.8033<small>ppl</small></span><p>WikiText-2 perplexity, full 12,000-token validation set, for the hand-authored 28-layer LUT4 Qwen model, run as two 14-layer halves sharing KV, with position-correct RoPE.</p><p class="source">D262, D263 · <a href="/notes/qwen-lut4/">N/001</a></p></div>
 </div>
