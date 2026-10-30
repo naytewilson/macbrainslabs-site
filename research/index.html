@@ -65,7 +65,7 @@
 <tbody>
 <tr><td>Qwen2.5-1.5B Instruct / 28L LUT4, production Core ML conversion</td><td>MLComputePlan / <code>infer</code></td><td class="numeric">2,090 ANE<br>79 CPU</td><td>CPU residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops.</td></tr>
 <tr><td>Qwen2.5-1.5B / KV state path</td><td>ANE-assigned state primitives</td><td class="numeric">394 / 394</td><td>56 slice_update + 57 read_state + 56 write_state + 225 slice_by_index.</td></tr>
-<tr><td>Qwen2.5 / decode batch sweep</td><td>Aggregate tokens per second</td><td class="numeric">102.1 at B=4</td><td>Five-round interleaved steady-state run. Real batch-shaped artifact.</td></tr>
+<tr><td>Qwen2.5 / decode batch sweep</td><td>Aggregate tokens per second</td><td class="numeric">102.1 at B=4</td><td>Five-round interleaved steady-state run on a single-function, batch-shaped probe. Throughput only; output quality not validated.</td></tr>
 <tr><td>Qwen2.5 / LUT4 model quality</td><td>WikiText-2 perplexity</td><td class="numeric">16.8033</td><td>Hand-authored 28L quantized model, run as two 14L halves sharing KV, with position-correct RoPE. Full 12,000-token validation set.</td></tr>
 <tr><td>LFM S2 sealed production graph</td><td>ANE compute placement</td><td class="numeric">743 / 743</td><td>MLComputePlan for two-output artifact, not separately compiled debug graph.</td></tr>
 <tr><td>LFM S2 / output parity</td><td>ANE vs fixture relative L2</td><td class="numeric">0.01730<br>0.02786</td><td>Two declared production outputs. ANE gate relative L2 ≤ 0.03.</td></tr>
@@ -99,9 +99,9 @@ observation: MLComputePlan assignment</code></pre>
 </ul>
 <div class="axis"><span></span><span class="axis-ticks"><span style="left:0">0</span><span style="left:35.71%">50</span><span style="left:71.43%">100</span></span><span>tok/s</span></div>
 </div>
-<figcaption>Five interleaved rounds, steady-state; Qwen2.5 ANE decode substrate. Batch=8 yields higher aggregate throughput but is not the default on an 8 GB system.</figcaption>
+<figcaption>Five interleaved rounds, steady-state; Qwen2.5 ANE decode substrate. Batch=8 yields higher aggregate throughput at a higher memory cost.</figcaption>
 </figure>
-<p>Batch=4 is the measured efficiency knee for this setup. A previously proposed “57.3 tok/s bandwidth ceiling” was later falsified by a batch-K-per-dispatch sweep on a probe model and by a LUT2 experiment that reduced weights without increasing throughput. The updated result distinguishes low-depth dispatch overhead from compute cost at 28 layers. <a href="/notes/decode-regimes/">Read the analysis.</a></p>
+<p>Batch=4 is the measured efficiency knee for this setup. The sweep timed single-function probe artifacts; their output quality was not validated, and the batch geometry had not yet been carried into a deployable model. A previously proposed “57.3 tok/s bandwidth ceiling” was later falsified by a batch-K-per-dispatch sweep on a probe model and by a LUT2 experiment that reduced weights without increasing throughput. The updated result distinguishes low-depth dispatch overhead from compute cost at 28 layers. <a href="/notes/decode-regimes/">Read the analysis.</a></p>
 
 <h2 id="lfm"><span class="sec">04</span>Liquid architecture parity</h2>
 <p>A separate <strong>LFM block-pair S2 production artifact</strong> was evaluated under <code>.cpuOnly</code> and <code>.cpuAndNeuralEngine</code> and compared with a pinned FP16 fixture. Placement classified 743/743 compute operations on ANE for that sealed artifact. The native runner rejected non-finite output values and evaluated cosine similarity, max absolute difference and relative L2 error.</p>
