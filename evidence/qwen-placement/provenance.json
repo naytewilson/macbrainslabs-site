@@ -73,5 +73,14 @@
     "exact conversion command and ANEMLL commit",
     "hash of the compiled model",
     "device stamp on this run (project ANE recorded elsewhere as A18 Pro, H17)"
-  ]
+  ],
+  "public_summary": {
+    "repository": "macbrainslabs/ane-research-records",
+    "files": [
+      "data/qwen-placement.csv",
+      "data/qwen-state-primitives.csv"
+    ],
+    "version_doi": "10.5281/zenodo.23798037",
+    "all_versions_doi": "10.5281/zenodo.23798036"
+  }
 }
