@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1014">
+<meta name="description" content="Independent Apple Silicon research: Core ML MIL generation, Apple Neural Engine execution placement, LUT4 decoding, numerical parity, and reproducible experiments."><meta property="og:type" content="website"><meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Apple Neural Engine, measured"><meta property="og:description" content="Independent Apple Silicon research: Core ML MIL generation, Apple Neural Engine execution placement, LUT4 decoding, numerical parity, and reproducible experiments.">
+<meta property="og:url" content="https://macbrainslabs.org/">
+<link rel="canonical" href="https://macbrainslabs.org/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css">
+<title>Apple Neural Engine, measured · MacBrains Labs</title>
+</head><body><a class="skip" href="#main">Skip to content</a>
+<header class="masthead"><div class="wrap">
+<a class="brand" href="/" aria-label="MacBrains Labs home"><span class="brand-symbol" aria-hidden="true">M<span class="orange">/</span>B</span><span><span class="brand-name">MacBrains Labs</span><span class="brand-sub">INDEPENDENT SILICON RESEARCH</span></span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/" >Research</a><a href="/methods/" >Methods</a>
+<a href="/notes/qwen-lut4/" >Field notes</a><a href="/contact/" class="nav-mail" >Contact ↗</a>
+</nav></div></header><main id="main">
+<section class="hero"><div class="wrap hero-grid"><div class="hero-copy">
+<div class="eyebrow">MACBRAINS LABS / APPLE NEURAL ENGINE / 2026</div>
+<h1>Compute<br>placement.<br><em>Not folklore.</em></h1>
+<p class="lead">We reconstruct how neural networks reach the Apple Neural Engine: tensor contracts, hand-authored Core ML graphs, compiler lowering, execution placement, and measured behavior on silicon.</p>
+<div class="hero-actions"><a class="btn btn-primary" href="/research/">Examine the research <span class="arrow">↗</span></a><a class="btn btn-soft" href="/methods/">Read the methodology <span class="arrow">↗</span></a></div>
+<div class="hero-folio"><span>APPLE SILICON / A18 PRO</span><span>CORE ML / MIL</span><span>SWIFT / NATIVE</span></div></div>
+<div class="panel" aria-label="Qwen2.5 1.5B measured operation placement">
+<div class="panel-top"><span>FIELD RECORD / QWEN-28L-LUT4</span><span><span class="led"></span>MEASURED</span></div><div class="panel-core">
+<div class="panel-label">PRODUCTION INFER GRAPH</div><h2>2,090 / 79</h2>
+<div class="panel-sub">ANE-assigned / CPU-assigned operations</div><div class="scope-line"><span>ANE <strong class="accent">96.4%</strong></span><span>CPU <strong class="orange">3.6%</strong></span></div>
+<div class="placement-track" role="img" aria-label="96.4 percent of operations assigned to ANE; 3.6 percent assigned to CPU for output argmax tail"><div class="ane"></div><div class="cpu"></div></div>
+<div class="panel-kv"><div><span>QUANTIZATION</span><strong>LUT4</strong></div><div><span>DECODER DEPTH</span><strong>28 L</strong></div><div><span>STATE OPERATIONS</span><strong>ANE</strong></div><div><span>CPU RESIDUAL</span><strong>ARGMAX</strong></div></div></div>
+<div class="panel-foot">SOURCE: ANE-RE / D210, D263 · MLComputePlan classification; not a hardware trace.</div>
+</div></div></section>
+<section class="strip" aria-label="Selected measured results"><div class="wrap strip-grid">
+<div class="stat"><span class="section-index">01 / THROUGHPUT</span><strong class="stat-number">102.1 <small>tok/s</small></strong><span class="metric-caption">Qwen2.5 1.5B · batch=4 · aggregate · on-device</span></div>
+<div class="stat"><span class="section-index">02 / PLACEMENT</span><strong class="stat-number">743 / 743</strong><span class="metric-caption">LFM S2 production artifact · compute ops assigned to ANE</span></div>
+<div class="stat"><span class="section-index">03 / MODEL QUALITY</span><strong class="stat-number">16.8033</strong><span class="metric-caption">WikiText-2 perplexity · 28-layer LUT4 Qwen artifact</span></div></div></section>
+<section class="block" id="practice"><div class="wrap"><div class="section-head"><div><span class="section-index">01 / THE PRACTICE</span><h2>Work at the<br>graph boundary.</h2></div><p>“Runs on ANE” is not a binary claim. Different functions, shapes and output tails may be assigned to different devices. We separate compiler placement from numeric correctness and measured throughput.</p></div>
+<div class="four-col">
+<article class="tile"><span class="tile-label">01 / EMISSION</span><h3>Hand-authored MIL.</h3><p>Generate MILSpec programs from native Swift, assemble ML packages and compile with Apple's public Core ML toolchain. No entitlement bypass or private kernel access.</p><a class="link-bottom" href="/methods/">THE BUILD PATH ↗</a></article>
+<article class="tile"><span class="tile-label">02 / PLACEMENT</span><h3>Account for every op.</h3><p>Inspect MLComputePlan assignments for state access, slices, projections, norms and output tails. A declared ANE preference is not proof of ANE residency.</p><a class="link-bottom" href="/notes/qwen-lut4/">READ THE ANE AUDIT ↗</a></article>
+<article class="tile"><span class="tile-label">03 / NUMERICS</span><h3>Parity, or it fails.</h3><p>Compare sealed tensor fixtures with CPU and ANE outputs: cosine similarity, relative L2, max absolute error, and finite-value gates at each exposed boundary.</p><a class="link-bottom" href="/notes/lfm-parity/">PARITY CASE STUDY ↗</a></article>
+<article class="tile"><span class="tile-label">04 / LATENCY</span><h3>Falsify the ceiling.</h3><p>Measure actual batch and sequence shapes. A token/s figure is discarded if its underlying model was shape-locked to one token per call.</p><a class="link-bottom" href="/notes/decode-regimes/">DECODE REGIMES ↗</a></article>
+</div></div></section>
+<section class="block block-alt"><div class="wrap"><div class="section-head"><div><span class="section-index">02 / MEASUREMENT PIPELINE</span><h2>From a tensor<br>to a traceable claim.</h2></div><p>Each result has an artifact, a device, an observation method and a bounded conclusion. We keep compilation, placement, execution and output quality as separate gates.</p></div>
+<div class="diagram" aria-label="Six-stage measurement pipeline">
+<div class="diagram-node"><span class="seq">S00 / AUTHOR</span><strong>SwiftMIL</strong><small>MILSpec protobuf</small></div><div class="diagram-node"><span class="seq">S01 / PACKAGE</span><strong>.mlpackage</strong><small>typed graph + weights</small></div>
+<div class="diagram-node"><span class="seq">S02 / LOWER</span><strong>coremlcompiler</strong><small>Apple public path</small></div><div class="diagram-node"><span class="seq">S03 / INSPECT</span><strong>MLComputePlan</strong><small>per-op assignment</small></div>
+<div class="diagram-node"><span class="seq">S04 / EXECUTE</span><strong>Native runner</strong><small>real device + shape</small></div><div class="diagram-node"><span class="seq">S05 / RECONCILE</span><strong>Parity / tok·s⁻¹</strong><small>falsifiable receipt</small></div></div>
+<div class="callout" style="margin-top:34px"><span class="ghost-label">INTERPRETATION MATTERS</span><p>A model with attention and KV machinery assigned to ANE may still execute a CPU argmax tail. We report both numbers, instead of rounding the entire inference path up to “100% ANE.”</p></div>
+</div></section>
+<section class="block"><div class="wrap"><div class="section-head"><div><span class="section-index">03 / FIELD NOTES</span><h2>Selected technical<br>records.</h2></div><p>Short, source-bound examinations of what passed, what diverged and what earlier hypotheses failed.</p></div>
+<div class="note-list">
+<a class="note-row" href="/notes/qwen-lut4/"><span class="num">N/001</span><div><h3>28 layers, LUT4, and the cost of exact placement</h3><p>State reads, indexed slices, weight.bin offsets and the non-ANE tail.</p></div><span class="meta">QWEN2.5 / MIL / KV</span><span class="goto" aria-hidden="true">↗</span></a>
+<a class="note-row" href="/notes/lfm-parity/"><span class="num">N/002</span><div><h3>A passing production graph and a failing diagnostic one</h3><p>LFM block-pair parity, 743/743 assignment and why probes alter the experiment.</p></div><span class="meta">LFM / S2 / PARITY</span><span class="goto" aria-hidden="true">↗</span></a>
+<a class="note-row" href="/notes/decode-regimes/"><span class="num">N/003</span><div><h3>The bandwidth limit that was not a limit</h3><p>Batch sweeps, dispatch floors and a hypothesis overturned by measurement.</p></div><span class="meta">A18 PRO / DECODE</span><span class="goto" aria-hidden="true">↗</span></a>
+</div></div></section>
+<section class="block block-alt"><div class="wrap two-col"><div><span class="section-index">04 / RESEARCH SCOPE</span><h2>Independent.<br>Instrumented.<br><span class="accent">Reproducible.</span></h2></div><div><p class="lead">MacBrains Labs is an independent engineering research identity for Apple Silicon and on-device inference. The work emphasizes native runtimes, quantized transformer execution, compiler behavior, and authorized analysis of software and infrastructure under our control.</p>
+<p class="muted">We do not claim Apple affiliation, privileged ANE access, or universal placement results. Individual measurements refer to the named artifact, backend, tensor shape and hardware configuration. Private source artifacts are not implicitly public merely because a summary appears here.</p><a class="btn" href="/contact/" style="margin-top:15px">Technical correspondence <span class="arrow">↗</span></a></div></div></section></main>
+<section class="contact-band"><div class="wrap contact-grid"><div><span class="eyebrow">RESEARCH CORRESPONDENCE / 00</span><h2>Evidence first.<br><span class="accent">Then conclusions.</span></h2><p>Model execution, numerical parity, hardware behavior, reproducible tests.</p></div><a class="btn" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org <span class="arrow">↗</span></a></div></section>
+<footer class="site-footer"><div class="wrap footer-grid"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><div class="footer-right"><a href="/research/">Research record</a><a href="/methods/">Methodology</a><a href="/contact/">Contact</a></div></div></footer>
+</body></html>
