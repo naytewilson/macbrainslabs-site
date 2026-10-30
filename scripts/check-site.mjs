@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
-const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/'];
+const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/'];
 const assets = ['/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt'];
 const failures = [];
 let checks = 0;
@@ -35,6 +35,19 @@ for (const urlPath of pages) {
     assert.ok(!html.includes('naytewilson.github.io/macbrainslabs-site'));
   });
 }
+check('contact mailto on every page', () => {
+  for (const route of pages) assert.ok(read(route).includes('href="mailto:research@macbrainslabs.org"'), `missing on ${route}`);
+});
+check('placement figure cell counts match its data', () => {
+  const html = read('/');
+  const svgs = [...html.matchAll(/<svg class="ledger[^"]*"[^>]*data-ane="(\d+)" data-cpu="(\d+)"[^>]*>([\s\S]*?)<\/svg>/g)];
+  assert.ok(svgs.length > 0, 'no placement figure');
+  for (const [, ane, cpu, body] of svgs) {
+    const cells = { ane: 0, cpu: 0 };
+    for (const r of body.matchAll(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="([\d.]+)" fill="url\(#[a-z]+-(ane|cpu)\)"\/>/g)) cells[r[3]] += (r[1] / 6) * (r[2] / 6);
+    assert.equal(cells.ane, Number(ane)); assert.equal(cells.cpu, Number(cpu));
+  }
+});
 check('CNAME preserved', () => assert.equal(fs.readFileSync('CNAME','utf8').trim(), 'macbrainslabs.org'));
 check('robots canonical sitemap', () => assert.ok(read('/robots.txt').includes(`Sitemap: ${base}/sitemap.xml`)));
 check('sitemap canonical URLs', () => {

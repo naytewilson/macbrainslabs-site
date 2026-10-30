@@ -1,18 +1,67 @@
-<!doctype html><html lang="en"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1014">
-<meta name="description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests."><meta property="og:type" content="website"><meta property="og:site_name" content="MacBrains Labs"><meta property="og:title" content="Methodology"><meta property="og:description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
-<meta property="og:url" content="https://macbrainslabs.org/methods/"><link rel="canonical" href="https://macbrainslabs.org/methods/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><title>Methodology · MacBrains Labs</title>
-</head><body><a class="skip" href="#main">Skip to content</a><header class="masthead"><div class="wrap">
-<a class="brand" href="/" aria-label="MacBrains Labs home"><span class="brand-symbol" aria-hidden="true">M<span class="orange">/</span>B</span><span><span class="brand-name">MacBrains Labs</span><span class="brand-sub">INDEPENDENT SILICON RESEARCH</span></span></a>
-<nav class="nav" aria-label="Main navigation"><a href="/research/" >Research</a><a href="/methods/" aria-current="page">Methods</a><a href="/notes/qwen-lut4/" >Field notes</a><a href="/contact/" class="nav-mail" >Contact ↗</a></nav></div></header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Methodology · MacBrains Labs</title>
+<meta name="description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Methodology">
+<meta property="og:description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
+<meta property="og:url" content="https://macbrainslabs.org/methods/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/methods/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/" aria-current="page">Methods</a>
+<a href="/notes/">Notes</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
 <main id="main">
-<section class="page-hero"><div class="wrap"><div class="crumbs"><a href="/">Index</a> / Methodology</div><span class="eyebrow">ENGINEERING METHOD / REV 2026.10</span><h1>A result needs<br><span class="accent">a falsifier.</span></h1><div class="lede"><p>Compiler success does not prove hardware placement. Placement does not prove numerical fidelity. A synthetic token count does not prove throughput. Our measurement pipeline treats each as an independent claim.</p></div></div></section>
-<div class="wrap article-layout"><article class="article">
-<h2 id="stack">01. Authoring stack</h2>
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / Methodology</p>
+<h1>A result needs a falsifier.</h1>
+<p class="lede">Compiler success does not prove hardware placement. Placement does not prove numerical fidelity. A synthetic token count does not prove throughput. Our measurement pipeline treats each as an independent claim.</p>
+<dl class="facts">
+<div><dt>Method revision</dt><dd>2026.10</dd></div>
+<div><dt>Authoring</dt><dd>SwiftMIL</dd></div>
+<div><dt>Placement</dt><dd>MLComputePlan</dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="Method index">
+<span class="label">Method index</span>
+<ol>
+<li><a href="#stack">Authoring</a></li>
+<li><a href="#placement">Placement</a></li>
+<li><a href="#parity">Parity</a></li>
+<li><a href="#throughput">Throughput</a></li>
+<li><a href="#reversals">Retractions</a></li>
+<li><a href="#scope">Scope</a></li>
+</ol>
+<div class="toc-out"><a href="/research/">Research record</a></div>
+</nav>
+<article class="article">
+<h2 id="stack"><span class="sec">01</span>Authoring stack</h2>
 <p>The active native graph-authoring path is <strong>SwiftMIL</strong>: Swift code emits typed MILSpec <code>Program</code>, <code>Function</code>, <code>Block</code> and <code>Operation</code> structures, serializes them as a Core ML <code>.mlpackage</code> with a manifest and external weights, and compiles through Apple's public <code>coremlcompiler</code>.</p>
 <p>A separate <strong>ANERECore</strong> path operates on existing MIL text and weight files: parsing, printing, transactional rewrites, weight-file analysis and blob-offset audits. We distinguish new-graph authoring from surgery on an already emitted graph. Python-based conversion tools serve as external reference; they are not a required local runtime dependency.</p>
-<pre><code>SwiftMIL  → MILSpec protobuf → .mlpackage
+<pre tabindex="0"><code>SwiftMIL  → MILSpec protobuf → .mlpackage
                                 │
                                 ▼
                      xcrun coremlcompiler
@@ -22,23 +71,67 @@
                                 │
                                 ▼
               native Swift inference + parity</code></pre>
-<h2 id="placement">02. Placement audit</h2>
+
+<h2 id="placement"><span class="sec">02</span>Placement audit</h2>
 <p>Every relevant function and per-op assignment is inspected using <code>MLComputePlan</code> with the expected compiled artifact identity. A device preference such as <code>.all</code> is not treated as proof. Operators are classified by assigned compute unit, and the result names both the computation graph and the functions examined.</p>
 <p>On the Qwen path, FP16 four-dimensional tensor shape <code>(1,H,1,S)</code> is a practical lowering constraint. A standalone normalization subgraph can be sent to CPU while a normalization embedded inside a convolution/matmul-anchored block can be assigned to ANE. The surrounding graph matters as much as the operator name.</p>
 <p>KV-state operations require their own placement audit. A failing isolated <code>slice_update</code> experiment did not prove state writes were inherently CPU-bound; inspecting the production state pattern falsified that inference.</p>
-<h2 id="parity">03. Numerical parity</h2>
+
+<h2 id="parity"><span class="sec">03</span>Numerical parity</h2>
 <p>For a sealed artifact, compare on-device outputs against a pinned reference tensor fixture. Read <code>MLMultiArray</code> in logical stride order, reject NaN/Inf, normalize documented layout permutations, and compare each exposed output rather than a single final-token guess.</p>
-<div class="proof"><div class="stamp">PARITY CONTRACT / EXAMPLE</div><dl><dt>RELATIVE L2</dt><dd>||y_device − y_ref||₂ / ||y_ref||₂</dd><dt>COSINE</dt><dd>dot(y_device,y_ref) / (||y_device||₂ ||y_ref||₂)</dd><dt>NON-FINITE</dt><dd>Reject NaN and ±Inf before scoring</dd><dt>IDENTITY</dt><dd>Hash source, fixture, package, binary and report</dd></dl></div>
+<div class="proof"><span class="label">Parity contract · example</span><dl>
+<dt>Relative L2</dt><dd>‖y_device − y_ref‖₂ / ‖y_ref‖₂</dd>
+<dt>Cosine</dt><dd>dot(y_device, y_ref) / (‖y_device‖₂ ‖y_ref‖₂)</dd>
+<dt>Non-finite</dt><dd>Reject NaN and ±Inf before scoring</dd>
+<dt>Identity</dt><dd>Hash source, fixture, package, binary and report</dd>
+</dl></div>
 <p>Thresholds belong to a specific test contract, not global correctness guarantees. A diagnostic graph with extra output taps may cause the compiler to lower the program differently; its numerical differences must be reported separately from production inference.</p>
-<h2 id="throughput">04. Performance qualification</h2>
+
+<h2 id="throughput"><span class="sec">04</span>Performance qualification</h2>
 <p>Report input shape and what the numerator counts. For aggregate batch throughput, divide actual generated tokens across all active lanes by measured elapsed time. Avoid assigning a batch size merely by dividing a single-token dispatch latency by B or K; the compiled program must itself contain the matching dimension.</p>
 <p>Separate cold compilation, model loading, warmup and steady-state inference. State whether a result is single-stream, aggregate batch, speculative verification or a micrograph probe; they are not interchangeable. Track thermal state and memory pressure on the 8 GB A18 Pro test machine.</p>
-<h2 id="reversals">05. Negative results stay visible</h2>
+
+<h2 id="reversals"><span class="sec">05</span>Negative results stay visible</h2>
 <p>Early work proposed a 57.3 tok/s bandwidth ceiling inferred from a compiler-reported DRAM budget and compressed model size. A K sweep contradicted the prediction; reducing weights to LUT2 also failed to improve throughput. Later observations refined the explanation again: at shallow depth, fixed dispatch cost dominates; at 28 layers, per-layer compute becomes the larger contributor.</p>
 <p>Such reversals are part of the result. A model should be rejected as a causal explanation when it fails a straightforward counter-experiment.</p>
-<h2 id="scope">06. Authorized and bounded research</h2>
+
+<h2 id="scope"><span class="sec">06</span>Authorized and bounded research</h2>
 <p>MacBrains Labs experiments on owned Apple Silicon systems and software artifacts with a lawful basis for analysis. The research includes system performance qualification, compiler output examination, binary-format inspection, native-runtime debugging, defensive code review, and validation of software and infrastructure under the operator's control. Work is conducted through public APIs and authorized userspace inspection paths; the lab does not claim privileged firmware access or unbounded authorization to assess third-party systems.</p>
 <p>Private measurements and internal repositories are not automatically published. We publish bounded technical summaries, identify instrumentation limits, and make supporting details available for legitimate technical correspondence when shareable.</p>
-<div class="proof"><div class="stamp">EVIDENCE REFERENCES / INTERNAL</div><dl><dt>CONSOLIDATION</dt><dd>ane-re/docs/FINDINGS.md</dd><dt>BENCHMARK</dt><dd>D028 interleaved B sweep</dd><dt>MODEL QUALITY</dt><dd>D263 · WikiText-2 perplexity</dd><dt>PARITY</dt><dd>LFM_S2_NATIVE_PARITY_2026-07-18.md</dd><dt>HARDWARE</dt><dd>Apple A18 Pro / MacBook Neo</dd></dl></div>
-</article><aside class="aside"><p class="aside-label">METHOD INDEX</p><a href="#stack">01 / Authoring</a><a href="#placement">02 / Placement</a><a href="#parity">03 / Parity</a><a href="#throughput">04 / Throughput</a><a href="#reversals">05 / Retractions</a><a href="#scope">06 / Scope</a><div class="aside-line"></div><a href="/research/">Research record ↗</a></aside></div></main><section class="contact-band"><div class="wrap contact-grid"><div><span class="eyebrow">RESEARCH CORRESPONDENCE / 00</span><h2>Evidence first.<br><span class="accent">Then conclusions.</span></h2><p>Model execution, numerical parity, hardware behavior, reproducible tests.</p></div><a class="btn" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org <span class="arrow">↗</span></a></div></section>
-<footer class="site-footer"><div class="wrap footer-grid"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><div class="footer-right"><a href="/research/">Research record</a><a href="/methods/">Methodology</a><a href="/contact/">Contact</a></div></div></footer></body></html>
+<div class="proof"><span class="label">Evidence references · internal</span><dl>
+<dt>Consolidation</dt><dd>ane-re/docs/FINDINGS.md</dd>
+<dt>Benchmark</dt><dd>D028 interleaved B sweep</dd>
+<dt>Model quality</dt><dd>D263 · WikiText-2 perplexity</dd>
+<dt>Parity</dt><dd>LFM_S2_NATIVE_PARITY_2026-07-18.md</dd>
+<dt>Hardware</dt><dd>Apple A18 Pro / MacBook Neo</dd>
+</dl></div>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
