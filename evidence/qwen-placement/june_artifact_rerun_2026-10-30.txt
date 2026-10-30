@@ -1,0 +1,42 @@
+model: /tmp/e001-june/qwen25_monolithic_full_lut4.mlmodelc  function: infer
+total ops: 6411
+  none   4242  (66.2%)
+  ANE   2090  (32.6%)
+  CPU     79  (1.2%)
+
+=== assigned-compute ops only (ANE+CPU+GPU = 2169) ===
+  ANE  2090  (96.4% of compute)
+  CPU    79  (3.6% of compute)
+  GPU     0  (0.0% of compute)
+
+=== top op types in 'none' ===
+  const 4028
+  ios18.constexpr_lut_to_dense 213
+  identity 1
+
+=== top op types in 'ANE' ===
+  ios18.mul 338
+  ios18.concat 225
+  ios18.slice_by_index 225
+  ios18.conv 212
+  ios18.reshape 170
+  ios18.transpose 170
+  ios18.add 141
+  ios18.expand_dims 113
+
+=== top op types in 'CPU' ===
+  ios18.cast 19
+  ios18.reduce_argmax 16
+  ios18.gather_along_axis 16
+  ios18.transpose 15
+  ios18.squeeze 4
+  ios18.add 2
+  ios18.concat 2
+  select 2
+KV-machinery placement  (model: /tmp/e001-june/qwen25_monolithic_full_lut4.mlmodelc  fn:infer)
+  slice_update ANE=56
+  read_state ANE=57
+  write_state ANE=56
+  slice_by_index ANE=225
+  gather ANE=2  CPU=1
+  gather_along_axis CPU=16

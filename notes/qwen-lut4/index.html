@@ -60,7 +60,7 @@
 </nav>
 <article class="article">
 <h2 id="result"><span class="sec">01</span>Observed production placement</h2>
-<p>The measured <code>infer</code> graph of the production Core ML conversion (<code>qwen25_monolithic_full_lut4</code>) assigned <strong>2,090 operators to ANE</strong> and <strong>79 to CPU</strong> (96.4% versus 3.6%). The CPU-assigned operations were in the language-model-head argmax/output tail. This distinction matters: the layer stack and KV machinery can be ANE-resident without the output selection tail being ANE-resident.</p>
+<p>The measured <code>infer</code> graph of the production ANEMLL Core ML conversion (<code>qwen25_monolithic_full_lut4</code>) assigned <strong>2,090 operators to ANE</strong> and <strong>79 to CPU</strong> (96.4% versus 3.6%). The CPU-assigned operations were in the language-model-head argmax/output tail. This distinction matters: the layer stack and KV machinery can be ANE-resident without the output selection tail being ANE-resident.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">State primitive</th><th scope="col" class="numeric">ANE</th><th scope="col" class="numeric">CPU</th><th scope="col">Classification</th></tr></thead>
 <tbody>
@@ -97,7 +97,7 @@ gather(data: fp16, index: fp16)</code></pre>
 <p>After RoPE and blob-reference corrections, the hand-authored LUT4 28-layer model, run as two 14-layer halves sharing KV, measured <strong>16.8033 perplexity on WikiText-2</strong> over the full 12,000-token validation set. It differed from an Apple Core AI comparison figure (14.79 macOS) by approximately 2.01 perplexity points; that reference is a distinct model/configuration and does not establish a general quality penalty of four-bit quantization.</p>
 
 <h2 id="scope"><span class="sec">05</span>What is actually supported</h2>
-<div class="callout"><span class="label">Claim class · on-device placement</span><p>2,090/79 operations and the four stateful-op counts were obtained using MLComputePlan on the named compiled artifact. They do not prove zero CPU work in the total inference stack, privileged access to ANE firmware, or transferability to a different Core ML build.</p></div>
+<div class="callout"><span class="label">Claim class · on-device placement</span><p>2,090/79 operations and the four stateful-op counts were obtained using MLComputePlan on the named compiled artifact. They do not prove zero CPU work in the total inference stack, privileged access to ANE firmware, or transferability to a different Core ML build. The tools and recorded output are in <a href="/evidence/qwen-placement/">evidence bundle E/001</a>.</p></div>
 <p class="table-caption">Source records: ane-re/docs/FINDINGS.md (§2, §6, §11–§12); ANE-RE ledger D009, D210, D257, D262, D263. Source and model artifacts remain private; this page publishes a bounded technical account.</p>
 </article>
 </div>

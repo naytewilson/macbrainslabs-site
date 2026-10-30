@@ -1,0 +1,42 @@
+model: /Users/nayte/qwen-ane-release/models/qwen25-1.5b-ane-ctx512-lut4/qwen25_monolithic_full_lut4.mlmodelc  function: prefill
+total ops: 7108
+  none   4735  (66.6%)
+  ANE   2360  (33.2%)
+  CPU     13  (0.2%)
+
+=== assigned-compute ops only (ANE+CPU+GPU = 2373) ===
+  ANE  2360  (99.5% of compute)
+  CPU    13  (0.5% of compute)
+  GPU     0  (0.0% of compute)
+
+=== top op types in 'none' ===
+  const 4409
+  ios18.constexpr_lut_to_dense 213
+  ios18.concat 112
+  ios18.add 1
+
+=== top op types in 'ANE' ===
+  ios18.mul 394
+  ios18.slice_by_index 281
+  ios18.transpose 271
+  ios18.reshape 226
+  ios18.conv 212
+  ios18.add 196
+  ios18.expand_dims 113
+  ios18.concat 113
+
+=== top op types in 'CPU' ===
+  select 2
+  ios18.greater_equal 2
+  ios18.add 2
+  ios18.minimum 1
+  ios18.maximum 1
+  ios18.sub 1
+  ios18.equal 1
+  ios18.gather 1
+KV-machinery placement  (model: /Users/nayte/qwen-ane-release/models/qwen25-1.5b-ane-ctx512-lut4/qwen25_monolithic_full_lut4.mlmodelc  fn:prefill)
+  slice_update ANE=56
+  read_state ANE=56  CPU=1
+  write_state ANE=56
+  slice_by_index ANE=281
+  gather ANE=2  CPU=1

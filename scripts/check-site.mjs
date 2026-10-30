@@ -3,10 +3,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
-const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/'];
+const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/evidence/qwen-placement/'];
 const assets = ['/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt'];
 const failures = [];
 let checks = 0;
@@ -47,6 +48,28 @@ check('placement figure cell counts match its data', () => {
     for (const r of body.matchAll(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="([\d.]+)" fill="url\(#[a-z]+-(ane|cpu)\)"\/>/g)) cells[r[3]] += (r[1] / 6) * (r[2] / 6);
     assert.equal(cells.ane, Number(ane)); assert.equal(cells.cpu, Number(cpu));
   }
+});
+check('evidence bundle tools match their recorded hashes and counts', () => {
+  const dir = path.join(root, 'evidence/qwen-placement');
+  const prov = JSON.parse(fs.readFileSync(path.join(dir, 'provenance.json'), 'utf8'));
+  for (const t of prov.tools) assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, t.file))).digest('hex'), t.sha256, t.file);
+  const r = prov.recorded_result;
+  assert.equal(r.none + r.ANE + r.CPU + r.GPU, r.total_ops);
+  assert.equal(r.ANE + r.CPU + r.GPU, r.assigned_compute_ops);
+  assert.ok(read('/').includes(`data-ane="${r.ANE}" data-cpu="${r.CPU}"`), 'home figure disagrees with provenance.json');
+  const runs = [prov.rerun_2026_10_30, prov.archived_june_copy_rerun_2026_10_30, prov.shipped_prefill_rerun_2026_10_30];
+  for (const q of runs) {
+    const raw = fs.readFileSync(path.join(dir, q.raw_output.file));
+    assert.equal(crypto.createHash('sha256').update(raw).digest('hex'), q.raw_output.sha256, `${q.raw_output.file} hash`);
+    const x = q.result, txt = raw.toString();
+    assert.equal(x.none + x.ANE + x.CPU + x.GPU, x.total_ops);
+    assert.equal(x.ANE + x.CPU + x.GPU, x.assigned_compute_ops);
+    assert.ok(txt.includes(`function: ${x.function}`) && txt.includes(`total ops: ${x.total_ops}`) && txt.includes(`ANE  ${x.ANE}  (`) && txt.includes(`CPU    ${x.CPU}  (`), `${q.raw_output.file} counts disagree with raw output`);
+    for (const [op, v] of Object.entries(x.kv_state)) assert.ok(txt.includes(v.CPU ? `${op} ANE=${v.ANE}  CPU=${v.CPU}\n` : `${op} ANE=${v.ANE}\n`), `${q.raw_output.file} ${op}`);
+  }
+  const j = prov.archived_june_copy_rerun_2026_10_30.result;
+  for (const k of ['total_ops','none','ANE','CPU','GPU']) assert.equal(j[k], r[k], `June copy ${k} differs from the recorded result`);
+  assert.deepEqual(j.kv_state, r.kv_state, 'June copy KV counts differ from the recorded result');
 });
 check('CNAME preserved', () => assert.equal(fs.readFileSync('CNAME','utf8').trim(), 'macbrainslabs.org'));
 check('robots canonical sitemap', () => assert.ok(read('/robots.txt').includes(`Sitemap: ${base}/sitemap.xml`)));

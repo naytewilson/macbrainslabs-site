@@ -1,0 +1,53 @@
+2026-10-30T11:10:44Z
+ProductName:		macOS
+ProductVersion:		27.2
+BuildVersion:		26B123
+Mac17,5
+Apple A18 Pro
+--- ane_compute_plan infer
+model: /Users/nayte/qwen-ane-release/models/qwen25-1.5b-ane-ctx512-lut4/qwen25_monolithic_full_lut4.mlmodelc  function: infer
+total ops: 6251
+  none   4022  (64.3%)
+  ANE   2147  (34.3%)
+  CPU     82  (1.3%)
+
+=== assigned-compute ops only (ANE+CPU+GPU = 2229) ===
+  ANE  2147  (96.3% of compute)
+  CPU    82  (3.7% of compute)
+  GPU     0  (0.0% of compute)
+
+=== top op types in 'none' ===
+  const 3808
+  ios18.constexpr_lut_to_dense 213
+  identity 1
+
+=== top op types in 'ANE' ===
+  ios18.mul 338
+  ios18.slice_by_index 281
+  ios18.conv 212
+  ios18.reshape 171
+  ios18.transpose 170
+  ios18.add 140
+  tile 113
+  ios18.concat 113
+
+=== top op types in 'CPU' ===
+  ios18.cast 19
+  ios18.reduce_argmax 16
+  ios18.gather_along_axis 16
+  ios18.transpose 15
+  ios18.squeeze 4
+  ios18.concat 2
+  ios18.add 2
+  ios18.greater_equal 2
+exit=0
+--- kv_placement infer
+KV-machinery placement  (model: /Users/nayte/qwen-ane-release/models/qwen25-1.5b-ane-ctx512-lut4/qwen25_monolithic_full_lut4.mlmodelc  fn:infer)
+  slice_update ANE=56
+  read_state ANE=57
+  write_state ANE=56
+  slice_by_index ANE=281
+  gather ANE=2  CPU=1
+  gather_along_axis CPU=16
+exit=0
+2026-10-30T11:12:06Z

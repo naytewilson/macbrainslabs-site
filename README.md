@@ -21,6 +21,7 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 - `research/`: source-bound results
 - `methods/`: experimental methodology
 - `notes/`: field-note index and detailed technical notes
+- `evidence/qwen-placement/`: evidence bundle E/001 (placement tools, recorded output, provenance)
 - `contact/`: public research correspondence
 - `styles.css`: all styling, light and dark via `prefers-color-scheme`, system fonts only (no client-side JavaScript)
 - `favicon.svg`: vector mark
@@ -34,4 +35,4 @@ No tracking scripts, cookies, analytics or external assets.
 
 ## Regression checks
 
-`node scripts/check-site.mjs` validates every root-relative internal link, sitemap URL, metadata canonical, published page, required asset, the contact address on every page, and that the home placement figure draws exactly as many cells as its stated operation counts. Run `node scripts/check-site.mjs --live` after GitHub Pages deployment to verify the public custom-domain copy. GitHub Actions runs the local test at every PR and on the main branch.
+`node scripts/check-site.mjs` validates every root-relative internal link, sitemap URL, metadata canonical, published page, required asset, the contact address on every page, that the home placement figure draws exactly as many cells as its stated operation counts, and that the evidence bundle's tool files and counts match its `provenance.json`. Run `node scripts/check-site.mjs --live` after GitHub Pages deployment to verify the public custom-domain copy. GitHub Actions runs the local test at every PR and on the main branch.
