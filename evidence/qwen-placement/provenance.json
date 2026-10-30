@@ -69,10 +69,8 @@
   ],
   "not_recorded": [
     "raw timestamped log of the original run",
-    "macOS build",
-    "exact conversion command and ANEMLL commit",
-    "hash of the compiled model",
-    "device stamp on this run (project ANE recorded elsewhere as A18 Pro, H17)"
+    "exact conversion command and ANEMLL commit for the June artifact",
+    "hash of the June compiled model (it is no longer at its recorded path)"
   ],
   "public_summary": {
     "repository": "macbrainslabs/ane-research-records",
@@ -82,5 +80,82 @@
     ],
     "version_doi": "10.5281/zenodo.23798037",
     "all_versions_doi": "10.5281/zenodo.23798036"
+  },
+  "original_run_context": {
+    "date": "2026-06-18",
+    "source": "project data archive entry for that date (private)",
+    "device_in_same_dated_section": "Mac17,5",
+    "macos_in_same_dated_section": "macOS 26 beta 26A5353q",
+    "note": "The archive records the device and OS in the same dated section as the placement result, not on the result line itself."
+  },
+  "rerun_2026_10_30": {
+    "status": "rerun on a later build of the same model line; not the June artifact",
+    "started_utc": "2026-10-30T11:10:44Z",
+    "finished_utc": "2026-10-30T11:12:06Z",
+    "device": {
+      "hw_model": "Mac17,5",
+      "chip": "Apple A18 Pro"
+    },
+    "macos": {
+      "version": "27.2",
+      "build": "26B123"
+    },
+    "swift": "Apple Swift 6.4.2 (swiftlang-6.4.2.1.9)",
+    "tools": "the two tools in this bundle, extracted from ane-re at ffd1a3c and matching the sha256 values above, built with swiftc -O",
+    "artifact": {
+      "file": "qwen25_monolithic_full_lut4.mlmodelc",
+      "functions": [
+        "infer",
+        "prefill"
+      ],
+      "sha256": {
+        "model.mil": "9e8630d4fa90baddc7eb5555b3a16decfc3dd4e6419de62c75ba0b7918e3fef5",
+        "weights/weight.bin": "d465d50b4ed75c1a0869145006c6319e4ed5f55f6086c3ee2bf198c5a662a10d"
+      },
+      "recorded_build": {
+        "source": "the artifact release notes (not independently verified here)",
+        "convert_command": "convert_monolith.sh --model Qwen/Qwen2.5-1.5B-Instruct --context 512 --batch 64 --lut 4,8 --lut-embeddings 4 --lut-lmhead 4 --argmax",
+        "anemll_commit": "cc818aeb15a084e36b54981c81602a5597823b9c",
+        "converted": "2026-10-21",
+        "post_processing": "the prefill function KV writes were rewritten to static bounds; infer was not changed",
+        "metadata": {
+          "coremltools": "9.0",
+          "anemll_info": "Converted with Anemll v0.1.1",
+          "opset": "ios18"
+        }
+      }
+    },
+    "raw_output": {
+      "file": "rerun_2026-10-30.txt",
+      "sha256": "5fdfbb5db99d309f539574c4d19ed3e3db5a14a573e0819693c9dbdff0a8b508"
+    },
+    "result": {
+      "function": "infer",
+      "total_ops": 6251,
+      "none": 4022,
+      "ANE": 2147,
+      "CPU": 82,
+      "GPU": 0,
+      "assigned_compute_ops": 2229,
+      "ANE_share_of_assigned": 0.963,
+      "kv_state": {
+        "slice_update": {
+          "ANE": 56,
+          "CPU": 0
+        },
+        "read_state": {
+          "ANE": 57,
+          "CPU": 0
+        },
+        "write_state": {
+          "ANE": 56,
+          "CPU": 0
+        },
+        "slice_by_index": {
+          "ANE": 281,
+          "CPU": 0
+        }
+      }
+    }
   }
 }

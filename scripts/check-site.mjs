@@ -57,6 +57,14 @@ check('evidence bundle tools match their recorded hashes and counts', () => {
   assert.equal(r.none + r.ANE + r.CPU + r.GPU, r.total_ops);
   assert.equal(r.ANE + r.CPU + r.GPU, r.assigned_compute_ops);
   assert.ok(read('/').includes(`data-ane="${r.ANE}" data-cpu="${r.CPU}"`), 'home figure disagrees with provenance.json');
+  const q = prov.rerun_2026_10_30;
+  const raw = fs.readFileSync(path.join(dir, q.raw_output.file));
+  assert.equal(crypto.createHash('sha256').update(raw).digest('hex'), q.raw_output.sha256, 'rerun raw output hash');
+  const x = q.result, txt = raw.toString();
+  assert.equal(x.none + x.ANE + x.CPU + x.GPU, x.total_ops);
+  assert.equal(x.ANE + x.CPU + x.GPU, x.assigned_compute_ops);
+  assert.ok(txt.includes(`total ops: ${x.total_ops}`) && txt.includes(`ANE  ${x.ANE}  (`) && txt.includes(`CPU    ${x.CPU}  (`), 'rerun counts disagree with raw output');
+  for (const [op, v] of Object.entries(x.kv_state)) assert.ok(txt.includes(`${op} ANE=${v.ANE}\n`), `rerun ${op}`);
 });
 check('CNAME preserved', () => assert.equal(fs.readFileSync('CNAME','utf8').trim(), 'macbrainslabs.org'));
 check('robots canonical sitemap', () => assert.ok(read('/robots.txt').includes(`Sitemap: ${base}/sitemap.xml`)));
