@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>LFM2.5: every slice passed, the chain did not · MacBrains Labs</title>
+<meta name="description" content="LFM2.5-1.2B on the Apple Neural Engine: layer slices 0-4, 0-8, 8-16 and the final head pass a 0.005 relative L2 gate with 100% ANE placement, but the chained 16-layer run and token logits fail it.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="LFM2.5: every slice passed, the chain did not">
+<meta property="og:description" content="LFM2.5-1.2B on the Apple Neural Engine: layer slices 0-4, 0-8, 8-16 and the final head pass a 0.005 relative L2 gate with 100% ANE placement, but the chained 16-layer run and token logits fail it.">
+<meta property="og:url" content="https://macbrainslabs.org/notes/lfm-chain/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/notes/lfm-chain/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/" aria-current="page">Notes</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Field notes</a> / N/004</p>
+<h1>Every slice passed. The chain did not.</h1>
+<p class="lede">Each piece of LFM2.5-1.2B met a strict parity gate on the Neural Engine. Chained together, the same pieces missed it. Passing parts are not a passing model.</p>
+<dl class="facts">
+<div><dt>Note</dt><dd>N/004</dd></div>
+<div><dt>Model</dt><dd>LFM2.5-1.2B</dd></div>
+<div><dt>Gate</dt><dd>rel. L2 ≤ 0.005</dd></div>
+<div><dt>Receipts</dt><dd>17 July 2026</dd></div>
+<div><dt>Verdict</dt><dd>Slices pass, chain fails</dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="Field note N/004">
+<span class="label">Field note N/004</span>
+<ol>
+<li><a href="#slices">Slices</a></li>
+<li><a href="#chain">Chain</a></li>
+<li><a href="#tokens">Tokens</a></li>
+<li><a href="#meaning">Meaning</a></li>
+<li><a href="#progress">In progress</a></li>
+<li><a href="#integrity">Integrity</a></li>
+</ol>
+<div class="toc-out"><a href="/notes/graft-costs/">Next: Correct, placed, paid for</a></div>
+</nav>
+<article class="article">
+<h2 id="slices"><span class="sec">01</span>Slices on the Neural Engine</h2>
+<p>LFM2.5-1.2B has 16 layers. The model was emitted in Swift as separate Core ML packages: layers 0-4, 0-8, 8-16 and the final norm plus tied LM head. Each package ran under <code>.cpuOnly</code> and under <code>.cpuAndNeuralEngine</code>, and each output was compared with a pinned Hugging Face PyTorch oracle for the same layer range.</p>
+<p>The gate here is strict: cosine ≥ 0.9999 and relative L2 ≤ 0.005, applied to the Neural Engine run as well as the CPU run. Every slice passed, and MLComputePlan placed every assigned compute operation on the ANE.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Package</th><th scope="col">Input</th><th scope="col" class="numeric">ANE / assigned ops</th><th scope="col" class="numeric">ANE rel. L2</th><th scope="col" class="numeric">CPU rel. L2</th><th scope="col">Verdict</th></tr></thead>
+<tbody>
+<tr><td>Layers 0-4</td><td>All-ones vector</td><td class="numeric">229 / 229</td><td class="numeric">0.002401</td><td class="numeric">0.000330</td><td class="pass">Pass</td></tr>
+<tr><td>Layers 0-8</td><td>All-ones vector</td><td class="numeric">457 / 457</td><td class="numeric">0.003764</td><td class="numeric">0.000474</td><td class="pass">Pass</td></tr>
+<tr><td>Layers 8-16</td><td>Oracle output of 0-8</td><td class="numeric">553 / 553</td><td class="numeric">0.003660</td><td class="numeric">0.001091</td><td class="pass">Pass</td></tr>
+<tr><td>Final norm + LM head</td><td>Oracle output of 0-16</td><td class="numeric">11 / 11</td><td class="numeric">0.000395</td><td class="numeric">0.001287</td><td class="pass">Pass</td></tr>
+</tbody></table></div>
+<p class="table-caption">“Assigned ops” excludes operations MLComputePlan gives no device, such as constants. The 0-8 and 8-16 packages also passed a weight integrity check: 70/70 and 76/76 tensors byte-identical to the source. The final head’s top-1 token matched the oracle’s (21134).</p>
+
+<h2 id="chain"><span class="sec">02</span>The chained run</h2>
+<p>Feeding the ANE output of layers 0-8 into the ANE package for 8-16, with no oracle in between, gave a 16-layer hidden state with relative L2 <strong>0.005975</strong>. That misses the 0.005 gate. The same chain on CPU stayed at 0.001204.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">16-layer chain</th><th scope="col" class="numeric">Cosine</th><th scope="col" class="numeric">Rel. L2</th><th scope="col">Verdict</th></tr></thead>
+<tbody>
+<tr><td>CPU → CPU</td><td class="numeric">0.999999276</td><td class="numeric">0.001204</td><td class="pass">Pass</td></tr>
+<tr><td>ANE → ANE</td><td class="numeric">0.999989419</td><td class="numeric">0.005975</td><td class="fail">Fail</td></tr>
+</tbody></table></div>
+<p>A follow-up decomposition split the chained error into three parts of similar size: the 0-8 package’s own error (0.003764), the 8-16 package’s own error (0.003660), and the effect of passing a slightly wrong input forward (0.003949). None of them fails alone. Together they cross the line. The receipts route the cause to FP16 accumulation drift in chunked matrix multiplies on the ANE; that cause is a hypothesis, not yet isolated.</p>
+
+<h2 id="tokens"><span class="sec">03</span>Tokens</h2>
+<p>The full pipeline (host embedding lookup, ANE 0-8, ANE 8-16, ANE final head) was then compared with the oracle’s logits for single tokens.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Check</th><th scope="col">Observed</th><th scope="col">Verdict</th></tr></thead>
+<tbody>
+<tr><td>BOS token, top-1</td><td>Matches the oracle (token 1)</td><td class="pass">Pass</td></tr>
+<tr><td>BOS token, full logits</td><td>Rel. L2 0.0560, cosine 0.998441; 2nd and 3rd candidates swap</td><td class="fail">Fail</td></tr>
+<tr><td>Seven-token sweep, top-1</td><td>5 of 7 match</td><td class="fail">Fail</td></tr>
+<tr><td>Seven-token sweep, full logits</td><td>Rel. L2 from 0.056 to 0.470</td><td class="fail">Fail</td></tr>
+</tbody></table></div>
+<p>The sweep is recorded as a diagnostic: each token was run alone, with no prior context, so it tests the arithmetic path rather than generation.</p>
+
+<h2 id="meaning"><span class="sec">04</span>What this does and does not show</h2>
+<div class="callout"><span class="label">Experimental takeaway</span><p>Per-slice parity does not compose. An error budget that each package meets can still be exceeded by the chain, and a matching top-1 token can hide logits that are measurably wrong. Gate the exact chain you plan to run, at the output you plan to use.</p></div>
+<p>It shows that the whole 16-layer LFM2.5 stack can be placed on the ANE in two packages plus a head, and that the per-package numerics are close to the oracle. It does not show a working ANE model: token-level parity failed, and no generation quality was measured. Later builds changed these packages; this note covers the 17 July receipts only.</p>
+
+<h2 id="progress"><span class="sec">05</span>In progress: a larger output-projection gain</h2>
+<p>Related work on a later model, LFM3-1.7B, is testing one numerical lever: the output-projection gain setting (<code>--attn-o-gain</code>) of a single FP16 attention layer, layer 14. On 30 October 2026, five builds were compared against a teacher at seven positions.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col" class="numeric">Gain</th><th scope="col" class="numeric">Worst rel. L2</th><th scope="col" class="numeric">Change vs gain 8</th><th scope="col" class="numeric">ANE / CPU / GPU ops</th></tr></thead>
+<tbody>
+<tr><td class="numeric">1</td><td class="numeric">0.012514</td><td class="numeric">+414.5%</td><td class="numeric">447 / 0 / 0</td></tr>
+<tr><td class="numeric">2</td><td class="numeric">0.005786</td><td class="numeric">+137.9%</td><td class="numeric">447 / 0 / 0</td></tr>
+<tr><td class="numeric">4</td><td class="numeric">0.003141</td><td class="numeric">+29.1%</td><td class="numeric">447 / 0 / 0</td></tr>
+<tr><td class="numeric">8 (current)</td><td class="numeric">0.002432</td><td class="numeric">—</td><td class="numeric">447 / 0 / 0</td></tr>
+<tr><td class="numeric">16</td><td class="numeric">0.002180</td><td class="numeric">−10.4%</td><td class="numeric">447 / 0 / 0</td></tr>
+</tbody></table></div>
+<p>Gain 16 improved all seven positions, and a follow-up on nineteen positions, ten of them held out, improved all nineteen (held-out worst −7.2%). The gain-8 rebuild reproduced the existing build’s hidden states exactly, which is the control.</p>
+<div class="callout"><span class="label">Status · not a result yet</span><p>One layer, a few dozen positions, and a planned placement rather than a traced dispatch. It is not a full-model or release result, and it may not hold across 24 layers.</p></div>
+
+<h2 id="integrity"><span class="sec">06</span>Reproducibility boundary</h2>
+<p>The LFM2.5 receipts are JSON files dated 17 July 2026. Each records the git commit of the emitter, the runner executable hashes, input hashes and the gate it applied. The all-ones input has SHA-256 <code>4e1896175eea3c475e4d4960087ee0d7bd161add337d0bc1d6b7a0705f162f12</code>. The receipts do not record the device or OS version.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Receipt</th><th scope="col">Status</th><th scope="col">SHA-256 (first 16)</th></tr></thead>
+<tbody>
+<tr><td><code>lfm25_paired_policy_parity_0_4</code></td><td>PROVEN</td><td><code>9d26dcc18b0990e7</code></td></tr>
+<tr><td><code>lfm25_paired_policy_parity_0_8</code></td><td>PROVEN</td><td><code>278af461ad03faf4</code></td></tr>
+<tr><td><code>lfm25_paired_policy_parity_8_16</code></td><td>PROVEN</td><td><code>472912535cbb6b81</code></td></tr>
+<tr><td><code>lfm25_final_head_parity</code></td><td>PROVEN</td><td><code>d7956fb20ff654ba</code></td></tr>
+<tr><td><code>lfm25_m16_chained_parity</code></td><td>FAILED</td><td><code>9a78e6519e904d95</code></td></tr>
+<tr><td><code>lfm25_t1_token_parity</code></td><td>FAILED</td><td><code>0eae5cd1cbc495ed</code></td></tr>
+<tr><td><code>lfm25_stateless_token_sweep</code></td><td>DIAGNOSTIC</td><td><code>1fc85f8fb2a04084</code></td></tr>
+</tbody></table></div>
+<p>The LFM3 sweep receipt (<code>o-gain-seven-position-ranked.json</code>, SHA-256 <code>c1d524ae7ddb0ffc</code>…) records a Mac17,5 on macOS 27.2 (26B123), the checkpoint revision, fixture and oracle hashes, and the program and weight hashes of each build.</p>
+<p class="table-caption">Source: ane-re receipts directory, 17 July 2026; LFM3 run directory, 30 October 2026. Referenced artifacts are not public downloads.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
