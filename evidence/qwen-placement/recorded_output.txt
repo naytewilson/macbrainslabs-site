@@ -1,0 +1,27 @@
+# Transcribed record, not a raw log.
+# Source: ANE-RE FINDINGS.md section 2, and the output block reproduced in
+# tools/ane_re_structural_gate.py, both in naytewilson/ane-re at commit ffd1a3c.
+# The original run's timestamp, macOS build and model path were not recorded.
+# Model: qwen25_monolithic_full_lut4.mlmodelc (ANEMLL conversion of Qwen2.5-1.5B-Instruct)
+
+$ ./ane_compute_plan qwen25_monolithic_full_lut4.mlmodelc infer
+total ops: 6411
+  none   4242  (66.2%)
+  ANE    2090  (32.6%)
+  CPU      79  (1.2%)
+
+=== assigned-compute ops only (ANE+CPU+GPU = 2169) ===
+  ANE   2090  (96.4% of compute)
+  CPU     79  (3.6% of compute)
+  GPU      0  (0.0% of compute)
+
+# The tool also prints the top operator types per bucket. That part of the
+# output was not recorded. The CPU bucket is recorded as the lm_head argmax tail.
+
+$ ./kv_placement qwen25_monolithic_full_lut4.mlmodelc infer
+# Recorded as ANE/CPU pairs. The tool prints only non-zero devices, so CPU=0
+# appears as no CPU entry. Only these four operators were recorded.
+  slice_update         ANE=56
+  read_state           ANE=57
+  write_state          ANE=56
+  slice_by_index       ANE=225

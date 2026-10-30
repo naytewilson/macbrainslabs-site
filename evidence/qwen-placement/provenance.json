@@ -1,0 +1,77 @@
+{
+  "bundle": "E/001",
+  "finding": "Qwen2.5-1.5B LUT4 operator placement, infer function",
+  "source_record": {
+    "repository": "naytewilson/ane-re",
+    "commit": "ffd1a3c",
+    "documents": [
+      "docs/FINDINGS.md section 2",
+      "data/MEASUREMENTS.md",
+      "tools/ane_re_structural_gate.py output block"
+    ]
+  },
+  "model": {
+    "artifact": "qwen25_monolithic_full_lut4.mlmodelc",
+    "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+    "converter": "ANEMLL qwen2_5_converter (monolithic)",
+    "converter_version_in_model_metadata": "0.3.5",
+    "coremltools_in_model_metadata": "9.0",
+    "context_length": 512,
+    "weights": "LUT4",
+    "output": "argmax",
+    "distributed": false,
+    "model_hash": null
+  },
+  "method": {
+    "api": "MLComputePlan",
+    "compute_units": "cpuAndNeuralEngine",
+    "function": "infer",
+    "classification": "preferred device per operation; no device usage counted as none"
+  },
+  "recorded_result": {
+    "total_ops": 6411,
+    "none": 4242,
+    "ANE": 2090,
+    "CPU": 79,
+    "GPU": 0,
+    "assigned_compute_ops": 2169,
+    "ANE_share_of_assigned": 0.964,
+    "kv_state": {
+      "slice_update": {
+        "ANE": 56,
+        "CPU": 0
+      },
+      "read_state": {
+        "ANE": 57,
+        "CPU": 0
+      },
+      "write_state": {
+        "ANE": 56,
+        "CPU": 0
+      },
+      "slice_by_index": {
+        "ANE": 225,
+        "CPU": 0
+      }
+    }
+  },
+  "tools": [
+    {
+      "file": "ane_compute_plan.swift",
+      "source_path": "spi/ane_compute_plan.swift",
+      "sha256": "557d158df343acceff6740c34cef34a04dabeacdab76dfc215de0bdda7e6226a"
+    },
+    {
+      "file": "kv_placement.swift",
+      "source_path": "spi/kv_placement.swift",
+      "sha256": "a69752ac0d9738a8240e2c51589f494b0af31a6cb6f797a820c29a799da6148c"
+    }
+  ],
+  "not_recorded": [
+    "raw timestamped log of the original run",
+    "macOS build",
+    "exact conversion command and ANEMLL commit",
+    "hash of the compiled model",
+    "device stamp on this run (project ANE recorded elsewhere as A18 Pro, H17)"
+  ]
+}

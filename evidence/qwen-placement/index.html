@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Evidence: Qwen2.5 LUT4 operator placement · MacBrains Labs</title>
+<meta name="description" content="Evidence bundle for the Qwen2.5-1.5B LUT4 placement finding: the MLComputePlan tools, the recorded output, the model under test, how to rerun it, and what the record does not contain.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Evidence: Qwen2.5 LUT4 operator placement">
+<meta property="og:description" content="Evidence bundle for the Qwen2.5-1.5B LUT4 placement finding: the MLComputePlan tools, the recorded output, the model under test, how to rerun it, and what the record does not contain.">
+<meta property="og:url" content="https://macbrainslabs.org/evidence/qwen-placement/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/evidence/qwen-placement/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/" aria-current="page">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/">Notes</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/research/">Research</a> / Evidence E/001</p>
+<h1>Placement, with the tools to check it.</h1>
+<p class="lede">This bundle holds what is needed to rerun the operator-placement count behind 2,090 ANE / 79 CPU, and says plainly which parts of the original run were not recorded.</p>
+<dl class="facts">
+<div><dt>Bundle</dt><dd>E/001</dd></div>
+<div><dt>Finding</dt><dd>ANE-RE FINDINGS §2</dd></div>
+<div><dt>Method</dt><dd>MLComputePlan</dd></div>
+<div><dt>Function</dt><dd><code>infer</code></dd></div>
+<div><dt>Source</dt><dd>ane-re @ ffd1a3c</dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="Evidence E/001">
+<span class="label">Evidence E/001</span>
+<ol>
+<li><a href="#claim">Recorded result</a></li>
+<li><a href="#model">Model under test</a></li>
+<li><a href="#tools">Tools</a></li>
+<li><a href="#rerun">Rerun it</a></li>
+<li><a href="#shows">What it shows</a></li>
+<li><a href="#gaps">Gaps in the record</a></li>
+</ol>
+<div class="toc-out"><a href="/notes/qwen-lut4/">Field note N/001</a></div>
+</nav>
+<article class="article">
+<h2 id="claim"><span class="sec">01</span>Recorded result</h2>
+<p>MLComputePlan was loaded for the <code>infer</code> function with compute units set to CPU and Neural Engine. Each operation was counted by the device MLComputePlan reports as preferred for it. Operations with no reported device usage are counted as <code>none</code>.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Bucket</th><th scope="col" class="numeric">Ops</th><th scope="col" class="numeric">Of all ops</th><th scope="col" class="numeric">Of assigned compute</th></tr></thead>
+<tbody>
+<tr><td>ANE</td><td class="numeric">2,090</td><td class="numeric">32.6%</td><td class="numeric">96.4%</td></tr>
+<tr><td>CPU</td><td class="numeric">79</td><td class="numeric">1.2%</td><td class="numeric">3.6%</td></tr>
+<tr><td>GPU</td><td class="numeric">0</td><td class="numeric">0.0%</td><td class="numeric">0.0%</td></tr>
+<tr><td>none</td><td class="numeric">4,242</td><td class="numeric">66.2%</td><td class="numeric">n/a</td></tr>
+<tr><td>Total</td><td class="numeric">6,411</td><td class="numeric">100%</td><td class="numeric">2,169 assigned</td></tr>
+</tbody></table></div>
+<p class="table-caption">Recorded in ANE-RE FINDINGS §2 and in the output block reproduced in the ANE-RE structural gate source. The 79 CPU operations are the lm_head argmax tail.</p>
+<p>KV-state machinery in the same function, counted by <code>kv_placement.swift</code>:</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Operator</th><th scope="col" class="numeric">ANE</th><th scope="col" class="numeric">CPU</th></tr></thead>
+<tbody>
+<tr><td><code>slice_update</code></td><td class="numeric">56</td><td class="numeric">0</td></tr>
+<tr><td><code>read_state</code></td><td class="numeric">57</td><td class="numeric">0</td></tr>
+<tr><td><code>write_state</code></td><td class="numeric">56</td><td class="numeric">0</td></tr>
+<tr><td><code>slice_by_index</code></td><td class="numeric">225</td><td class="numeric">0</td></tr>
+</tbody></table></div>
+<p>The recorded output, as transcribed: <a href="/evidence/qwen-placement/recorded_output.txt">recorded_output.txt</a>. Machine-readable provenance: <a href="/evidence/qwen-placement/provenance.json">provenance.json</a>.</p>
+
+<h2 id="model"><span class="sec">02</span>Model under test</h2>
+<p>The measured artifact is <code>qwen25_monolithic_full_lut4.mlmodelc</code>. It is a Core ML conversion of <code>Qwen/Qwen2.5-1.5B-Instruct</code> produced with <a href="https://github.com/Anemll/Anemll">ANEMLL</a>'s Qwen2.5 converter: monolithic export, 512-token context, LUT4 palettization, argmax output. The model's metadata records coremltools 9.0 and ANEMLL v0.3.5.</p>
+<div class="callout"><span class="label">Credit</span><p>The conversion that makes this model ANE-resident is ANEMLL's work. This record measures where that model's operations are assigned and what that says about the KV-state path. It does not claim the converter.</p></div>
+<p>The compiled model is not distributed here. It is derived from the Qwen weights; its stored weight file is about 893 MB.</p>
+
+<h2 id="tools"><span class="sec">03</span>Tools</h2>
+<p>Both tools are short Swift programs that use only the public MLComputePlan API (macOS 14.4 or later). They are byte-for-byte copies from the ane-re repository at commit <code>ffd1a3c</code>.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">File</th><th scope="col">Counts</th><th scope="col">SHA-256</th></tr></thead>
+<tbody>
+<tr><td><a href="/evidence/qwen-placement/ane_compute_plan.swift">ane_compute_plan.swift</a></td><td>Every operation by assigned device</td><td><code>557d158d…7e6226a</code>*</td></tr>
+<tr><td><a href="/evidence/qwen-placement/kv_placement.swift">kv_placement.swift</a></td><td>KV-state operators by assigned device</td><td><code>a69752ac…9da6148c</code>*</td></tr>
+</tbody></table></div>
+<p class="table-caption">* Full hashes are in provenance.json.</p>
+
+<h2 id="rerun"><span class="sec">04</span>Rerun it</h2>
+<ol>
+<li>Convert <code>Qwen/Qwen2.5-1.5B-Instruct</code> with ANEMLL's <code>convert_monolith.sh</code> at context 512 with LUT4 weights and argmax output, then compile the package with <code>xcrun coremlcompiler compile</code>.</li>
+<li>Build and run both tools against the compiled model's <code>infer</code> function:</li>
+</ol>
+<pre tabindex="0"><code>swiftc -O ane_compute_plan.swift -o ane_compute_plan
+swiftc -O kv_placement.swift -o kv_placement
+./ane_compute_plan qwen25_monolithic_full_lut4.mlmodelc infer
+./kv_placement qwen25_monolithic_full_lut4.mlmodelc infer</code></pre>
+<p>Compare the output with recorded_output.txt. These build commands are the standard way to compile a single Swift file. They were not rerun for this bundle.</p>
+<p>Different converter flags can change the graph and therefore the counts. If your counts differ, the model's ANEMLL version, LUT settings and argmax setting are the first things to compare.</p>
+
+<h2 id="shows"><span class="sec">05</span>What it shows</h2>
+<p>MLComputePlan is the compiler's assignment, not a hardware trace. These counts show where Core ML planned each operation of this build. They do not prove zero CPU work across the whole inference stack, and they do not transfer automatically to a different Core ML build.</p>
+<p>The KV-state counts correct an earlier claim in the same research record. An earlier note said <code>slice_update</code> and <code>write_state</code> were an irreducible CPU floor. That came from a hand-written toy graph, not from a hardware limit. On this production graph, all four KV-state operators are assigned to the ANE.</p>
+
+<h2 id="gaps"><span class="sec">06</span>Gaps in the record</h2>
+<p>A reader should know what this bundle cannot supply.</p>
+<ul>
+<li>No raw, timestamped log of the original run is in the record. The numbers come from the findings document and from the output block reproduced in the gate source.</li>
+<li>The macOS build used for the run was not recorded.</li>
+<li>The exact conversion command and ANEMLL commit for this artifact were not recorded. Recorded conversion scripts for related builds differ in batch and lm_head LUT flags.</li>
+<li>No hash of the compiled model was recorded.</li>
+<li>The record identifies the project's ANE as A18 Pro (H17), but the device is not stamped on this particular run.</li>
+</ul>
+<p>Corrections and independent reruns are welcome at <a href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
