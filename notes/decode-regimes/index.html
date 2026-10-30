@@ -88,7 +88,8 @@
 <tr><td>B=4</td><td class="numeric">102.1</td><td class="numeric">2.25×</td><td>Efficiency knee</td></tr>
 <tr><td>B=8</td><td class="numeric">125.8</td><td class="numeric">2.77×</td><td>Higher memory cost</td></tr>
 </tbody></table></div>
-<p>These are <strong>aggregate</strong> throughputs over five-round interleaved steady-state measurements. The B=4 value is the practical default for the 8 GB machine. It is not an individual-stream token rate, nor an end-to-end app UX measurement.</p>
+<p>These are <strong>aggregate</strong> throughputs over five-round interleaved steady-state measurements. B=4 is the efficiency knee for the 8 GB machine. It is not an individual-stream token rate, nor an end-to-end app UX measurement.</p>
+<p>This is a throughput result only. The sweep timed single-function probe artifacts with a real batch dimension. A later perplexity check on the B=4 probe, dated 3 July 2026, found its output logits roughly 1000 times larger than the B=1 model’s; the repository’s current records do not resolve that. The same records note that the batch geometry had not yet been carried into a deployable multi-function model.</p>
 
 <h2 id="admission"><span class="sec">04</span>What qualifies as a speed result</h2>
 <pre tabindex="0"><code>ACCEPT only if:
