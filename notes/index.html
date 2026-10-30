@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Field notes · MacBrains Labs</title>
+<meta name="description" content="Source-bound field notes on Apple Neural Engine placement, Core ML numerical parity and decode throughput on Apple Silicon.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Field notes">
+<meta property="og:description" content="Source-bound field notes on Apple Neural Engine placement, Core ML numerical parity and decode throughput on Apple Silicon.">
+<meta property="og:url" content="https://macbrainslabs.org/notes/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/notes/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/" aria-current="page">Notes</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / Field notes</p>
+<h1>Field notes.</h1>
+<p class="lede">Short, source-bound examinations of what passed, what diverged and which earlier hypotheses failed. Each note names its artifact, its observation method and the records it rests on.</p>
+</div>
+</header>
+<section class="wrap" style="padding-block:2.5rem 5rem" aria-label="All field notes">
+<ul class="notes">
+<li><a href="/notes/qwen-lut4/"><span class="id">N/001</span><div><h2>28 layers, LUT4, and the cost of exact placement</h2><p>State reads, indexed slices, weight.bin offsets and the non-ANE tail.</p></div><span class="tags">Qwen2.5 · MIL · KV state</span></a></li>
+<li><a href="/notes/lfm-parity/"><span class="id">N/002</span><div><h2>A passing production graph and a failing diagnostic one</h2><p>LFM block-pair parity, 743/743 assignment and why probes alter the experiment.</p></div><span class="tags">LFM · S2 · Parity</span></a></li>
+<li><a href="/notes/decode-regimes/"><span class="id">N/003</span><div><h2>The bandwidth limit that was not a limit</h2><p>Batch sweeps, dispatch floors and a hypothesis overturned by measurement.</p></div><span class="tags">A18 Pro · Decode</span></a></li>
+</ul>
+</section>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>

@@ -1,19 +1,97 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1014"><meta name="description" content="Measured A18 Pro batch throughput and falsified ANE bandwidth assumptions: B1 45.4, B2 68.1, B4 102.1 and B8 125.8 aggregate tokens/sec."><meta property="og:type" content="article"><meta property="og:site_name" content="MacBrains Labs"><meta property="og:title" content="Decode regime: the bandwidth ceiling that failed"><meta property="og:description" content="Measured A18 Pro batch throughput and falsified ANE bandwidth assumptions: B1 45.4, B2 68.1, B4 102.1 and B8 125.8 aggregate tokens/sec."><meta property="og:url" content="https://macbrainslabs.org/notes/decode-regimes/"><link rel="canonical" href="https://macbrainslabs.org/notes/decode-regimes/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css"><title>Decode regime: the bandwidth ceiling that failed · MacBrains Labs</title></head><body>
-<a class="skip" href="#main">Skip to content</a><header class="masthead"><div class="wrap"><a class="brand" href="/" aria-label="MacBrains Labs home"><span class="brand-symbol" aria-hidden="true">M<span class="orange">/</span>B</span><span><span class="brand-name">MacBrains Labs</span><span class="brand-sub">INDEPENDENT SILICON RESEARCH</span></span></a><nav class="nav" aria-label="Main navigation"><a href="/research/">Research</a><a href="/methods/">Methods</a><a href="/notes/qwen-lut4/" aria-current="page">Field notes</a><a href="/contact/" class="nav-mail">Contact ↗</a></nav></div></header>
-<main id="main"><section class="page-hero"><div class="wrap"><div class="crumbs"><a href="/">Index</a> / <a href="/research/">Research</a> / Decode regimes</div><span class="eyebrow">N/003 / PERFORMANCE / FALSIFICATION</span><h1>The ceiling<br><span class='accent'>was an illusion.</span></h1><div class="lede"><p>A plausible throughput explanation failed when its predicted behavior did not appear under a controlled change in input geometry and weight size.</p></div><div class="meta-strip"><span>DEVICE / A18 PRO</span><span>BATCH / 1 2 4 8</span><span>OBSERVATION / ON DEVICE</span><span>CLASS / MEASURED</span></div></div></section>
-<div class="wrap article-layout"><article class="article">
-<h2 id="hypothesis">01. The appealing first hypothesis</h2><p>The compiler's <code>analytics.json</code> surfaced an internal DRAM bandwidth planning figure of 51.2 GB/s. Dividing that number by the as-stored 893 MB external weight file yielded approximately <strong>57.3 tokens/sec</strong>—close to an early peak. It seemed to support a hard bandwidth ceiling.</p>
-<p>But dimensional plausibility is not a causal test. The calculation predicted that halving the bytes read per token would increase throughput, and that increasing genuine sequence work per dispatch would remain constrained by the same byte rate.</p>
-<h2 id="falsifier">02. Counter-experiments</h2><p>Two observations contradicted that simple model. First, reduced-size LUT2 weights did not produce the corresponding speedup. Second, sequence/K sweeps moved aggregate useful work more rapidly than the supposed throughput limit permitted. The original “57.3 tok/s ceiling” was retracted as a K=1 coincidence, not treated as an ANE architectural law.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Decode regime: the bandwidth ceiling that failed · MacBrains Labs</title>
+<meta name="description" content="Measured A18 Pro batch throughput and falsified ANE bandwidth assumptions: B1 45.4, B2 68.1, B4 102.1 and B8 125.8 aggregate tokens/sec.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Decode regime: the bandwidth ceiling that failed">
+<meta property="og:description" content="Measured A18 Pro batch throughput and falsified ANE bandwidth assumptions: B1 45.4, B2 68.1, B4 102.1 and B8 125.8 aggregate tokens/sec.">
+<meta property="og:url" content="https://macbrainslabs.org/notes/decode-regimes/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/notes/decode-regimes/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/" aria-current="page">Notes</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Field notes</a> / N/003</p>
+<h1>The ceiling was an illusion.</h1>
+<p class="lede">A plausible throughput explanation failed when its predicted behavior did not appear under a controlled change in input geometry and weight size.</p>
+<dl class="facts">
+<div><dt>Note</dt><dd>N/003</dd></div>
+<div><dt>Device</dt><dd>A18 Pro</dd></div>
+<div><dt>Batch</dt><dd>1 2 4 8</dd></div>
+<div><dt>Observation</dt><dd>On device</dd></div>
+<div><dt>Class</dt><dd>Measured</dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="Field note N/003">
+<span class="label">Field note N/003</span>
+<ol>
+<li><a href="#hypothesis">Hypothesis</a></li>
+<li><a href="#falsifier">Falsifiers</a></li>
+<li><a href="#measured">B sweep</a></li>
+<li><a href="#admission">Test contract</a></li>
+<li><a href="#meaning">Conclusion</a></li>
+</ol>
+<div class="toc-out"><a href="/notes/">All field notes</a></div>
+</nav>
+<article class="article">
+<h2 id="hypothesis"><span class="sec">01</span>The appealing first hypothesis</h2>
+<p>The compiler's <code>analytics.json</code> surfaced an internal DRAM bandwidth planning figure of 51.2 GB/s. Dividing that number by the as-stored 893 MB external weight file yielded approximately <strong>57.3 tokens/sec</strong>, close to an early peak. It seemed to support a hard bandwidth ceiling.</p>
+<p>But dimensional plausibility is not a causal test. The calculation predicted that halving the bytes read per token would increase throughput, and that increasing genuine work per dispatch would remain constrained by the same byte rate.</p>
+
+<h2 id="falsifier"><span class="sec">02</span>Counter-experiments</h2>
+<p>Two observations contradicted that simple model. First, reduced-size LUT2 weights did not produce the corresponding speedup. Second, a K sweep (batch K per dispatch, on a probe model) moved aggregate useful work more rapidly than the supposed throughput limit permitted. The original “57.3 tok/s ceiling” was retracted as a K=1 coincidence, not treated as an ANE architectural law.</p>
 <p>Subsequent work refined the regime analysis: fixed per-call dispatch costs matter at shallow graphs, but at <strong>28-layer production depth</strong> per-layer compute dominates more of the total step time. The productive lever is demonstrated multi-lane execution, not arithmetic on weight bytes alone.</p>
-<h2 id="measured">03. The measured B sweep</h2><div class="table-scroll"><table class="data-table"><thead><tr><th>Real batch shape</th><th class="numeric">Aggregate tok/s</th><th class="numeric">Relative to B=1</th><th>Interpretation</th></tr></thead><tbody>
+
+<h2 id="measured"><span class="sec">03</span>The measured B sweep</h2>
+<figure class="figure">
+<div class="figure-head"><p class="figure-title">Fig. 1 — Aggregate tokens per second by real batch shape</p></div>
+<div role="img" aria-label="Measured aggregate throughput: B=1 45.4, B=2 68.1, B=4 102.1, B=8 125.8 tokens per second">
+<ul class="bars">
+<li><span class="key">B=1</span><span class="bar-track"><span class="bar" style="width:32.43%"></span></span><span class="val">45.4</span></li>
+<li><span class="key">B=2</span><span class="bar-track"><span class="bar" style="width:48.64%"></span></span><span class="val">68.1</span></li>
+<li><span class="key">B=4</span><span class="bar-track"><span class="bar" style="width:72.93%"></span></span><span class="val">102.1</span></li>
+<li><span class="key">B=8</span><span class="bar-track"><span class="bar" style="width:89.86%"></span></span><span class="val">125.8</span></li>
+</ul>
+<div class="axis"><span></span><span class="axis-ticks"><span style="left:0">0</span><span style="left:35.71%">50</span><span style="left:71.43%">100</span></span><span>tok/s</span></div>
+</div>
+</figure>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Real batch shape</th><th scope="col" class="numeric">Aggregate tok/s</th><th scope="col" class="numeric">Relative to B=1</th><th scope="col">Interpretation</th></tr></thead>
+<tbody>
 <tr><td>B=1</td><td class="numeric">45.4</td><td class="numeric">1.00×</td><td>Reference</td></tr>
 <tr><td>B=2</td><td class="numeric">68.1</td><td class="numeric">1.50×</td><td>Amortized work</td></tr>
 <tr><td>B=4</td><td class="numeric">102.1</td><td class="numeric">2.25×</td><td>Efficiency knee</td></tr>
-<tr><td>B=8</td><td class="numeric">125.8</td><td class="numeric">2.77×</td><td>Higher memory cost</td></tr></tbody></table></div>
+<tr><td>B=8</td><td class="numeric">125.8</td><td class="numeric">2.77×</td><td>Higher memory cost</td></tr>
+</tbody></table></div>
 <p>These are <strong>aggregate</strong> throughputs over five-round interleaved steady-state measurements. The B=4 value is the practical default for the 8 GB machine. It is not an individual-stream token rate, nor an end-to-end app UX measurement.</p>
-<h2 id="admission">04. What qualifies as a speed result</h2>
-<pre><code>ACCEPT only if:
+
+<h2 id="admission"><span class="sec">04</span>What qualifies as a speed result</h2>
+<pre tabindex="0"><code>ACCEPT only if:
   1. compiled input tensor has real [B, ...] shape
   2. elapsed time scales with actual B work
   3. reported tokens = work actually executed
@@ -24,6 +102,37 @@ REJECT:
   synthetic tokens from a benchmark argument
   projected tokens/sec treated as measured</code></pre>
 <p>The project rejected a K=16 throughput claim derived from a shape-locked <code>[1,1]</code> compiled model and a post-hoc divisor. Its reported wall time was flat while its headline token rate increased, indicating arithmetic rather than additional hardware work.</p>
-<h2 id="meaning">05. What to take forward</h2><div class="callout"><span class="ghost-label">CONCLUSION / BOUNDED</span><p>On the tested Qwen decode substrate, real batch geometry increases aggregate throughput. At shallow depth dispatch overhead is material; at 28 layers computation load changes the limiting regime. No single constant extracted from a compiler report should be published as a universal throughput ceiling.</p></div>
-<p class="table-caption">Source evidence: ane-re/docs/FINDINGS.md §§5, 7–9, 13; ANE-RE decision ledger D001, D028, D040, D143, D264. Performance numbers depend on the recorded device, software and thermal conditions.</p></article>
-<aside class="aside"><p class="aside-label">FIELD NOTE N/003</p><a href="#hypothesis">01 / Hypothesis</a><a href="#falsifier">02 / Falsifiers</a><a href="#measured">03 / B sweep</a><a href="#admission">04 / Test contract</a><a href="#meaning">05 / Conclusion</a><div class="aside-line"></div><a href="/research/">Research index ↗</a></aside></div></main><section class="contact-band"><div class="wrap contact-grid"><div><span class="eyebrow">RESEARCH CORRESPONDENCE / 00</span><h2>Evidence first.<br><span class="accent">Then conclusions.</span></h2><p>Model execution, numerical parity, hardware behavior, reproducible tests.</p></div><a class="btn" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org <span class="arrow">↗</span></a></div></section><footer class="site-footer"><div class="wrap footer-grid"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><div class="footer-right"><a href="/research/">Research record</a><a href="/methods/">Methodology</a><a href="/contact/">Contact</a></div></div></footer></body></html>
+
+<h2 id="meaning"><span class="sec">05</span>What to take forward</h2>
+<div class="callout"><span class="label">Conclusion · bounded</span><p>On the tested Qwen decode substrate, real batch geometry increases aggregate throughput. At shallow depth dispatch overhead is material; at 28 layers computation load changes the limiting regime. No single constant extracted from a compiler report should be published as a universal throughput ceiling.</p></div>
+<p class="table-caption">Source evidence: ane-re/docs/FINDINGS.md §§5, 7–9, 13; ANE-RE decision ledger D001, D028, D040, D143, D264. Performance numbers depend on the recorded device, software and thermal conditions.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
