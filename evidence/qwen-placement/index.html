@@ -36,7 +36,7 @@
 <div class="wrap">
 <p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/research/">Research</a> / Evidence E/001</p>
 <h1>Placement, with the tools to check it.</h1>
-<p class="lede">This bundle holds what is needed to rerun the operator-placement count behind 2,090 ANE / 79 CPU, and says plainly which parts of the original run were not recorded.</p>
+<p class="lede">This bundle holds what is needed to rerun the operator-placement count behind 2,090 ANE / 79 CPU, and says plainly which parts of the original run were not recorded. On 30 October 2026, an archived copy of the June model reproduced those counts exactly.</p>
 <dl class="facts">
 <div><dt>Bundle</dt><dd>E/001</dd></div>
 <div><dt>Finding</dt><dd>ANE-RE FINDINGS §2</dd></div>
@@ -54,7 +54,7 @@
 <li><a href="#model">Model under test</a></li>
 <li><a href="#tools">Tools</a></li>
 <li><a href="#rerun">Rerun it</a></li>
-<li><a href="#oct30">Rerun, 30 October 2026</a></li>
+<li><a href="#oct30">Reruns, 30 October 2026</a></li>
 <li><a href="#shows">What it shows</a></li>
 <li><a href="#gaps">Gaps in the record</a></li>
 </ol>
@@ -112,40 +112,46 @@ swiftc -O kv_placement.swift -o kv_placement
 <p>Compare the output with recorded_output.txt. These build commands are the standard way to compile a single Swift file. They were not rerun for this bundle.</p>
 <p>Different converter flags can change the graph and therefore the counts. If your counts differ, the model's ANEMLL version, LUT settings and argmax setting are the first things to compare.</p>
 
-<h2 id="oct30"><span class="sec">05</span>Rerun, 30 October 2026</h2>
-<p>The June artifact is no longer at its recorded path, so it could not be rerun. The same two tools were run instead on the current shipped build of the same model line: <code>qwen25_monolithic_full_lut4.mlmodelc</code> with an <code>infer</code> function and a 64-token <code>prefill</code> function. This is a different artifact from the June one, so its counts are reported separately and do not replace the June result.</p>
+<h2 id="oct30"><span class="sec">05</span>Reruns, 30 October 2026</h2>
+<p>Three runs were made on 30 October 2026 with the two tools in this bundle, on Mac17,5 (Apple A18 Pro), macOS 27.2 build 26B123, with the tools built by Apple Swift 6.4.2.</p>
+<h3>The archived June artifact</h3>
+<p>A copy of <code>qwen25_monolithic_full_lut4.mlmodelc</code> sits in two project archives dated 12 and 23 June 2026, with the same <code>model.mil</code> in both. Its metadata records ANEMLL v0.3.5 and coremltools 9.0, and its weight file is 893,118,592 bytes. Run on the current OS, its <code>infer</code> function gave the recorded June counts exactly, including the KV-state counts.</p>
+<p>The June record holds no model hash, so it cannot confirm that this copy is the file measured on 18 June. That is inferred from the archive dates and the identical counts.</p>
+<h3>The current shipped build</h3>
+<p>The same tools were also run on the current shipped build of the same model line, which has an <code>infer</code> function and a 64-token <code>prefill</code> function. It is a different artifact from the June one, so its counts are reported beside the June result and do not replace it.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
-<thead><tr><th scope="col">Bucket</th><th scope="col" class="numeric">June 2026</th><th scope="col" class="numeric">30 Oct 2026 rerun</th></tr></thead>
+<thead><tr><th scope="col">Bucket</th><th scope="col" class="numeric">June record</th><th scope="col" class="numeric">June copy, rerun</th><th scope="col" class="numeric">Shipped, <code>infer</code></th><th scope="col" class="numeric">Shipped, <code>prefill</code></th></tr></thead>
 <tbody>
-<tr><td>ANE</td><td class="numeric">2,090</td><td class="numeric">2,147</td></tr>
-<tr><td>CPU</td><td class="numeric">79</td><td class="numeric">82</td></tr>
-<tr><td>GPU</td><td class="numeric">0</td><td class="numeric">0</td></tr>
-<tr><td>none</td><td class="numeric">4,242</td><td class="numeric">4,022</td></tr>
-<tr><td>Total</td><td class="numeric">6,411</td><td class="numeric">6,251</td></tr>
-<tr><td>ANE share of assigned compute</td><td class="numeric">96.4%</td><td class="numeric">96.3%</td></tr>
-<tr><td><code>slice_update</code> / <code>read_state</code> / <code>write_state</code> on ANE</td><td class="numeric">56 / 57 / 56</td><td class="numeric">56 / 57 / 56</td></tr>
-<tr><td><code>slice_by_index</code> on ANE</td><td class="numeric">225</td><td class="numeric">281</td></tr>
+<tr><td>ANE</td><td class="numeric">2,090</td><td class="numeric">2,090</td><td class="numeric">2,147</td><td class="numeric">2,360</td></tr>
+<tr><td>CPU</td><td class="numeric">79</td><td class="numeric">79</td><td class="numeric">82</td><td class="numeric">13</td></tr>
+<tr><td>GPU</td><td class="numeric">0</td><td class="numeric">0</td><td class="numeric">0</td><td class="numeric">0</td></tr>
+<tr><td>none</td><td class="numeric">4,242</td><td class="numeric">4,242</td><td class="numeric">4,022</td><td class="numeric">4,735</td></tr>
+<tr><td>Total</td><td class="numeric">6,411</td><td class="numeric">6,411</td><td class="numeric">6,251</td><td class="numeric">7,108</td></tr>
+<tr><td>ANE share of assigned compute</td><td class="numeric">96.4%</td><td class="numeric">96.4%</td><td class="numeric">96.3%</td><td class="numeric">99.5%</td></tr>
+<tr><td><code>slice_update</code> / <code>read_state</code> / <code>write_state</code> on ANE</td><td class="numeric">56 / 57 / 56</td><td class="numeric">56 / 57 / 56</td><td class="numeric">56 / 57 / 56</td><td class="numeric">56 / 56 / 56</td></tr>
+<tr><td><code>slice_by_index</code> on ANE</td><td class="numeric">225</td><td class="numeric">225</td><td class="numeric">281</td><td class="numeric">281</td></tr>
 </tbody></table></div>
-<p class="table-caption">Rerun on Mac17,5 (Apple A18 Pro), macOS 27.2 build 26B123, tools built with Apple Swift 6.4.2. No KV-state operator was assigned to the CPU.</p>
-<dl class="facts">
-<div><dt>model.mil</dt><dd><code>9e8630d4…918e3fef5</code></dd></div>
-<div><dt>weight.bin</dt><dd><code>d465d50b…c5a662a10d</code></dd></div>
-<div><dt>Raw output</dt><dd><a href="/evidence/qwen-placement/rerun_2026-10-30.txt">rerun_2026-10-30.txt</a></dd></div>
-</dl>
-<p>The output file is the tools' stdout as captured, with the start and end timestamps and the OS and device lines. Full hashes, including the output file's, are in provenance.json.</p>
-<p>The artifact's release notes record how it was built: ANEMLL at commit <code>cc818aeb</code>, <code>convert_monolith.sh</code> with context 512, batch 64, LUT 4 and 8, LUT4 embeddings and LM head, and argmax output, converted on 21 October 2026. Its <code>prefill</code> function was post-processed to make the batched KV writes compile for the ANE; <code>infer</code>, the function counted here, was not changed. That build record is quoted, not re-derived. Only the file hashes and the counts were checked on this run.</p>
+<p class="table-caption">No KV-state operator was assigned to the CPU in either <code>infer</code> function. In the shipped <code>prefill</code> function, one of the 57 <code>read_state</code> operations was assigned to the CPU.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Artifact</th><th scope="col"><code>model.mil</code></th><th scope="col"><code>weight.bin</code></th><th scope="col">Raw output</th></tr></thead>
+<tbody>
+<tr><td>June copy</td><td><code>9c8dccb6…94d4c72f</code></td><td><code>004eef01…a73fa30b94</code></td><td><a href="/evidence/qwen-placement/june_artifact_rerun_2026-10-30.txt">infer</a></td></tr>
+<tr><td>Shipped build</td><td><code>9e8630d4…918e3fef5</code></td><td><code>d465d50b…c5a662a10d</code></td><td><a href="/evidence/qwen-placement/rerun_2026-10-30.txt">infer</a>, <a href="/evidence/qwen-placement/prefill_rerun_2026-10-30.txt">prefill</a></td></tr>
+</tbody></table></div>
+<p class="table-caption">Full hashes, including each output file's, are in provenance.json. Each output file is the tools' stdout as captured; the shipped <code>infer</code> file also carries start and end timestamps and the OS and device lines.</p>
+<p>The shipped artifact's release notes record how it was built: ANEMLL at commit <code>cc818aeb</code>, <code>convert_monolith.sh</code> with context 512, batch 64, LUT 4 and 8, LUT4 embeddings and LM head, and argmax output, converted on 21 October 2026. Its <code>prefill</code> function was post-processed to make the batched KV writes compile for the ANE; <code>infer</code> was not changed. That build record is quoted, not re-derived. Only the file hashes and the counts were checked on these runs.</p>
 
 <h2 id="shows"><span class="sec">06</span>What it shows</h2>
 <p>MLComputePlan is the compiler's assignment, not a hardware trace. These counts show where Core ML planned each operation of this build. They do not prove zero CPU work across the whole inference stack, and they do not transfer automatically to a different Core ML build.</p>
-<p>The KV-state counts correct an earlier claim in the same research record. An earlier note said <code>slice_update</code> and <code>write_state</code> were an irreducible CPU floor. That came from a hand-written toy graph, not from a hardware limit. On this production graph, all four KV-state operators are assigned to the ANE.</p>
+<p>The KV-state counts correct an earlier claim in the same research record. An earlier note said <code>slice_update</code> and <code>write_state</code> were an irreducible CPU floor. That came from a hand-written toy graph, not from a hardware limit. In the <code>infer</code> function of this production graph, all four KV-state operators are assigned to the ANE.</p>
 
 <h2 id="gaps"><span class="sec">07</span>Gaps in the record</h2>
 <p>A reader should know what this bundle cannot supply.</p>
 <ul>
 <li>No raw, timestamped log of the June run is in the record. Its numbers come from the findings document, the output block reproduced in the gate source, and a project archive entry dated 18 June 2026.</li>
 <li>The archive gives Mac17,5 and macOS 26 beta 26A5353q in the same dated section as the result, but not on the result line itself.</li>
-<li>The exact conversion command and ANEMLL commit for the June artifact were not recorded, and no hash of it was recorded. The June artifact is no longer at its recorded path.</li>
-<li>The 30 October rerun closes these gaps for the current build only: raw output, OS build, device and model hashes are all recorded for it.</li>
+<li>The exact conversion command and ANEMLL commit for the June artifact were not recorded, and the June record holds no model hash. The archived copy rerun here is identified by its archive dates and matching counts, not by a recorded hash.</li>
+<li>All 30 October runs record their raw output, OS build, device and model hashes. The compiled models themselves are not distributed.</li>
 </ul>
 <p>Corrections and independent reruns are welcome at <a href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>.</p>
 </article>

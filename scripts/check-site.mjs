@@ -57,14 +57,19 @@ check('evidence bundle tools match their recorded hashes and counts', () => {
   assert.equal(r.none + r.ANE + r.CPU + r.GPU, r.total_ops);
   assert.equal(r.ANE + r.CPU + r.GPU, r.assigned_compute_ops);
   assert.ok(read('/').includes(`data-ane="${r.ANE}" data-cpu="${r.CPU}"`), 'home figure disagrees with provenance.json');
-  const q = prov.rerun_2026_10_30;
-  const raw = fs.readFileSync(path.join(dir, q.raw_output.file));
-  assert.equal(crypto.createHash('sha256').update(raw).digest('hex'), q.raw_output.sha256, 'rerun raw output hash');
-  const x = q.result, txt = raw.toString();
-  assert.equal(x.none + x.ANE + x.CPU + x.GPU, x.total_ops);
-  assert.equal(x.ANE + x.CPU + x.GPU, x.assigned_compute_ops);
-  assert.ok(txt.includes(`total ops: ${x.total_ops}`) && txt.includes(`ANE  ${x.ANE}  (`) && txt.includes(`CPU    ${x.CPU}  (`), 'rerun counts disagree with raw output');
-  for (const [op, v] of Object.entries(x.kv_state)) assert.ok(txt.includes(`${op} ANE=${v.ANE}\n`), `rerun ${op}`);
+  const runs = [prov.rerun_2026_10_30, prov.archived_june_copy_rerun_2026_10_30, prov.shipped_prefill_rerun_2026_10_30];
+  for (const q of runs) {
+    const raw = fs.readFileSync(path.join(dir, q.raw_output.file));
+    assert.equal(crypto.createHash('sha256').update(raw).digest('hex'), q.raw_output.sha256, `${q.raw_output.file} hash`);
+    const x = q.result, txt = raw.toString();
+    assert.equal(x.none + x.ANE + x.CPU + x.GPU, x.total_ops);
+    assert.equal(x.ANE + x.CPU + x.GPU, x.assigned_compute_ops);
+    assert.ok(txt.includes(`function: ${x.function}`) && txt.includes(`total ops: ${x.total_ops}`) && txt.includes(`ANE  ${x.ANE}  (`) && txt.includes(`CPU    ${x.CPU}  (`), `${q.raw_output.file} counts disagree with raw output`);
+    for (const [op, v] of Object.entries(x.kv_state)) assert.ok(txt.includes(v.CPU ? `${op} ANE=${v.ANE}  CPU=${v.CPU}\n` : `${op} ANE=${v.ANE}\n`), `${q.raw_output.file} ${op}`);
+  }
+  const j = prov.archived_june_copy_rerun_2026_10_30.result;
+  for (const k of ['total_ops','none','ANE','CPU','GPU']) assert.equal(j[k], r[k], `June copy ${k} differs from the recorded result`);
+  assert.deepEqual(j.kv_state, r.kv_state, 'June copy KV counts differ from the recorded result');
 });
 check('CNAME preserved', () => assert.equal(fs.readFileSync('CNAME','utf8').trim(), 'macbrainslabs.org'));
 check('robots canonical sitemap', () => assert.ok(read('/robots.txt').includes(`Sitemap: ${base}/sitemap.xml`)));
