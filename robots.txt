@@ -1,3 +1,3 @@
 User-agent: *
 Allow: /
-Sitemap: https://macbrainslabs.org/sitemap.xml
+Sitemap: https://naytewilson.github.io/macbrainslabs-site/sitemap.xml
