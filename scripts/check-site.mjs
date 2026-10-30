@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
 const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/'];
-const assets = ['/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt'];
+const assets = ['/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -36,6 +36,20 @@ for (const urlPath of pages) {
     assert.ok(!html.includes('naytewilson.github.io/macbrainslabs-site'));
   });
 }
+check('research JSON-LD parses and names DOI and ORCID', () => {
+  const m = read('/research/').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  assert.ok(m, 'no JSON-LD block');
+  const d = JSON.parse(m[1]);
+  assert.equal(d['@type'], 'Dataset');
+  assert.equal(d.identifier, 'https://doi.org/10.5281/zenodo.23798037');
+  assert.equal(d.creator.identifier, 'https://orcid.org/0009-0003-4026-8212');
+});
+check('security.txt has required RFC 9116 fields and a future Expires', () => {
+  const t = fs.readFileSync(path.join(root, '.well-known/security.txt'), 'utf8');
+  assert.match(t, /^Contact: mailto:research@macbrainslabs\.org$/m);
+  const exp = t.match(/^Expires: (.+)$/m);
+  assert.ok(exp && Date.parse(exp[1]) > Date.now(), 'Expires missing or past');
+});
 check('contact mailto on every page', () => {
   for (const route of pages) assert.ok(read(route).includes('href="mailto:research@macbrainslabs.org"'), `missing on ${route}`);
 });
