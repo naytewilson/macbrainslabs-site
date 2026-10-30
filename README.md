@@ -28,6 +28,10 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 ## Hosting
 
 GitHub Pages branch `main` from root, custom domain `macbrainslabs.org`.
-DNS A records for GitHub Pages must be configured at the registrar **without** replacing MX, SPF, DKIM, DMARC or other mail settings. SSL is issued asynchronously by GitHub; only claim a live HTTPS site after a successful public check.
+DNS A records for GitHub Pages must be configured at the registrar **without** replacing MX, SPF, DKIM, DMARC or other mail settings. The custom domain has been live with enforced HTTPS since October 29, 2026. Verify DNS, TLS and every link after future deployments.
 
 No tracking scripts, cookies, analytics or external assets.
+
+## Regression checks
+
+`node scripts/check-site.mjs` validates every root-relative internal link, sitemap URL, metadata canonical, published page and required asset. Run `node scripts/check-site.mjs --live` after GitHub Pages deployment to verify the public custom-domain copy. GitHub Actions runs the local test at every PR and on the main branch.
