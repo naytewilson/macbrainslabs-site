@@ -7,16 +7,80 @@
 <meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
 <title>Decode regime: the bandwidth ceiling that failed · MacBrains Labs</title>
-<meta name="description" content="Measured A18 Pro batch throughput and falsified ANE bandwidth assumptions: B1 45.4, B2 68.1, B4 102.1 and B8 125.8 aggregate tokens/sec.">
+<meta name="description" content="A falsified 57.3 tok/s Neural Engine bandwidth-ceiling hypothesis, and A18 Pro aggregate decode throughput of 45.4 to 125.8 tok/s at B=1 to 8 on probe artifacts whose output quality was not validated.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MacBrains Labs">
 <meta property="og:title" content="Decode regime: the bandwidth ceiling that failed">
-<meta property="og:description" content="Measured A18 Pro batch throughput and falsified ANE bandwidth assumptions: B1 45.4, B2 68.1, B4 102.1 and B8 125.8 aggregate tokens/sec.">
+<meta property="og:description" content="A falsified 57.3 tok/s Neural Engine bandwidth-ceiling hypothesis, and A18 Pro aggregate decode throughput of 45.4 to 125.8 tok/s at B=1 to 8 on probe artifacts whose output quality was not validated.">
 <meta property="og:url" content="https://macbrainslabs.org/notes/decode-regimes/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://macbrainslabs.org/notes/decode-regimes/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Field notes",
+          "item": "https://macbrainslabs.org/notes/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "N/003",
+          "item": "https://macbrainslabs.org/notes/decode-regimes/"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://macbrainslabs.org/notes/decode-regimes/#article",
+      "headline": "The ceiling was an illusion.",
+      "alternativeHeadline": "Decode regime: the bandwidth ceiling that failed",
+      "description": "A falsified 57.3 tok/s Neural Engine bandwidth-ceiling hypothesis, and A18 Pro aggregate decode throughput of 45.4 to 125.8 tok/s at B=1 to 8 on probe artifacts whose output quality was not validated.",
+      "url": "https://macbrainslabs.org/notes/decode-regimes/",
+      "mainEntityOfPage": "https://macbrainslabs.org/notes/decode-regimes/",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://macbrainslabs.org/#website",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "datePublished": "2026-10-29",
+      "dateModified": "2026-10-30",
+      "keywords": [
+        "A18 Pro",
+        "Decode"
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -43,6 +107,8 @@
 <div><dt>Batch</dt><dd>1 2 4 8</dd></div>
 <div><dt>Observation</dt><dd>On device</dd></div>
 <div><dt>Class</dt><dd>Measured</dd></div>
+<div><dt>Published</dt><dd><time datetime="2026-10-29">29 Oct 2026</time></dd></div>
+<div><dt>Revised</dt><dd><time datetime="2026-10-30">30 Oct 2026</time></dd></div>
 </dl>
 </div>
 </header>

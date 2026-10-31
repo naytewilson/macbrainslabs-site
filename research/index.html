@@ -6,12 +6,12 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
-<title>Research record · MacBrains Labs</title>
-<meta name="description" content="Measured ANE placement, Qwen2.5 LUT4 batch throughput, LFM production parity, and technical limits of model execution on Apple Silicon.">
+<title>ANE research record: placement, throughput, parity · MacBrains Labs</title>
+<meta name="description" content="MLComputePlan-reported Apple Neural Engine placement, measured Qwen2.5 LUT4 batch throughput and perplexity, LFM production parity, and the limits of each claim.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MacBrains Labs">
-<meta property="og:title" content="Research record">
-<meta property="og:description" content="Measured ANE placement, Qwen2.5 LUT4 batch throughput, LFM production parity, and technical limits of model execution on Apple Silicon.">
+<meta property="og:title" content="ANE research record: placement, throughput, parity">
+<meta property="og:description" content="MLComputePlan-reported Apple Neural Engine placement, measured Qwen2.5 LUT4 batch throughput and perplexity, LFM production parity, and the limits of each claim.">
 <meta property="og:url" content="https://macbrainslabs.org/research/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://macbrainslabs.org/research/">
@@ -45,6 +45,26 @@
   }]
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "MacBrains Labs",
+      "item": "https://macbrainslabs.org/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Research record",
+      "item": "https://macbrainslabs.org/research/"
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -69,7 +89,7 @@
 <div><dt>Platform</dt><dd>A18 Pro</dd></div>
 <div><dt>Compiler</dt><dd>Core ML</dd></div>
 <div><dt>Language</dt><dd>Swift</dd></div>
-<div><dt>Classification</dt><dd>Measured</dd></div>
+<div><dt>Classification</dt><dd>Measured / planner-reported</dd></div>
 </dl>
 </div>
 </header>
@@ -105,7 +125,7 @@
 
 <h2 id="qwen"><span class="sec">02</span>Quantized transformer execution</h2>
 <p>A central experiment builds a <strong>28-layer Qwen2.5-1.5B-Instruct</strong> path around four-bit lookup-table weights and native Core ML graph generation. The objective is more precise than “use the Neural Engine”: keep attention, projection, normalization and KV-state machinery in ANE-compatible tensor form and demonstrate the exact assigned device for the resulting operations.</p>
-<p>Two Qwen artifacts appear in this record. Placement was measured on the production ANEMLL Core ML conversion of the 28-layer LUT4 model (<code>qwen25_monolithic_full_lut4</code>); perplexity was measured on the hand-authored SwiftMIL model, which runs as two 14-layer halves sharing KV. The production model's infer function had 2,090 operations assigned to ANE and 79 assigned to CPU. The residual CPU assignments belong to the language-model-head argmax tail. Separately, the tested stateful KV primitives (<code>slice_update</code>, <code>read_state</code>, <code>write_state</code> and <code>slice_by_index</code>) were assigned to ANE. A CPU tail does not invalidate a measured ANE-resident state path, and the state path does not justify calling the whole graph 100% ANE.</p>
+<p>Two Qwen artifacts appear in this record. Placement was read from MLComputePlan on the production ANEMLL Core ML conversion of the 28-layer LUT4 model (<code>qwen25_monolithic_full_lut4</code>); perplexity was measured on the hand-authored SwiftMIL model, which runs as two 14-layer halves sharing KV. The production model's infer function had 2,090 operations assigned to ANE and 79 assigned to CPU. The residual CPU assignments belong to the language-model-head argmax tail. Separately, the tested stateful KV primitives (<code>slice_update</code>, <code>read_state</code>, <code>write_state</code> and <code>slice_by_index</code>) were assigned to ANE. A CPU tail does not invalidate a measured ANE-resident state path, and the state path does not justify calling the whole graph 100% ANE.</p>
 <pre tabindex="0"><code>state_ops = {
   slice_update:    56 / 56  # ANE / total
   read_state:      57 / 57
@@ -142,6 +162,7 @@ observation: MLComputePlan assignment</code></pre>
 <tr><td><code>lfm_h_after_gqa</code></td><td class="numeric">0.999761005</td><td class="numeric">0.027863104</td><td class="pass">Pass</td></tr>
 </tbody></table></div>
 <p>The diagnostic artifact exposed 46 outputs, changing the compiled graph; only 34 of them satisfied the ANE gate. The diagnostic divergence is a separate result, not evidence that the sealed two-output production graph failed. <a href="/notes/lfm-parity/">Examine both cases.</a></p>
+<p>A later LFM2.5-1.2B experiment is a separate case: layer slices that each passed a stricter ANE gate (relative L2 ≤ 0.005) failed it once chained. <a href="/notes/lfm-chain/">See N/004.</a></p>
 
 <h2 id="scope"><span class="sec">05</span>What the results do not say</h2>
 <div class="callout"><span class="label">Boundary conditions</span><p>These findings do not establish ANE residency for arbitrary transformer architectures, every token-processing operation, or every Core ML/compiler release. Assigned compute unit is an API-visible planner result. Numeric parity and measured end-to-end speed are distinct experiments with their own conditions.</p></div>
