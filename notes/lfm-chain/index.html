@@ -7,16 +7,81 @@
 <meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
 <title>LFM2.5: every slice passed, the chain did not · MacBrains Labs</title>
-<meta name="description" content="LFM2.5-1.2B on the Apple Neural Engine: layer slices 0-4, 0-8, 8-16 and the final head pass a 0.005 relative L2 gate with 100% ANE placement, but the chained 16-layer run and token logits fail it.">
+<meta name="description" content="LFM2.5-1.2B on the Apple Neural Engine: layer slices and the final head pass a 0.005 relative L2 gate with 100% ANE placement; the chained 16-layer run and token logits fail it.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MacBrains Labs">
 <meta property="og:title" content="LFM2.5: every slice passed, the chain did not">
-<meta property="og:description" content="LFM2.5-1.2B on the Apple Neural Engine: layer slices 0-4, 0-8, 8-16 and the final head pass a 0.005 relative L2 gate with 100% ANE placement, but the chained 16-layer run and token logits fail it.">
+<meta property="og:description" content="LFM2.5-1.2B on the Apple Neural Engine: layer slices and the final head pass a 0.005 relative L2 gate with 100% ANE placement; the chained 16-layer run and token logits fail it.">
 <meta property="og:url" content="https://macbrainslabs.org/notes/lfm-chain/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://macbrainslabs.org/notes/lfm-chain/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Field notes",
+          "item": "https://macbrainslabs.org/notes/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "N/004",
+          "item": "https://macbrainslabs.org/notes/lfm-chain/"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://macbrainslabs.org/notes/lfm-chain/#article",
+      "headline": "Every slice passed. The chain did not.",
+      "alternativeHeadline": "LFM2.5: every slice passed, the chain did not",
+      "description": "LFM2.5-1.2B on the Apple Neural Engine: layer slices and the final head pass a 0.005 relative L2 gate with 100% ANE placement; the chained 16-layer run and token logits fail it.",
+      "url": "https://macbrainslabs.org/notes/lfm-chain/",
+      "mainEntityOfPage": "https://macbrainslabs.org/notes/lfm-chain/",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://macbrainslabs.org/#website",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "datePublished": "2026-10-30T07:54:16-04:00",
+      "dateModified": "2026-10-30T07:54:16-04:00",
+      "keywords": [
+        "LFM2.5",
+        "Parity",
+        "Negative"
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -43,6 +108,7 @@
 <div><dt>Gate</dt><dd>rel. L2 ≤ 0.005</dd></div>
 <div><dt>Receipts</dt><dd>17 July 2026</dd></div>
 <div><dt>Verdict</dt><dd>Slices pass, chain fails</dd></div>
+<div><dt>Published</dt><dd><time datetime="2026-10-30T07:54:16-04:00">30 Oct 2026</time></dd></div>
 </dl>
 </div>
 </header>

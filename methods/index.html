@@ -6,17 +6,69 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
-<title>Methodology · MacBrains Labs</title>
+<title>Methodology: Core ML placement, parity and throughput · MacBrains Labs</title>
 <meta name="description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MacBrains Labs">
-<meta property="og:title" content="Methodology">
+<meta property="og:title" content="Methodology: Core ML placement, parity and throughput">
 <meta property="og:description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
 <meta property="og:url" content="https://macbrainslabs.org/methods/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://macbrainslabs.org/methods/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Methodology",
+          "item": "https://macbrainslabs.org/methods/"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://macbrainslabs.org/methods/#article",
+      "headline": "A result needs a falsifier.",
+      "alternativeHeadline": "Methodology: Core ML placement, parity and throughput",
+      "description": "Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.",
+      "url": "https://macbrainslabs.org/methods/",
+      "mainEntityOfPage": "https://macbrainslabs.org/methods/",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://macbrainslabs.org/#website",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -76,6 +128,7 @@
 <p>Every relevant function and per-op assignment is inspected using <code>MLComputePlan</code> with the expected compiled artifact identity. A device preference such as <code>.all</code> is not treated as proof. Operators are classified by assigned compute unit, and the result names both the computation graph and the functions examined.</p>
 <p>On the Qwen path, FP16 four-dimensional tensor shape <code>(1,H,1,S)</code> is a practical lowering constraint. A standalone normalization subgraph can be sent to CPU while a normalization embedded inside a convolution/matmul-anchored block can be assigned to ANE. The surrounding graph matters as much as the operator name.</p>
 <p>KV-state operations require their own placement audit. A failing isolated <code>slice_update</code> experiment did not prove state writes were inherently CPU-bound; inspecting the production state pattern falsified that inference.</p>
+<p>One such audit is published with its tools and recorded output as <a href="/evidence/qwen-placement/">evidence bundle E/001</a>. Placement is also checked when a graph is numerically correct: <a href="/notes/graft-costs/">N/005</a> describes a correct ring-buffer graft that MLComputePlan placed 0 of 115 operations on the ANE.</p>
 
 <h2 id="parity"><span class="sec">03</span>Numerical parity</h2>
 <p>For a sealed artifact, compare on-device outputs against a pinned reference tensor fixture. Read <code>MLMultiArray</code> in logical stride order, reject NaN/Inf, normalize documented layout permutations, and compare each exposed output rather than a single final-token guess.</p>

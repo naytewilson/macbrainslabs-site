@@ -23,6 +23,7 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 - `notes/`: field-note index and detailed technical notes
 - `evidence/qwen-placement/`: evidence bundle E/001 (placement tools, recorded output, provenance)
 - `contact/`: public research correspondence
+- `404.html`: not-found page GitHub Pages serves for unknown paths (`noindex`)
 - `styles.css`: all styling, light and dark via `prefers-color-scheme`, system fonts only (no client-side JavaScript)
 - `favicon.svg`: vector mark
 
@@ -31,8 +32,8 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 GitHub Pages branch `main` from root, custom domain `macbrainslabs.org`.
 DNS A records for GitHub Pages must be configured at the registrar **without** replacing MX, SPF, DKIM, DMARC or other mail settings. The custom domain has been live with enforced HTTPS since October 29, 2026. Verify DNS, TLS and every link after future deployments.
 
-No tracking scripts, cookies, analytics or external assets.
+No tracking scripts, cookies, analytics or external assets. Structured data is inline JSON-LD (`application/ld+json`), which browsers do not execute. It describes only content shown on the page and identifiers already linked from it. Article dates are full ISO 8601 datetimes with an offset: `datePublished` is the time of the commit that first put the page on `main`, and `dateModified` is the time of its last content change.
 
 ## Regression checks
 
-`node scripts/check-site.mjs` validates every root-relative internal link, sitemap URL, metadata canonical, published page, required asset, the contact address on every page, that the home placement figure draws exactly as many cells as its stated operation counts, and that the evidence bundle's tool files and counts match its `provenance.json`. Run `node scripts/check-site.mjs --live` after GitHub Pages deployment to verify the public custom-domain copy. GitHub Actions runs the local test at every PR and on the main branch.
+`node scripts/check-site.mjs` validates every root-relative internal link, sitemap URL, metadata canonical, published page, required asset, the contact address on every page, that the home placement figure draws exactly as many cells as its stated operation counts, and that the evidence bundle's tool files and counts match its `provenance.json`. It also parses every JSON-LD block, checks that each BreadcrumbList matches the visible breadcrumb trail, that each TechArticle's headline, description and dates match what the page shows (dates as full datetimes with an offset, a visible Revised date only for a later-day change), that titles and descriptions are unique, and that `404.html` stays `noindex` and out of the sitemap. Run `node scripts/check-site.mjs --live` after GitHub Pages deployment to verify the public custom-domain copy. GitHub Actions runs the local test at every PR and on the main branch.
