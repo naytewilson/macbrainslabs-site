@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Defensive research, with a record. · MacBrains Labs</title><meta name="description" content="Project-owner security advisories: two fixed defects in private research automation, exact source revisions, before-and-after observations and evidence limits.">
+<meta property="og:type" content="article"><meta property="og:site_name" content="MacBrains Labs"><meta property="og:title" content="Defensive research, with a record."><meta property="og:description" content="Project-owner security advisories: two fixed defects in private research automation, exact source revisions, before-and-after observations and evidence limits."><meta property="og:url" content="https://macbrainslabs.org/security/"><meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/security/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Defensive research",
+          "item": "https://macbrainslabs.org/security/"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Defensive research, with a record.",
+      "description": "Project-owner security advisories: two fixed defects in private research automation, exact source revisions, before-and-after observations and evidence limits.",
+      "url": "https://macbrainslabs.org/security/",
+      "datePublished": "2026-10-31T04:18:08+00:00",
+      "dateModified": "2026-10-31T04:18:08+00:00",
+      "author": {
+        "@type": "Person",
+        "name": "Nayte Wilson",
+        "sameAs": "https://orcid.org/0009-0003-4026-8212"
+      }
+    }
+  ]
+}</script>
+</head><body><a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/">Notes</a>
+<a href="/security/" aria-current="page">Security</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main"><header class="page-head"><div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / Defensive research</p>
+<h1>Defensive research, with a record.</h1><p class="lede">Two repaired defects in the software behind the research. Each report connects a concrete failure to its corrective change and a bounded regression comparison.</p>
+<dl class="facts"><div><dt>Author</dt><dd><a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson</a></dd></div><div><dt>Published</dt><dd><time datetime="2026-10-31T04:18:08+00:00">31 Oct 2026</time></dd></div><div><dt>Record type</dt><dd>Project-owner advisory</dd></div></dl>
+</div></header><div class="wrap article-layout"><nav class="toc" aria-label="On this page"><span class="label">On this page</span><ol><li><a href="#work">The work</a></li><li><a href="#advisories">Advisories</a></li><li><a href="#maintenance">Public maintenance</a></li><li><a href="#reporting">Report a concern</a></li></ol><div class="toc-out"><a href="/security/">Defensive research index</a><a href="/methods/">Research methods</a></div></nav>
+<article class="article">
+<h2 id="work"><span class="sec">01</span>Protecting the research process</h2>
+<p>MacBrains Labs studies Apple Silicon inference and maintains the software supporting that work. These project-owner advisories document two fixed defects in its <strong>private research automation tooling</strong>: unsafe archive destination construction and inconsistent validation of derivative research records.</p>
+<p>Both arose in one June 2026 hardening effort. Later validation compared the vulnerable source, the repair commit and a pinned later revision in isolated copies. The work was operator-directed by Nayte Wilson and AI-assisted.</p>
+<div class="results" aria-label="Recorded validation summary">
+<div class="result"><span class="label">Defects repaired</span><span class="result-value">2</span><p>Archive containment and derivative-record validation, from one owner-operated hardening effort.</p></div>
+<div class="result"><span class="label">Exact source revisions</span><span class="result-value">3</span><p>Pre-repair, repair and pinned later source compared through the existing program interfaces.</p></div>
+<div class="result"><span class="label">Current regression checks</span><span class="result-value">59<small>/ 59</small></span><p>14 path checks and 45 record-validation checks passed on the pinned later source.</p></div>
+</div>
+<p class="table-caption">Recorded source-copy validation. The direct probes additionally compare six archive invocations and three derivative-record runs. Counts describe covered checks, not a general security certification.</p>
+<h2 id="advisories"><span class="sec">02</span>Project-owner advisories</h2>
+<ul class="notes"><li><a href="/security/archive-path-traversal/"><span class="id">MBL<br>2026-001</span><div><h3>Archive path traversal</h3><p>A proposal identifier escaped its archive. A direct comparison records the overwrite and the repaired containment behavior.</p></div><span class="tags">File integrity<br>Fixed source tested</span></a></li><li><a href="/security/evidence-validation/"><span class="id">MBL<br>2026-002</span><div><h3>Derivative-record validation</h3><p>One authoritative write path omitted validation metadata. The repair applies the gate consistently, with remaining provenance limits.</p></div><span class="tags">Evidence integrity<br>Fixed source tested</span></a></li></ul>
+<p class="table-caption">MBL identifiers are local publication labels, not CVE identifiers. Repair record: 24 June 2026. First public publication: 31 October 2026 UTC.</p>
+<p>Inspect the <a href="/security/evidence/results.json">machine-readable observations</a>, <a href="/security/evidence/README.md">validation method and source availability</a>, and <a href="/security/evidence/SHA256SUMS">public-file checksums</a>. These records include benign controls, differences between vulnerable and repaired copies, and the limitations of each comparison.</p>
+<div class="callout"><span class="label">Source availability</span><p>These are owner-published reports. The source remains private, and the public summaries are not independent replication or a complete public reproducer. No CVE or external disclosure acceptance is claimed.</p></div>
+<h2 id="maintenance"><span class="sec">03</span>Public research maintenance</h2>
+<p>Nayte Wilson also maintains <a href="https://github.com/macbrainslabs/ane-research-records">ANE Research Records</a>, a separate public repository of source-pinned measurement summaries and verification tools. Its <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/SECURITY.md">security policy</a> provides a private reporting contact.</p>
+<p>The <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/PUBLIC_EVIDENCE_AUDIT.md">publication audit</a> checks public release archives against the source tag and tests the handling of corrupted or inconsistent inputs. This verifies archive integrity; it does not independently reproduce private ANE measurements. The two advisories above concern different, private tooling.</p>
+<h2 id="reporting"><span class="sec">04</span>Corrections and security reports</h2>
+<p>Send a suspected defect, exposed information or evidence inconsistency to <a href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>. Include the affected page or repository, revision if known, observed behavior and a minimal description. Keep credentials, personal data and sensitive reproduction details out of public issues.</p>
+<p>The public contact is also available through <a href="/.well-known/security.txt">security.txt</a>. Publication does not grant permission to test third-party systems. Research scope and authorization are described in the <a href="/methods/#scope">methods statement</a>.</p></article></div></main><footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/security/">Defensive research</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer></body></html>

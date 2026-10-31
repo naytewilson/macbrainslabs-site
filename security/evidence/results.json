@@ -1,0 +1,190 @@
+{
+  "schema": "macbrains-project-advisory-evidence/v1",
+  "published_at": "2026-10-31T04:18:08+00:00",
+  "author": {
+    "name": "Nayte Wilson",
+    "orcid": "https://orcid.org/0009-0003-4026-8212"
+  },
+  "attribution": "Operator-directed, AI-assisted review and validation of owned research software.",
+  "project": "Private research automation tooling operated by MacBrains Labs; separate from the public ANE research-records repository.",
+  "evidence_kind": "Curated extraction of recorded observations, not raw logs, a new execution, independent replication, or a complete public reproducer.",
+  "repair_record_date": "2026-06-24",
+  "repair_date_meaning": "Date of the documented hardening record; first discovery and full affected range not established.",
+  "validation_packet_prepared_at": "2026-10-31T03:51:51.768Z",
+  "source_revisions": {
+    "parent": "8a1bfcfd5ebac049310f60fa5b3a08be5693ccac",
+    "repair": "c25c9d27e31ba92b293572bf7af76ee7ceaf50e2",
+    "main": "c109f4e439aa52b50ce6fd2183d04a8e7202ee5a"
+  },
+  "source_availability": "Private. Revision IDs identify tested inputs but do not provide public source access.",
+  "cases": [
+    {
+      "id": "MBL-2026-001",
+      "url": "https://macbrainslabs.org/security/archive-path-traversal/",
+      "title": "Archive path traversal in research automation",
+      "observations": [
+        {
+          "source": "parent",
+          "commit": "8a1bfcfd5ebac049310f60fa5b3a08be5693ccac",
+          "input": "benign",
+          "command_exit": 0,
+          "sentinel_before_sha256": "e637f10a2dac86e9894e11f4df5fe69d711afa5246cdd1b1682b3c1f97da291f",
+          "sentinel_after_sha256": "e637f10a2dac86e9894e11f4df5fe69d711afa5246cdd1b1682b3c1f97da291f",
+          "sentinel_preserved": true
+        },
+        {
+          "source": "parent",
+          "commit": "8a1bfcfd5ebac049310f60fa5b3a08be5693ccac",
+          "input": "traversal",
+          "command_exit": 0,
+          "sentinel_before_sha256": "17105aabf1fe7416b5aa11e145b2870de9fc9a609b82b807498d0fe014443ceb",
+          "sentinel_after_sha256": "da69209e909afd8603fa680e2acdad274c73d94cde1b07db4cc3693059953a27",
+          "sentinel_preserved": false
+        },
+        {
+          "source": "repair",
+          "commit": "c25c9d27e31ba92b293572bf7af76ee7ceaf50e2",
+          "input": "benign",
+          "command_exit": 0,
+          "sentinel_before_sha256": "fcd3a9b250d886c75a2c99d7f008e3aea651ebfa15470be799fea17c0b35897d",
+          "sentinel_after_sha256": "fcd3a9b250d886c75a2c99d7f008e3aea651ebfa15470be799fea17c0b35897d",
+          "sentinel_preserved": true
+        },
+        {
+          "source": "repair",
+          "commit": "c25c9d27e31ba92b293572bf7af76ee7ceaf50e2",
+          "input": "traversal",
+          "command_exit": 0,
+          "sentinel_before_sha256": "eb2a2746cb6634b6b57e9179e7cd49f58d1697245283549c683b4acf6e99b612",
+          "sentinel_after_sha256": "eb2a2746cb6634b6b57e9179e7cd49f58d1697245283549c683b4acf6e99b612",
+          "sentinel_preserved": true
+        },
+        {
+          "source": "main",
+          "commit": "c109f4e439aa52b50ce6fd2183d04a8e7202ee5a",
+          "input": "benign",
+          "command_exit": 0,
+          "sentinel_before_sha256": "8f509dcaca8f44d7d405cd227308cc1592a7d324692ae1ff0b18e96185caa341",
+          "sentinel_after_sha256": "8f509dcaca8f44d7d405cd227308cc1592a7d324692ae1ff0b18e96185caa341",
+          "sentinel_preserved": true
+        },
+        {
+          "source": "main",
+          "commit": "c109f4e439aa52b50ce6fd2183d04a8e7202ee5a",
+          "input": "traversal",
+          "command_exit": 0,
+          "sentinel_before_sha256": "e1b558c0a53b99065e10b81839c6fc839393bfcf33557111c9e8681416a84479",
+          "sentinel_after_sha256": "e1b558c0a53b99065e10b81839c6fc839393bfcf33557111c9e8681416a84479",
+          "sentinel_preserved": true
+        }
+      ],
+      "regression": {
+        "pinned_main": {
+          "passed": 14,
+          "failed": 0
+        },
+        "parent_with_current_fixture": {
+          "passed": 11,
+          "failed": 3
+        },
+        "limit": "The suite sentinel assertion also passed on the parent. The direct traversal probe supplies the overwrite contrast."
+      }
+    },
+    {
+      "id": "MBL-2026-002",
+      "url": "https://macbrainslabs.org/security/evidence-validation/",
+      "title": "Inconsistent validation of derivative research records",
+      "observations": [
+        {
+          "source": "parent",
+          "commit": "8a1bfcfd5ebac049310f60fa5b3a08be5693ccac",
+          "server_exit": 0,
+          "initialize_ok": true,
+          "confidence": "PROVEN",
+          "status": "RESOLVED",
+          "has_falsifier": false
+        },
+        {
+          "source": "repair",
+          "commit": "c25c9d27e31ba92b293572bf7af76ee7ceaf50e2",
+          "server_exit": 0,
+          "initialize_ok": true,
+          "confidence": "PROVEN",
+          "status": "RESOLVED",
+          "has_falsifier": true
+        },
+        {
+          "source": "main",
+          "commit": "c109f4e439aa52b50ce6fd2183d04a8e7202ee5a",
+          "server_exit": 0,
+          "initialize_ok": true,
+          "confidence": "PROVEN",
+          "status": "RESOLVED",
+          "has_falsifier": true
+        }
+      ],
+      "synthetic_input": true,
+      "regression": {
+        "pinned_main": {
+          "passed": 45,
+          "failed": 0
+        },
+        "parent_with_current_fixture": {
+          "passed": 38,
+          "failed": 7
+        },
+        "failure_breakdown": "Six adversarial assertion failures and one data-dependent historical-ledger expectation."
+      }
+    }
+  ],
+  "retained_private_logs": [
+    {
+      "file": "logs/mcp-holds-main.log",
+      "bytes": 1609,
+      "sha256": "41f9d831ac936a173bad0a9957c50d6a05114ad63943325412fbbf581c0e1328"
+    },
+    {
+      "file": "logs/mcp-holds-parent.log",
+      "bytes": 587,
+      "sha256": "5f792a9d08689e98d3971496660a7931adad81f11f09c7806cca77f32ce2a818"
+    },
+    {
+      "file": "logs/mcp-holds-repair.log",
+      "bytes": 899,
+      "sha256": "5f52a6759cd21c4cd58aa45d533b351bb69611abd4c3dd73e3bb556d763f1cbe"
+    },
+    {
+      "file": "logs/sentinel_path_probe.log",
+      "bytes": 3900,
+      "sha256": "9515d77e2ecc0512b78fd02450821c49498f55d27e9aa541f072eeb29855fd8a"
+    },
+    {
+      "file": "logs/test_killswitch.main.log",
+      "bytes": 5301,
+      "sha256": "2abf12a6f1775333f551560545c4289802f9f652d26fc68a2e223db00196b809"
+    },
+    {
+      "file": "logs/test_killswitch.parent-current-fixture.log",
+      "bytes": 2395,
+      "sha256": "8abcf592aaae2cd09839073104d390ba2bbfbd2481ab03f9c6d9615ecc45353d"
+    },
+    {
+      "file": "logs/test_paths.main.log",
+      "bytes": 1044,
+      "sha256": "dd65bae87b51dfc4259c57ca1a7165c3b6ca63687790e6813880b424b8d4ddd7"
+    },
+    {
+      "file": "logs/test_paths.parent-current-fixture.log",
+      "bytes": 1089,
+      "sha256": "d68cab0968f8cb1a9fb3f2925350717353128a5174c93befe0763d0b60f0c14d"
+    }
+  ],
+  "limits": [
+    "Both findings arose in one owner-operated hardening effort, not two external engagements.",
+    "No CVE, external disclosure acceptance, public deployment impact, or full affected-version range is claimed.",
+    "All direct probe effects stayed inside disposable test-owned directories.",
+    "Validation of source copies does not certify a deployed service or every concurrent filesystem race.",
+    "Derivative-record checks validate structure, not the truth or authenticity of a measurement.",
+    "The existing ANE dataset DOI covers measurement summaries, not these security findings."
+  ]
+}

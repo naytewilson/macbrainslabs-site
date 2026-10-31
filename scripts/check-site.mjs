@@ -7,8 +7,8 @@ import crypto from 'node:crypto';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
-const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/'];
-const assets = ['/404.html', '/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt'];
+const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/'];
+const assets = ['/404.html', '/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -43,6 +43,40 @@ check('research JSON-LD parses and names DOI and ORCID', () => {
   assert.equal(d['@type'], 'Dataset');
   assert.equal(d.identifier, 'https://doi.org/10.5281/zenodo.23798037');
   assert.equal(d.creator.identifier, 'https://orcid.org/0009-0003-4026-8212');
+});
+check('public advisory files match checksums and recorded observation relationships', () => {
+  const dir = path.join(root, 'security/evidence');
+  for (const line of fs.readFileSync(path.join(dir, 'SHA256SUMS'), 'utf8').trim().split('\n')) {
+    const m = line.match(/^([a-f0-9]{64})  ([A-Za-z0-9.-]+)$/);
+    assert.ok(m, 'malformed checksum entry');
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(path.join(dir, m[2]))).digest('hex'), m[1], m[2]);
+  }
+  const data = JSON.parse(fs.readFileSync(path.join(dir, 'results.json'), 'utf8'));
+  for (const item of data.cases) {
+    assert.ok(fs.existsSync(fileFor(new URL(item.url).pathname)));
+    for (const row of item.observations) {
+      assert.equal(row.commit, data.source_revisions[row.source]);
+      if ('sentinel_preserved' in row) {
+        assert.match(row.sentinel_before_sha256, /^[a-f0-9]{64}$/);
+        assert.match(row.sentinel_after_sha256, /^[a-f0-9]{64}$/);
+        assert.equal(row.sentinel_preserved, row.sentinel_before_sha256 === row.sentinel_after_sha256);
+      }
+    }
+  }
+  const paths = data.cases[0].observations;
+  assert.deepEqual(paths.map(r => `${r.source}:${r.input}`).sort(), ['main:benign', 'main:traversal', 'parent:benign', 'parent:traversal', 'repair:benign', 'repair:traversal']);
+  assert.ok(paths.filter(r => r.input === 'benign').every(r => r.sentinel_preserved));
+  assert.deepEqual(paths.filter(r => !r.sentinel_preserved).map(r => r.source), ['parent']);
+  assert.equal(data.cases[1].synthetic_input, true);
+  assert.deepEqual(data.cases[1].observations.map(r => r.has_falsifier), [false, true, true]);
+  // Frozen recorded totals independently compared with the original private logs.
+  assert.deepEqual(data.cases.map(c => [c.regression.pinned_main, c.regression.parent_with_current_fixture]), [
+    [{passed:14, failed:0}, {passed:11, failed:3}],
+    [{passed:45, failed:0}, {passed:38, failed:7}]
+  ]);
+  const passed = data.cases.reduce((n, c) => n + c.regression.pinned_main.passed, 0);
+  const total = passed + data.cases.reduce((n, c) => n + c.regression.pinned_main.failed, 0);
+  assert.ok(read('/security/').includes(`<span class="result-value">${passed}<small>/ ${total}</small></span>`));
 });
 check('security.txt has required RFC 9116 fields and a future Expires', () => {
   const t = fs.readFileSync(path.join(root, '.well-known/security.txt'), 'utf8');

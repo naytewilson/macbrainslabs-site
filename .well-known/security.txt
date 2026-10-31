@@ -2,3 +2,4 @@ Contact: mailto:research@macbrainslabs.org
 Expires: 2027-10-30T00:00:00.000Z
 Preferred-Languages: en
 Canonical: https://macbrainslabs.org/.well-known/security.txt
+Policy: https://macbrainslabs.org/security/#reporting

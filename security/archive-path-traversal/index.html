@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Archive path traversal in research automation. · MacBrains Labs</title><meta name="description" content="MBL-2026-001: a private archive operation could overwrite a test-owned file outside its destination; exact-source controls compare vulnerable and repaired behavior.">
+<meta property="og:type" content="article"><meta property="og:site_name" content="MacBrains Labs"><meta property="og:title" content="Archive path traversal in research automation."><meta property="og:description" content="MBL-2026-001: a private archive operation could overwrite a test-owned file outside its destination; exact-source controls compare vulnerable and repaired behavior."><meta property="og:url" content="https://macbrainslabs.org/security/archive-path-traversal/"><meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/security/archive-path-traversal/"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Defensive research",
+          "item": "https://macbrainslabs.org/security/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Archive path traversal",
+          "item": "https://macbrainslabs.org/security/archive-path-traversal/"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "headline": "Archive path traversal in research automation.",
+      "description": "MBL-2026-001: a private archive operation could overwrite a test-owned file outside its destination; exact-source controls compare vulnerable and repaired behavior.",
+      "url": "https://macbrainslabs.org/security/archive-path-traversal/",
+      "datePublished": "2026-10-31T04:18:08+00:00",
+      "dateModified": "2026-10-31T04:18:08+00:00",
+      "author": {
+        "@type": "Person",
+        "name": "Nayte Wilson",
+        "sameAs": "https://orcid.org/0009-0003-4026-8212"
+      }
+    }
+  ]
+}</script>
+</head><body><a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/">Notes</a>
+<a href="/security/" aria-current="page">Security</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main"><header class="page-head"><div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/security/">Defensive research</a> / Archive path traversal</p>
+<h1>Archive path traversal in research automation.</h1><p class="lede">An untrusted proposal identifier became an archive destination. The recorded repair restores that boundary; a direct comparison shows why it matters.</p>
+<dl class="facts"><div><dt>Author</dt><dd><a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson</a></dd></div><div><dt>Published</dt><dd><time datetime="2026-10-31T04:18:08+00:00">31 Oct 2026</time></dd></div><div><dt>Record type</dt><dd>Project-owner advisory</dd></div><div><dt>Local advisory ID</dt><dd>MBL-2026-001</dd></div></dl>
+</div></header><div class="wrap article-layout"><nav class="toc" aria-label="On this page"><span class="label">On this page</span><ol><li><a href="#finding">Finding and impact</a></li><li><a href="#repair">Corrective change</a></li><li><a href="#validation">Recorded comparisons</a></li><li><a href="#provenance">Source and evidence</a></li></ol><div class="toc-out"><a href="/security/">Defensive research index</a><a href="/methods/">Research methods</a></div></nav>
+<article class="article">
+<h2 id="finding"><span class="sec">01</span>Finding and impact</h2>
+<p>An archive operation in private research automation constructed its destination using an untrusted proposal identifier. In the demonstrated vulnerable revision, a crafted identifier caused the process to overwrite a test-owned file outside the intended archive. The affected boundary was <strong>containment of proposal input within its assigned archive</strong>.</p>
+<p>Input must reach the proposal-ingestion path, and effects are bounded by the process's filesystem permissions. The comparison does not establish an internet-facing ingress, privilege escalation, exfiltration or an affected public deployment.</p>
+<h2 id="repair"><span class="sec">02</span>Corrective change</h2>
+<p>The recorded repair assigns sequence identifiers internally, sanitizes identifiers, verifies resolved-path containment and refuses an existing archive destination. An affected copy should incorporate that repair or equivalent containment controls and validate the actual deployment environment.</p>
+<p>Archive-before-append and attempted restoration improve error handling. They do not establish crash-atomic behavior or protection against every concurrent filesystem race.</p>
+<h2 id="validation"><span class="sec">03</span>Recorded comparisons</h2>
+<p>A later shell driver invoked the existing drain interface in separate, unchanged copies of each source revision. Each source received a benign control and a traversal input in different disposable directories. The target sentinel belonged to the test and remained inside its owned directory, outside the copied archive.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table"><caption class="figure-title">Direct file-integrity comparison</caption><thead><tr><th scope="col">Source copy</th><th scope="col">Benign input</th><th scope="col">Traversal input</th></tr></thead><tbody><tr><th scope="row">Pre-repair</th><td>Sentinel preserved</td><td class="fail">Sentinel overwritten outside archive</td></tr><tr><th scope="row">Repair</th><td>Sentinel preserved</td><td>Sentinel preserved; identifier sanitized</td></tr><tr><th scope="row">Pinned later source</th><td>Sentinel preserved</td><td>Sentinel preserved; identifier sanitized</td></tr></tbody></table></div>
+<p>All six invocations recorded exit status 0. The public JSON retains the before-and-after sentinel hashes: only the pre-repair traversal changed its target bytes. Exit status alone would have missed the problem.</p>
+<p>The current path suite passed <strong>14/14</strong> checks on the pinned later source. The same fixture on the pre-repair source passed 11 and failed 3 checks. Its sentinel assertion also passed on the pre-repair source, so the suite comparison alone was insufficient to demonstrate the overwrite. The separate direct probe supplies that contrast.</p>
+<h2 id="provenance"><span class="sec">04</span>Source identity and evidence</h2>
+<div class="proof"><span class="label">Exact source copies</span><dl>
+<dt>Pre-repair</dt><dd>8a1bfcfd5ebac049310f60fa5b3a08be5693ccac</dd><dt>Repair</dt><dd>c25c9d27e31ba92b293572bf7af76ee7ceaf50e2</dd><dt>Later revision</dt><dd>c109f4e439aa52b50ce6fd2183d04a8e7202ee5a</dd></dl></div>
+<p>The documented hardening record is dated <strong>24 June 2026</strong>. The later validation packet was prepared on <strong>31 October 2026 UTC</strong>. Neither date is asserted as the first discovery date. The full affected-version range has not been established.</p>
+<p><a href="/security/evidence/results.json">Download the observation summary (JSON)</a>, its <a href="/security/evidence/README.md">method and source-availability note</a>, and <a href="/security/evidence/SHA256SUMS">SHA-256 checksums</a>. The summary is a curated extraction of recorded results. The source and original logs remain private; these downloads are not a complete public reproducer. Hashes identify bytes, not independent validation.</p>
+<p>Work directed by <a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson</a>, with AI assistance. Both advisories document one hardening effort in software operated by MacBrains Labs. The public ANE dataset and its DOI cover separate measurement summaries.</p></article></div></main><footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/security/">Defensive research</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer></body></html>
