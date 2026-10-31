@@ -24,6 +24,7 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 - `evidence/qwen-placement/`: evidence bundle E/001 (placement tools, recorded output, provenance)
 - `contact/`: public research correspondence
 - `404.html`: not-found page GitHub Pages serves for unknown paths (`noindex`)
+- `security/`: project-owner advisories and sanitized observation summaries for private tooling; separate from ANE measurement evidence
 - `styles.css`: all styling, light and dark via `prefers-color-scheme`, system fonts only (no client-side JavaScript)
 - `favicon.svg`: vector mark
 

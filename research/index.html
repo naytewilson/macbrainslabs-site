@@ -75,6 +75,7 @@
 <a href="/research/" aria-current="page">Research</a>
 <a href="/methods/">Methods</a>
 <a href="/notes/">Notes</a>
+<a href="/security/">Security</a>
 <a href="/contact/">Contact</a>
 </nav>
 </div>
@@ -124,6 +125,8 @@
 <p><strong>Verify the public archive:</strong> <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/PUBLIC_EVIDENCE_AUDIT.md">Run the source and archive integrity checks</a> or inspect the <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/receipts/publication-audit-2026-10-31.json">machine-readable verification receipt</a>. Both the GitHub release tarball and Zenodo source ZIP were compared file-by-file with the original Git tag. This establishes public archive integrity, <strong>not</strong> independent replication, the correctness of private measurements, or physical ANE execution.</p>
 
 <p><strong>Researcher attribution:</strong> <a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson (ORCID iD 0009-0003-4026-8212)</a>. The registered researcher identifier is associated with these source-pinned public summaries, not a claim of external validation.</p>
+
+<p><strong>Defensive engineering:</strong> the separate <a href="/security/">project-owner security advisories</a> document two repaired flaws in private research automation, with source identities, control comparisons and downloadable observation summaries.</p>
 
 <h2 id="qwen"><span class="sec">02</span>Quantized transformer execution</h2>
 <p>A central experiment builds a <strong>28-layer Qwen2.5-1.5B-Instruct</strong> path around four-bit lookup-table weights and native Core ML graph generation. The objective is more precise than “use the Neural Engine”: keep attention, projection, normalization and KV-state machinery in ANE-compatible tensor form and demonstrate the exact assigned device for the resulting operations.</p>
@@ -190,6 +193,7 @@ observation: MLComputePlan assignment</code></pre>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
 <li><a href="/notes/">Field notes</a></li>
+<li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>
 </ul>
 </div>
