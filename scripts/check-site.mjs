@@ -118,11 +118,22 @@ for (const route of pages) {
     assert.equal(art.headline, plain(html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/)[1]));
     assert.equal(art.url, `${base}${route}`);
     assert.equal(art.description, html.match(/<meta name="description" content="([^"]*)">/)[1]);
-    const times = [...html.matchAll(/<dt>(Published|Revised)<\/dt><dd><time datetime="([\d-]+)">/g)].map(m => [m[1], m[2]]);
+    const times = [...html.matchAll(/<dt>(Published|Revised)<\/dt><dd><time datetime="([^"]+)">([^<]+)<\/time>/g)].map(m => [m[1], m[2], m[3]]);
     if (art.datePublished) {
-      assert.equal(times.find(t => t[0] === 'Published')?.[1], art.datePublished, 'datePublished not shown on the page');
-      assert.equal(times.find(t => t[0] === 'Revised')?.[1] ?? art.datePublished, art.dateModified, 'dateModified not shown on the page');
-      assert.ok(art.dateModified >= art.datePublished);
+      const iso = /^(\d{4})-(\d\d)-(\d\d)T\d\d:\d\d:\d\d[+-]\d\d:\d\d$/, day = d => d.slice(0, 10);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      for (const d of [art.datePublished, art.dateModified]) assert.match(d, iso, `${d} is not a full ISO 8601 datetime with offset`);
+      for (const [, dt, text] of times) {
+        const [, y, mo, da] = dt.match(iso) ?? assert.fail(`visible ${dt} is not a full datetime with offset`);
+        assert.equal(text, `${+da} ${months[mo - 1]} ${y}`, `visible date text ${text} does not match ${dt}`);
+      }
+      const shown = kind => times.find(t => t[0] === kind)?.[1];
+      assert.equal(shown('Published'), art.datePublished, 'datePublished not shown on the page');
+      if (shown('Revised')) {
+        assert.equal(shown('Revised'), art.dateModified, 'dateModified not shown on the page');
+        assert.notEqual(day(art.dateModified), day(art.datePublished), 'Revised shown for a same-day change');
+      } else assert.equal(day(art.dateModified), day(art.datePublished), 'a later-day dateModified needs a visible Revised date');
+      assert.ok(Date.parse(art.dateModified) >= Date.parse(art.datePublished));
     } else assert.equal(times.length, 0, 'visible dates without datePublished');
   });
 }

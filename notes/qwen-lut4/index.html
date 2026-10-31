@@ -71,8 +71,8 @@
         "name": "MacBrains Labs",
         "url": "https://macbrainslabs.org/"
       },
-      "datePublished": "2026-10-29",
-      "dateModified": "2026-10-30",
+      "datePublished": "2026-10-29T20:29:10-04:00",
+      "dateModified": "2026-10-30T21:21:13-04:00",
       "keywords": [
         "Qwen2.5",
         "MIL",
@@ -108,8 +108,8 @@
 <div><dt>Weights</dt><dd>LUT4</dd></div>
 <div><dt>Backend</dt><dd>Core ML</dd></div>
 <div><dt>State</dt><dd>KV</dd></div>
-<div><dt>Published</dt><dd><time datetime="2026-10-29">29 Oct 2026</time></dd></div>
-<div><dt>Revised</dt><dd><time datetime="2026-10-30">30 Oct 2026</time></dd></div>
+<div><dt>Published</dt><dd><time datetime="2026-10-29T20:29:10-04:00">29 Oct 2026</time></dd></div>
+<div><dt>Revised</dt><dd><time datetime="2026-10-30T21:21:13-04:00">30 Oct 2026</time></dd></div>
 </dl>
 </div>
 </header>
@@ -127,7 +127,7 @@
 </nav>
 <article class="article">
 <h2 id="result"><span class="sec">01</span>Observed production placement</h2>
-<p>The measured <code>infer</code> graph of the production ANEMLL Core ML conversion (<code>qwen25_monolithic_full_lut4</code>) assigned <strong>2,090 operators to ANE</strong> and <strong>79 to CPU</strong> (96.4% versus 3.6%). The CPU-assigned operations were in the language-model-head argmax/output tail. This distinction matters: the layer stack and KV machinery can be ANE-resident without the output selection tail being ANE-resident.</p>
+<p>The measured <code>infer</code> graph of the production ANEMLL Core ML conversion (<code>qwen25_monolithic_full_lut4</code>) assigned <strong>2,090 operators to ANE</strong> and <strong>79 to CPU</strong> (96.4% versus 3.6%). Those counts are from the June 2026 measurement. A later shipped build of the same model line, recorded as converted on 21 October 2026, gave 2,147 ANE and 82 CPU in its <code>infer</code> function; <a href="/evidence/qwen-placement/#oct30">E/001</a> reports both builds side by side. The CPU-assigned operations were in the language-model-head argmax/output tail. This distinction matters: the layer stack and KV machinery can be ANE-resident without the output selection tail being ANE-resident.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">State primitive</th><th scope="col" class="numeric">ANE</th><th scope="col" class="numeric">CPU</th><th scope="col">Classification</th></tr></thead>
 <tbody>
