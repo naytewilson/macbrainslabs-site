@@ -1,0 +1,35 @@
+name: Refresh publications feed
+on:
+  schedule:
+    - cron: '37 3,9,15,21 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  recheck-and-rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Verify publication last-known-good rules
+        run: node scripts/test-publications-lkg.mjs
+      - name: Re-derive upstream records and rebuild the feed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/update-publications.mjs
+      - name: Verify the site with the rebuilt feed
+        run: node scripts/check-site.mjs
+      - name: Commit the rebuilt feed (last-known-good on any failure)
+        run: |
+          git config user.name "publications-feed-bot"
+          git config user.email "publications@macbrainslabs.org"
+          git add index.html publications
+          if git diff --cached --quiet; then
+            echo "No record changes to publish; the last-known-good feed is current."
+          else
+            git commit -m "publications: archive feed recheck $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push
+          fi
