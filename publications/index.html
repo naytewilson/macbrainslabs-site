@@ -61,7 +61,7 @@
 <p class="lede">The archive release feed for the public research record. Every entry is a published GitHub release tag whose provenance chain was re-derived from upstream at rebuild time — not a new result, not a promotion, not a claim of peer review.</p>
 <dl class="facts">
 <div><dt>Record repository</dt><dd><a href="https://github.com/macbrainslabs/ane-research-records">macbrainslabs/ane-research-records</a></dd></div>
-<div><dt>Last rebuilt</dt><dd><time datetime="2026-11-01T23:04:54Z">1 Nov 2026</time></dd></div>
+<div><dt>Last rebuilt</dt><dd><time datetime="2026-11-01T23:22:21Z">1 Nov 2026</time></dd></div>
 <div><dt>Rebuild sources</dt><dd>release API · manifest at tag · pinned-commit bytes · Zenodo registration</dd></div>
 <div><dt>Cite all versions</dt><dd><a href="https://doi.org/10.5281/zenodo.23798036">DOI 10.5281/zenodo.23798036</a></dd></div>
 </dl>
@@ -82,11 +82,11 @@
 <li><span class="n">03</span><div><h3>Bytes re-checked</h3><p>Release assets are downloaded at rebuild and hashed. Digests must equal those the release API registers, and <code>SHA256SUMS</code> must be internally consistent and agree.</p></div></li>
 <li><span class="n">04</span><div><h3>Provenance re-derived</h3><p>Every listed source document is fetched from the pinned site commit and its SHA-256 must equal the manifest fingerprint. A mismatch marks the record degraded, it is never deleted quietly.</p></div></li>
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
-<li><span class="n">06</span><div><h3>Last-known-good</h3><p>If upstream is unreachable, rate-limited, or a rebuild would downgrade a verified record, nothing is committed: this page keeps its previous snapshot and any failure stays visible in the repository's public workflow history.</p></div></li>
+<li><span class="n">06</span><div><h3>Last-known-good</h3><p>If upstream is unreachable, rate-limited, or a rebuild would downgrade a verified record, nothing is committed: this page keeps its previous snapshot and any failure stays visible in the repository's public workflow history. A new record that is not fully verified is also held — unverified entries are never auto-published.</p></div></li>
 </ol>
 </section>
 
-<section class="section" id="records" aria-labelledby="records-h" data-generated="2026-11-01T23:04:54Z" data-state="ok">
+<section class="section" id="records" aria-labelledby="records-h" data-generated="2026-11-01T23:22:21Z" data-state="ok">
 <div class="wrap">
 <div class="section-head">
 <span class="label">Current records</span>
@@ -98,10 +98,10 @@
 <h3>MacBrains Labs ANE Research Records v0.1.0 - Public Measurement Summaries</h3>
 <p class="pub-statusline"><span class="pub-status pub-status-verified">Re-verified at rebuild</span></p>
 <p><time datetime="2026-10-30T08:17:50Z">30 Oct 2026</time> · tag <code>v0.1.0</code> · source-bound curated summary, not raw results</p>
-<p><a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0">View this release in the archive repository</a>. <a href="https://zenodo.org/records/23798037">Archived as a registered dataset: DOI 10.5281/zenodo.23798037</a>. An archived DOI is not peer review.</p>
+<p><a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0">View this release in the archive repository</a>. <a href="https://zenodo.org/records/23798037">Archived as a registered dataset: DOI 10.5281/zenodo.23798037</a>. An archived DOI is not peer review; the registration state shown above was re-derived from Zenodo at rebuild.</p>
 <div class="pub-dl">
 <div><span class="label">Registered identifiers</span><ul>
-<li><a href="https://doi.org/10.5281/zenodo.23798037">Version DOI 10.5281/zenodo.23798037</a></li><li><a href="https://doi.org/10.5281/zenodo.23798036">All-versions DOI 10.5281/zenodo.23798036</a></li>
+<li><a href="https://doi.org/10.5281/zenodo.23798037">Version DOI 10.5281/zenodo.23798037</a></li><li><a href="https://doi.org/10.5281/zenodo.23798036">All-versions DOI 10.5281/zenodo.23798036</a></li><li><span class="pub-fp-match">registration state: registered_verified — derived from the live Zenodo record at rebuild, not from release text</span></li>
 </ul></div>
 <div><span class="label">Original research provenance</span><ul>
 <li>Pinned source commit <code>27ac1941b26e865b1894a715946e2db7bcf7ed8b</code> in <code>macbrainslabs-site</code></li>

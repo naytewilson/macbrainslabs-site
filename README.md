@@ -47,9 +47,11 @@ The feed does not transcribe release text. For every record it **re-derives** at
 - every source-document fingerprint in the record's `manifest.json` (schema 1.0), by fetching the pinned site commit's bytes and re-hashing them; a mismatch marks the record degraded rather than deleting it;
 - the DOI binding against the Zenodo registration (version DOI, concept DOI, title, publication date, creator ORCID and license); for releases whose tagged manifest predates DOI issuance, the candidate DOI comes from the current citation file and is accepted only when Zenodo's registration itself binds it to that exact tag and repository.
 
+The registered DOI state is always **derived from the verified Zenodo record** (`registered_state` in `publications.json`); the status string in the tagged manifest is preserved as archival provenance only (`tagged_manifest_doi_status`) and never describes the current registration.
+
 Every URL is validated against a host allowlist, and upstream text that fails sanitization stops the rebuild rather than being partially rendered.
 
-**Last-known-good:** a rebuild that fails, is rate-limited, would downgrade an already-verified record, or would remove records silently publishes nothing — the previously committed snapshot stays live and the workflow failure is visible in this repository's Actions history. Records never disappear from the feed on their own; removal requires a human-reviewed commit.
+**Last-known-good:** a rebuild that fails, is rate-limited, would downgrade any previously verified record over unchanged data, carries a new record that is not fully verified, or would remove records silently publishes nothing — the whole update is held, the previously committed snapshot stays live, and the failure is visible in this repository's Actions history. The rule (`scripts/test-publications-lkg.mjs`) fails closed on **any** verified→degraded transition, regardless of how many other releases are unchanged, and compares only the upstream data core (re-derived verification state is excluded from comparison, so a transient check failure can never be mistaken for a data change). Records never disappear from the feed on their own; removal requires a human-reviewed commit.
 
 ## Regression checks
 

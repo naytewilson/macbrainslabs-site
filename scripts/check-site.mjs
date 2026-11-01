@@ -256,27 +256,35 @@ const pubs = (() => {
       }
     }
   });
-  check('publications feed DOI claims carry their binding and registration cross-check', () => {
+  check('publications feed DOI claims derive their registered state from the verified record', () => {
     for (const rec of d.records) {
       const doi = rec.doi;
-      pubClean(doi.doi_status, `${rec.tag} doi_status`, 300);
+      pubClean(doi.tagged_manifest_doi_status, `${rec.tag} tagged_manifest_doi_status`, 300);
+      assert.ok(!('doi_status' in doi), `${rec.tag}: stale doi_status key must not exist`);
       assert.ok(['manifest at the tag', 'citation file at main', 'not issued'].includes(doi.binding_source), `${rec.tag}: binding_source`);
+      assert.ok(['registered_verified', 'mismatch_detected', 'unverifiable_now', 'none'].includes(doi.registered_state), `${rec.tag}: registered_state enum`);
+      const st = doi.crosscheck.state;
+      assert.ok(['pass', 'mismatch', 'unreachable'].includes(st), `${rec.tag}: crosscheck state`);
       if (doi.binding_source === 'not issued') {
         assert.equal(doi.version_doi, null, `${rec.tag}: a not-issued binding must not carry a DOI`);
-        assert.equal(rec.verification.state, 'degraded', `${rec.tag}: not-issued DOI cannot be verified`);
+        assert.match(doi.tagged_manifest_doi_status, /^not issued/u, `${rec.tag}: not-issued binding expects the archived manifest state to start with "not issued"`);
+        assert.equal(doi.registered_state, doi.crosscheck.state === 'unreachable' ? 'unverifiable_now' : 'none', `${rec.tag}: registered_state for a DOI-less record`);
+        assert.notEqual(rec.verification.state, 'verified', `${rec.tag}: not-issued DOI cannot be verified`);
       } else {
         assert.match(doi.version_doi, /^10\.5281\/zenodo\.\d+$/u, `${rec.tag}: version_doi`);
         assert.match(doi.concept_doi, /^10\.5281\/zenodo\.\d+$/u, `${rec.tag}: concept_doi`);
         assert.notEqual(doi.version_doi, doi.concept_doi);
         pubUrl(doi.zenodo_record_url, `${rec.tag}: zenodo_record_url`);
-        assert.ok(new URL(doi.zenodo_record_url).pathname === `/records/${doi.version_doi.split('.').at(-1)}`, `${rec.tag}: record URL does not match the version DOI`);
+        assert.equal(new URL(doi.zenodo_record_url).pathname, `/records/${doi.version_doi.split('.').at(-1)}`, `${rec.tag}: record URL does not match the version DOI`);
         if (doi.binding_source === 'citation file at main') {
           assert.ok('record_version_tag' in doi.crosscheck.comparisons, `${rec.tag}: citation-file binding must show the tag cross-check`);
           assert.ok('archive_reference' in doi.crosscheck.comparisons, `${rec.tag}: citation-file binding must show the archive cross-check`);
         }
+        // A validated DOI must ALWAYS derive its state from the registration:
+        assert.equal(doi.registered_state, { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now' }[st], `${rec.tag}: registered_state must follow the crosscheck`);
+        assert.ok(doi.registered_state !== 'none', `${rec.tag}: a bound DOI cannot have no registration state`);
+        if (st === 'mismatch' || st === 'unreachable') assert.notEqual(rec.verification.state, 'verified', `${rec.tag}: verified record with a non-passing DOI crosscheck`);
       }
-      const st = doi.crosscheck.state;
-      assert.ok(['pass', 'mismatch', 'unreachable'].includes(st), `${rec.tag}: crosscheck state`);
       if (st === 'pass') {
         for (const [k, v] of Object.entries(doi.crosscheck.comparisons)) assert.equal(v, 'match', `${rec.tag}: crosscheck ${k} not a match despite pass state`);
       }
@@ -316,8 +324,8 @@ const pubs = (() => {
       } else {
         assert.ok(guardDegraded || rec.doi.crosscheck.state !== 'pass' || rec.provenance.source_pages.some(p => p.fingerprint_check !== 'match') || !rec.sha256_sums.verified, `${rec.tag}: degraded with no identifiable degraded element`);
       }
-      pubClean(rec.evidence_limits.join(''), `${rec.tag} evidence_limits`, 400 * 12);
       assert.ok(Array.isArray(rec.evidence_limits) && rec.evidence_limits.length >= 1, `${rec.tag}: evidence_limits`);
+      pubClean(rec.evidence_limits.join(''), `${rec.tag} evidence_limits`, 400 * 12);
     }
   });
   const feedHtml = read('/publications/');

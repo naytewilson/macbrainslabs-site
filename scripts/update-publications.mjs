@@ -14,15 +14,21 @@
 //      allowlist before it can appear as a link; rejected URLs degrade the
 //      record instead of silently dropping the claim.
 //   4. A rebuild that would downgrade a previously verified record (same raw
-//      upstream data, worse verification) publishes nothing: the deployed
-//      last-known-good snapshot stays.
+//      upstream data core, worse re-derived verification) publishes nothing:
+//      the deployed last-known-good snapshot stays. This fails closed on ANY
+//      verified -> degraded transition, no matter how many other records are
+//      unchanged, and it holds the whole update when a NEW record is not fully
+//      verified (no auto-publication of unverified entries). The comparison
+//      uses a data core that excludes re-derived verification state, so a
+//      transient check failure can never smuggle a downgrade through.
 //
 // Exit codes: 0 wrote changed/changed-state output, or already current;
-// 1 structural failure (never commit); 2 upstream unreachable or the rebuild
-// would downgrade verified records (keep last-known-good).
+// 1 structural failure (never commit); 2 upstream unreachable or the
+// last-known-good decision held the update (keep last-known-good).
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { pathToFileURL } from 'node:url';
 
 const BASE = 'https://macbrainslabs.org';
 const RELEASES_REPO = 'macbrainslabs/ane-research-records';
@@ -326,7 +332,10 @@ function parseCitation(text, what) {
 async function resolveDoi(manifest, rel) {
   const tag = rel.tag_name;
   const limits = basicManifestChecks(manifest, rel);
-  const doiStatus = cleanText(manifest.doi_status, `${tag} doi_status`, 300);
+  // Archival provenance: the status string the tagged manifest itself carried.
+  // It is never used to describe the CURRENT DOI state — that is derived from
+  // the cross-check below (registered_state) — but it is preserved verbatim.
+  const taggedManifestDoiStatus = cleanText(manifest.doi_status, `${tag} doi_status in the tagged manifest`, 300);
 
   // Path A: the manifest at the tag itself carries a DOI binding.
   if (typeof manifest.version_doi === 'string' || typeof manifest.concept_doi === 'string' || typeof manifest.zenodo_record_url === 'string') {
@@ -341,7 +350,7 @@ async function resolveDoi(manifest, rel) {
       version_doi: manifest.version_doi,
       concept_doi: manifest.concept_doi,
       zenodo_record_url: manifest.zenodo_record_url,
-      doi_status: doiStatus,
+      tagged_manifest_doi_status: taggedManifestDoiStatus,
       binding_source: 'manifest at the tag',
       source_detail: 'the DOI binding comes from manifest.json fetched at this exact tag',
       crosscheck: cc,
@@ -352,7 +361,7 @@ async function resolveDoi(manifest, rel) {
   // Path B: the tagged manifest recorded no DOI at release time. Resolve a
   // candidate from CITATION.cff on main, then require the Zenodo registration
   // itself to bind that DOI to this exact tag, date, title and ORCID/license.
-  assert.ok(/^not issued/.test(doiStatus), `${tag}: manifest carries no DOI fields and doi_status does not state "not issued"` +
+  assert.ok(/^not issued/.test(taggedManifestDoiStatus), `${tag}: manifest carries no DOI fields and doi_status does not state "not issued"` +
     ' — refusing to invent one');
   const raw = await fetchBuf(`https://api.github.com/repos/${RELEASES_REPO}/contents/CITATION.cff?ref=main`, 'gh');
   const item = JSON.parse(raw.toString('utf8'));
@@ -369,10 +378,10 @@ async function resolveDoi(manifest, rel) {
     if (e.http) throw new Error(`zenodo candidate DOI ${candidate} failed structurally: ${e.message}`);
     return {
       version_doi: null, concept_doi: null, zenodo_record_url: null,
-      doi_status: doiStatus,
+      tagged_manifest_doi_status: taggedManifestDoiStatus,
       binding_source: 'not issued',
-      source_detail: 'no DOI could be re-derived for this tag at rebuild; the record keeps its DOI-free archived state',
-      crosscheck: { state: 'unreachable', comparisons: null, detail: 'Zenodo registration could not be fetched at rebuild time' },
+      source_detail: 'the archive repository could not be reached to re-derive the registered DOI at rebuild; no DOI claim is published',
+      crosscheck: { state: 'unreachable', comparisons: null, detail: 'the Zenodo registration could not be fetched at rebuild time' },
       evidence_limits: limits
     };
   }
@@ -393,7 +402,7 @@ async function resolveDoi(manifest, rel) {
     version_doi: candidate,
     concept_doi: typeof rec.conceptdoi === 'string' && doiId(rec.conceptdoi, 'concept doi') ? rec.conceptdoi : null,
     zenodo_record_url: `https://zenodo.org/records/${doiId(candidate, 'candidate')}`,
-    doi_status: doiStatus,
+    tagged_manifest_doi_status: taggedManifestDoiStatus,
     binding_source: 'citation file at main',
     source_detail: 'the tagged manifest recorded no DOI at release time; the candidate DOI comes from the citation file on main and was accepted only because the Zenodo registration binds it to this tag',
     crosscheck: { state: failed.length ? 'mismatch' : 'pass', comparisons, detail: failed.length ? `registration disagrees on: ${failed.join(', ')}` : null },
@@ -467,6 +476,11 @@ async function buildRecord(rel) {
   });
 
   const state = guards.every(g => g.state === 'pass') ? 'verified' : 'degraded';
+  // The current registered DOI state is derived exclusively from the re-check
+  // result, never from the archived manifest text.
+  const registered_state = doi.version_doi
+    ? ({ pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now' }[doi.crosscheck.state] ?? 'unverifiable_now')
+    : 'none';
   return {
     tag: rel.tag_name,
     release_name: rel.name,
@@ -484,8 +498,9 @@ async function buildRecord(rel) {
       version_doi: doi.version_doi,
       concept_doi: doi.concept_doi,
       zenodo_record_url: doi.zenodo_record_url,
-      doi_status: doi.doi_status,
+      tagged_manifest_doi_status: doi.tagged_manifest_doi_status,
       binding_source: doi.binding_source,
+      registered_state,
       crosscheck: { state: doi.crosscheck.state, comparisons: doi.crosscheck.comparisons, detail: doi.crosscheck.detail }
     },
     assets: relAssets.assets.map(a => ({
@@ -511,11 +526,12 @@ function renderRecord(rec) {
     return `<li>${attrsLink(p.url, p.path.replace(/index\.html$/, ''))} · <code>${esc(p.sha256)}</code> · <span class="pub-fp-${esc(p.fingerprint_check)}">${esc(mark)}</span></li>`;
   }).join('');
   const doiLines = [
-    rec.doi.version_doi ? `<li>${attrsLink(`https://doi.org/${rec.doi.version_doi}`, `Version DOI ${rec.doi.version_doi}`)}</li>` : `<li>No version DOI was registered at rebuild (state: ${esc(rec.doi.doi_status)}).</li>`,
-    rec.doi.concept_doi ? `<li>${attrsLink(`https://doi.org/${rec.doi.concept_doi}`, `All-versions DOI ${rec.doi.concept_doi}`)}</li>` : null,
-  ].filter(Boolean).join('');
+    rec.doi.version_doi
+      ? `<li>${attrsLink(`https://doi.org/${rec.doi.version_doi}`, `Version DOI ${rec.doi.version_doi}`)}</li>${rec.doi.concept_doi ? `<li>${attrsLink(`https://doi.org/${rec.doi.concept_doi}`, `All-versions DOI ${rec.doi.concept_doi}`)}</li>` : ''}<li><span class="pub-fp-${rec.doi.registered_state === 'registered_verified' ? 'match' : 'unreachable'}">registration state: ${esc(rec.doi.registered_state)} — derived from the live Zenodo record at rebuild, not from release text</span></li>`
+      : `<li><span class="pub-fp-unreachable">no DOI was verifiable at rebuild (released DOI state recorded in the tagged manifest: ${esc(rec.doi.tagged_manifest_doi_status)})</span></li>`
+  ].join('');
   const zenodoLine = rec.doi.zenodo_record_url
-    ? `${attrsLink(rec.doi.zenodo_record_url, `Archived as a registered dataset: DOI ${rec.doi.version_doi}`)}. An archived DOI is not peer review.`
+    ? `${attrsLink(rec.doi.zenodo_record_url, `Archived as a registered dataset: DOI ${rec.doi.version_doi}`)}. An archived DOI is not peer review; the registration state shown above was re-derived from Zenodo at rebuild.`
     : 'No DOI claim is attached to this rebuild — see the verification guards.';
   const assets = rec.assets.map(a =>
     `<li><code>${esc(a.name)}</code> <span class="num">(${a.size.toLocaleString('en-US')} bytes)</span><br><span class="pub-digest">SHA-256 <code>${esc(a.sha256 ?? 'byte verification pending')}</code></span> · ${attrsLink(a.url, 'download at release')}</li>`
@@ -617,7 +633,7 @@ function renderFeedPage(data) {
 <div><dt>Record repository</dt><dd>${attrsLink(`https://github.com/${RELEASES_REPO}`, RELEASES_REPO)}</dd></div>
 <div><dt>Last rebuilt</dt><dd><time datetime="${esc(generated)}">${esc(humanDate(generated))}</time></dd></div>
 <div><dt>Rebuild sources</dt><dd>release API · manifest at tag · pinned-commit bytes · Zenodo registration</dd></div>
-<div><dt>Cite all versions</dt><dd>${newest.doi.concept_doi ? attrsLink(`https://doi.org/${newest.doi.concept_doi}`, `DOI ${newest.doi.concept_doi}`) : `none registered at rebuild (${esc(newest.doi.doi_status)})`}</dd></div>
+<div><dt>Cite all versions</dt><dd>${newest.doi.concept_doi ? attrsLink(`https://doi.org/${newest.doi.concept_doi}`, `DOI ${newest.doi.concept_doi}`) : `no DOI verifiable at rebuild (registration state: ${esc(newest.doi.registered_state)})`}</dd></div>
 </dl>
 </div>
 </header>
@@ -636,7 +652,7 @@ function renderFeedPage(data) {
 <li><span class="n">03</span><div><h3>Bytes re-checked</h3><p>Release assets are downloaded at rebuild and hashed. Digests must equal those the release API registers, and <code>SHA256SUMS</code> must be internally consistent and agree.</p></div></li>
 <li><span class="n">04</span><div><h3>Provenance re-derived</h3><p>Every listed source document is fetched from the pinned site commit and its SHA-256 must equal the manifest fingerprint. A mismatch marks the record degraded, it is never deleted quietly.</p></div></li>
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
-<li><span class="n">06</span><div><h3>Last-known-good</h3><p>If upstream is unreachable, rate-limited, or a rebuild would downgrade a verified record, nothing is committed: this page keeps its previous snapshot and any failure stays visible in the repository's public workflow history.</p></div></li>
+<li><span class="n">06</span><div><h3>Last-known-good</h3><p>If upstream is unreachable, rate-limited, or a rebuild would downgrade a verified record, nothing is committed: this page keeps its previous snapshot and any failure stays visible in the repository's public workflow history. A new record that is not fully verified is also held — unverified entries are never auto-published.</p></div></li>
 </ol>
 </section>
 
@@ -755,39 +771,19 @@ async function main() {
     policy: {
       qualifies: 'a published GitHub release tag vX.Y.Z of the configured archive repository whose manifest.json (schema 1.0) at that tag validates; draft and prerelease releases are structurally excluded',
       recheck: 'claims are re-derived at rebuild: asset bytes hashed against registered digests and SHA256SUMS; manifest fingerprints compared with pinned-commit bytes; DOI registration cross-checked via the Zenodo API; release prose is never rendered',
-      last_known_good: 'a failed, unreachable or degraded-silent rebuild publishes nothing and leaves the previous snapshot deployed',
+      last_known_good: 'a failed, unreachable or held rebuild publishes nothing and leaves the previous snapshot deployed: any previously verified record re-deriving degraded over unchanged data, and any new record that is not fully verified, holds the whole update',
       refresh: 'scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch'
     },
     records
   };
   data.upstream_status = records.every(r => r.verification.state === 'verified') ? 'ok' : 'partial';
 
-  // Last-known-good rule: never publish a snapshot that only downgrades the
-  // verification state of records whose upstream data did not change.
-  let identicalData = false;
-  if (prev && Array.isArray(prev.records)) {
-    const prevById = new Map(prev.records.map(r => [r.tag, r]));
-    identicalData = records.length === prev.records.length &&
-      records.every((rec, i) => prev.records[i].tag === rec.tag && JSON.stringify(rec) === JSON.stringify(prevById.get(rec.tag)));
-    if (identicalData) {
-      // Keep the original generation stamp: no churn when nothing changed.
-      data.generated_at = prev.generated_at ?? data.generated_at;
-    }
-    if (records.length === prev.records.length && !identicalData) {
-      const downgradedOnly = records.every(rec => {
-        const p = prevById.get(rec.tag);
-        if (!p || !p.verification || !p.sha256_sums) return false;
-        const dataSame = JSON.stringify(rec.provenance) === JSON.stringify(p.provenance) &&
-          JSON.stringify(rec.doi) === JSON.stringify(p.doi) &&
-          JSON.stringify(rec.assets) === JSON.stringify(p.assets) &&
-          rec.sha256_sums.verified === p.sha256_sums.verified;
-        return dataSame && p.verification.state === 'verified' && rec.verification.state === 'degraded';
-      });
-      if (downgradedOnly) {
-        die(2, 'a rebuild with unchanged upstream data would downgrade verified record(s); keeping the deployed last-known-good snapshot');
-      }
-    }
-  }
+  // Last-known-good decision: fail closed on any verified -> degraded
+  // transition over unchanged data, hold updates carrying unverified new
+  // records, and never publish a verbatim copy of the previous snapshot.
+  const outcome = lastKnownGoodDecision(prev?.records ?? [], records);
+  if (outcome.decision === 'hold') die(2, `last-known-good hold: ${outcome.reasons.join('; ')}`);
+  data.generated_at = outcome.decision === 'no_change' ? (prev?.generated_at ?? data.generated_at) : data.generated_at;
 
   const json = `${JSON.stringify(data, null, 2)}\n`;
   const html = renderFeedPage(data);
@@ -805,11 +801,75 @@ async function main() {
   writeIfChanged(feedJsonPath, json);
   writeIfChanged(feedHtmlPath, html);
   writeIfChanged(homePath, home);
-  if (identicalData && wrote === 0) {
+  if (outcome.decision === 'no_change' && wrote === 0) {
     output(`unchanged: upstream data and verification identical, rendered output matches (records from ${data.generated_at})`);
     return;
   }
-  output(`done: ${records.length} record(s), upstream_status=${data.upstream_status}, wrote=${wrote}${identicalData ? ' (records identical; rendering refreshed)' : ''}, ${Date.now() - started} ms`);
+  output(`done: ${records.length} record(s), upstream_status=${data.upstream_status}, decision=${outcome.decision}, wrote=${wrote}, ${Date.now() - started} ms`);
 }
 
-main().catch(e => die(1, e && e.stack ? e.stack : String(e)));
+// The data core of a record: everything derived from the archive repository at
+// rebuild time, minus every field that is itself a re-derivation result
+// (cross-check state, guard states, verified asset digests, fingerprint
+// outcomes, checksum status). Two cores differ only when the upstream record,
+// its tag-time manifest or its registered DOI candidate actually changed.
+export function coreKey(rec) {
+  return JSON.stringify({
+    tag: rec.tag,
+    release_name: rec.release_name,
+    published_at: rec.published_at,
+    release_url: rec.release_url,
+    record_class: rec.record_class,
+    zenodo_title: rec.zenodo_title,
+    record_repository: rec.record_repository,
+    provenance: {
+      site_repository: rec.provenance.site_repository,
+      site_commit: rec.provenance.site_commit,
+      source_pages: rec.provenance.source_pages.map(p => ({ path: p.path, url: p.url, sha256: p.sha256 }))
+    },
+    doi: {
+      version_doi: rec.doi.version_doi,
+      concept_doi: rec.doi.concept_doi,
+      zenodo_record_url: rec.doi.zenodo_record_url,
+      tagged_manifest_doi_status: rec.doi.tagged_manifest_doi_status,
+      binding_source: rec.doi.binding_source
+    },
+    assets: rec.assets.map(a => ({ name: a.name, url: a.url, size: a.size, digest: a.digest })),
+    evidence_limits: rec.evidence_limits
+  });
+}
+
+// Multi-record last-known-good rule. Every refusal holds the WHOLE update:
+// partially published feeds would drop records the previous snapshot showed,
+// which is exactly what "nothing disappears on its own" forbids.
+export function lastKnownGoodDecision(prevRecords, newRecords) {
+  const reasons = [];
+  const prev = Array.isArray(prevRecords) ? prevRecords : [];
+  assert.ok(Array.isArray(newRecords) && newRecords.length >= 1, 'no rebuilt records');
+  const newById = new Map(newRecords.map(r => [r.tag, r]));
+  for (const p of prev) {
+    const n = newById.get(p.tag);
+    if (!n) { reasons.push(`${p.tag}: record vanished upstream; removal requires human review`); continue; }
+    const coreSame = coreKey(n) === coreKey(p);
+    if (!coreSame) continue; // upstream data changed: the new data may be published (its state is derived honestly)
+    if (p.verification?.state === 'verified' && n.verification.state === 'degraded') {
+      reasons.push(`${p.tag}: verified record re-derived degraded with unchanged upstream data (fail closed)`);
+    }
+  }
+  const prevIds = new Set(prev.map(r => r.tag));
+  for (const n of newRecords) {
+    if (!prevIds.has(n.tag) && n.verification.state !== 'verified') {
+      reasons.push(`${n.tag}: new record is not fully verified; holding the update instead of auto-publishing an unverified entry`);
+    }
+  }
+  if (reasons.length) return { decision: 'hold', reasons };
+  const identical = prev.length > 0 && prev.length === newRecords.length &&
+    newRecords.every((rec, i) => prev[i].tag === rec.tag && rec.verification.state === prev[i]?.verification?.state && coreKey(rec) === coreKey(prev[i]));
+  if (identical) return { decision: 'no_change', reasons: [] };
+  return { decision: 'publish', reasons: [] };
+}
+
+const invokedDirectly = process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
+if (invokedDirectly) {
+  main().catch(e => die(1, e && e.stack ? e.stack : String(e)));
+}

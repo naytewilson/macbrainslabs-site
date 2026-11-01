@@ -1,6 +1,6 @@
 {
   "schema": "macbrainslabs.publications.v1",
-  "generated_at": "2026-11-01T23:04:54Z",
+  "generated_at": "2026-11-01T23:22:21Z",
   "source": {
     "release_repository": "macbrainslabs/ane-research-records",
     "release_repository_url": "https://github.com/macbrainslabs/ane-research-records",
@@ -11,7 +11,7 @@
   "policy": {
     "qualifies": "a published GitHub release tag vX.Y.Z of the configured archive repository whose manifest.json (schema 1.0) at that tag validates; draft and prerelease releases are structurally excluded",
     "recheck": "claims are re-derived at rebuild: asset bytes hashed against registered digests and SHA256SUMS; manifest fingerprints compared with pinned-commit bytes; DOI registration cross-checked via the Zenodo API; release prose is never rendered",
-    "last_known_good": "a failed, unreachable or degraded-silent rebuild publishes nothing and leaves the previous snapshot deployed",
+    "last_known_good": "a failed, unreachable or held rebuild publishes nothing and leaves the previous snapshot deployed: any previously verified record re-deriving degraded over unchanged data, and any new record that is not fully verified, holds the whole update",
     "refresh": "scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch"
   },
   "records": [
@@ -57,8 +57,9 @@
         "version_doi": "10.5281/zenodo.23798037",
         "concept_doi": "10.5281/zenodo.23798036",
         "zenodo_record_url": "https://zenodo.org/records/23798037",
-        "doi_status": "not issued; Zenodo authorization and deposit still required",
+        "tagged_manifest_doi_status": "not issued; Zenodo authorization and deposit still required",
         "binding_source": "citation file at main",
+        "registered_state": "registered_verified",
         "crosscheck": {
           "state": "pass",
           "comparisons": {
