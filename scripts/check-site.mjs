@@ -7,8 +7,8 @@ import crypto from 'node:crypto';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
-const pages = ['/', '/research/', '/methods/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/'];
-const assets = ['/404.html', '/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS'];
+const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/'];
+const assets = ['/404.html', '/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -201,6 +201,164 @@ check('sitemap canonical URLs', () => {
   const xml = read('/sitemap.xml');
   for(const route of pages) assert.ok(xml.includes(`<loc>${base}${route}</loc>`), `missing ${route}`);
   assert.ok(!xml.includes('naytewilson.github.io'));
+});
+// -- Publications release feed contract --------------------------------------
+const PUB_LINK_HOSTS = ['github.com', 'zenodo.org', 'doi.org', 'macbrainslabs.org', 'orcid.org'];
+const pubClean = (s, what, max = 400) => {
+  assert.ok(typeof s === 'string' && s.length > 0 && s.length <= max, `${what}: missing or oversized`);
+  assert.ok(!/[<>"]/.test(s) && !/[\u0000-\u001f\u007f]/.test(s), `${what}: contains angle/quote/control characters`);
+  return s;
+};
+const pubUrl = (u, what) => {
+  let p;
+  try { p = new URL(u); } catch { throw new Error(`${what}: unparseable URL`); }
+  assert.equal(p.protocol, 'https:', `${what}: not https`);
+  assert.ok(PUB_LINK_HOSTS.includes(p.host), `${what}: ${p.host} outside the link allowlist`);
+  assert.ok(!p.username && !p.password, `${what}: userinfo in URL`);
+};
+
+const pubs = (() => {
+  const d = JSON.parse(fs.readFileSync(path.join(root, 'publications/publications.json'), 'utf8'));
+  check('publications feed schema and policy', () => {
+    assert.equal(d.schema, 'macbrainslabs.publications.v1');
+    assert.match(d.generated_at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/u);
+    assert.equal(d.source.release_repository, 'macbrainslabs/ane-research-records');
+    assert.equal(d.source.site_repository, 'https://github.com/naytewilson/macbrainslabs-site');
+    assert.equal(d.source.researcher_orcid, '0009-0003-4026-8212');
+    for (const [k, v] of Object.entries(d.policy)) pubClean(v, `policy ${k}`, 600);
+    assert.ok(['ok', 'partial'].includes(d.upstream_status));
+  });
+  check('publications feed records are published, bounded and qualify', () => {
+    assert.ok(Array.isArray(d.records) && d.records.length >= 1 && d.records.length <= 48, 'records out of bounds');
+    const tags = new Set();
+    for (const rec of d.records) {
+      assert.ok(!tags.has(rec.tag), `duplicate tag ${rec.tag}`);
+      tags.add(rec.tag);
+      assert.match(rec.tag, /^v[0-9]+\.[0-9]+\.[0-9]+$/u, `bad tag ${rec.tag}`);
+      pubClean(rec.release_name, `${rec.tag} release_name`, 300);
+      pubClean(rec.record_class, `${rec.tag} record_class`, 200);
+      pubClean(rec.zenodo_title, `${rec.tag} zenodo_title`, 300);
+      assert.match(rec.published_at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/u, `${rec.tag}: published_at not ISO-UTC`);
+      assert.ok(rec.published_at.slice(0, 10) >= '2026-01-01', `${rec.tag}: implausibly old record`);
+    }
+  });
+  check('publications feed provenance is exact and re-checkable', () => {
+    for (const rec of d.records) {
+      assert.equal(rec.provenance.site_repository, 'https://github.com/naytewilson/macbrainslabs-site');
+      assert.match(rec.provenance.site_commit, /^[a-f0-9]{40}$/u, `${rec.tag}: site_commit`);
+      assert.ok(Array.isArray(rec.provenance.source_pages) && rec.provenance.source_pages.length >= 1 && rec.provenance.source_pages.length <= 16, `${rec.tag}: source_pages out of bounds`);
+      for (const p of rec.provenance.source_pages) {
+        pubClean(p.path, `${rec.tag} source path`, 200);
+        assert.ok(!p.path.startsWith('/') && !p.path.includes('..'), `${rec.tag}: unsafe source path`);
+        assert.match(p.sha256, /^[a-f0-9]{64}$/u, `${rec.tag}: fingerprint not sha256`);
+        assert.ok(['match', 'mismatch', 'unreachable'].includes(p.fingerprint_check), `${rec.tag}: fingerprint state`);
+        pubUrl(p.url, `${rec.tag} source url`);
+      }
+    }
+  });
+  check('publications feed DOI claims carry their binding and registration cross-check', () => {
+    for (const rec of d.records) {
+      const doi = rec.doi;
+      pubClean(doi.doi_status, `${rec.tag} doi_status`, 300);
+      assert.ok(['manifest at the tag', 'citation file at main', 'not issued'].includes(doi.binding_source), `${rec.tag}: binding_source`);
+      if (doi.binding_source === 'not issued') {
+        assert.equal(doi.version_doi, null, `${rec.tag}: a not-issued binding must not carry a DOI`);
+        assert.equal(rec.verification.state, 'degraded', `${rec.tag}: not-issued DOI cannot be verified`);
+      } else {
+        assert.match(doi.version_doi, /^10\.5281\/zenodo\.\d+$/u, `${rec.tag}: version_doi`);
+        assert.match(doi.concept_doi, /^10\.5281\/zenodo\.\d+$/u, `${rec.tag}: concept_doi`);
+        assert.notEqual(doi.version_doi, doi.concept_doi);
+        pubUrl(doi.zenodo_record_url, `${rec.tag}: zenodo_record_url`);
+        assert.ok(new URL(doi.zenodo_record_url).pathname === `/records/${doi.version_doi.split('.').at(-1)}`, `${rec.tag}: record URL does not match the version DOI`);
+        if (doi.binding_source === 'citation file at main') {
+          assert.ok('record_version_tag' in doi.crosscheck.comparisons, `${rec.tag}: citation-file binding must show the tag cross-check`);
+          assert.ok('archive_reference' in doi.crosscheck.comparisons, `${rec.tag}: citation-file binding must show the archive cross-check`);
+        }
+      }
+      const st = doi.crosscheck.state;
+      assert.ok(['pass', 'mismatch', 'unreachable'].includes(st), `${rec.tag}: crosscheck state`);
+      if (st === 'pass') {
+        for (const [k, v] of Object.entries(doi.crosscheck.comparisons)) assert.equal(v, 'match', `${rec.tag}: crosscheck ${k} not a match despite pass state`);
+      }
+    }
+  });
+  check('publications feed assets are checksummed archives', () => {
+    for (const rec of d.records) {
+      assert.ok(Array.isArray(rec.assets) && rec.assets.length >= 2, `${rec.tag}: asset list`);
+      const names = new Set(rec.assets.map(a => a.name));
+      assert.ok(names.has('SHA256SUMS'), `${rec.tag}: no SHA256SUMS asset`);
+      for (const a of rec.assets) {
+        assert.match(a.name, /^[A-Za-z0-9._-]+$/u, `${rec.tag}: asset name form`);
+        assert.ok(Number.isInteger(a.size) && a.size > 0, `${rec.tag}: asset size`);
+        assert.match(a.digest, /^sha256:[a-f0-9]{64}$/u, `${rec.tag}: asset registered digest`);
+        pubUrl(a.url, `${rec.tag} asset url`);
+        assert.ok(a.sha256 === null || /^[a-f0-9]{64}$/.test(a.sha256), `${rec.tag}: asset verified digest`);
+      }
+      assert.ok(typeof rec.sha256_sums.verified === 'boolean', `${rec.tag}: sha256_sums must be boolean`);
+    }
+  });
+  check('publications feed verification states are self-consistent', () => {
+    for (const rec of d.records) {
+      assert.ok(['verified', 'degraded'].includes(rec.verification.state), `${rec.tag}: verification state`);
+      assert.ok(Array.isArray(rec.verification.guards) && rec.verification.guards.length >= 2, `${rec.tag}: guards`);
+      for (const g of rec.verification.guards) {
+        pubClean(g.name, `${rec.tag} guard name`, 200);
+        assert.ok(['pass', 'degraded'].includes(g.state), `${rec.tag}: guard state`);
+      }
+      const state = rec.verification.state;
+      const guardDegraded = rec.verification.guards.some(g => g.state !== 'pass');
+      if (state === 'verified') {
+        assert.ok(!guardDegraded, `${rec.tag}: shown verified while a guard is degraded`);
+        assert.equal(rec.sha256_sums.verified, true, `${rec.tag}: shown verified without a re-verified checksum file`);
+        assert.equal(rec.doi.crosscheck.state, 'pass', `${rec.tag}: shown verified without a passing DOI cross-check`);
+        for (const p of rec.provenance.source_pages) assert.equal(p.fingerprint_check, 'match', `${rec.tag}: shown verified without full fingerprint matches`);
+        for (const a of rec.assets) assert.match(a.sha256 ?? 'x', /^[a-f0-9]{64}$/u, `${rec.tag}: verified record with unverified asset digest`);
+      } else {
+        assert.ok(guardDegraded || rec.doi.crosscheck.state !== 'pass' || rec.provenance.source_pages.some(p => p.fingerprint_check !== 'match') || !rec.sha256_sums.verified, `${rec.tag}: degraded with no identifiable degraded element`);
+      }
+      pubClean(rec.evidence_limits.join(''), `${rec.tag} evidence_limits`, 400 * 12);
+      assert.ok(Array.isArray(rec.evidence_limits) && rec.evidence_limits.length >= 1, `${rec.tag}: evidence_limits`);
+    }
+  });
+  const feedHtml = read('/publications/');
+  check('publications page renders exactly the feed records', () => {
+    for (const rec of d.records) assert.ok(feedHtml.includes(`data-tag="${rec.tag}"`), `${rec.tag} not rendered on the publications page`);
+    assert.ok(feedHtml.includes(`data-generated="${d.generated_at}"`), 'feed page does not carry the feed generation stamp');
+    assert.ok(feedHtml.includes(`data-state="${d.upstream_status}"`), 'feed page does not carry the upstream status');
+    for (const rec of d.records) {
+      for (const p of rec.provenance.source_pages) {
+        if (p.fingerprint_check === 'match') assert.ok(feedHtml.includes(p.sha256), `${rec.tag}: fingerprint ${p.sha256.slice(0, 12)} not shown on the page`);
+      }
+      for (const a of rec.assets) {
+        if (a.sha256) assert.ok(feedHtml.includes(a.sha256), `${rec.tag}: asset digest not shown`);
+      }
+    }
+  });
+  check('home publications block is bound to the feed', () => {
+    const home = read('/');
+    const m = home.match(/publications-latest:start([\s\S]*?)publications-latest:end/u);
+    assert.ok(m, 'home lacks the publications marker block');
+    for (const rec of d.records) assert.ok(m[1].includes(rec.tag) && m[1].includes(rec.zenodo_title), `home block missing ${rec.tag}`);
+    assert.ok(home.includes('<a class="more" href="/publications/">'), 'home lacks the full-feed link');
+    const nav = home.match(/<nav class="nav"[^>]*>([\s\S]*?)<\/nav>/u);
+    assert.ok(nav && nav[1].includes('href="/publications/"'), 'home nav misses Publications');
+  });
+})();
+check('no client-side JavaScript or inline handlers anywhere', () => {
+  function* htmlFiles(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (e.isDirectory()) {
+        if (e.name === '.git') continue;
+        yield* htmlFiles(path.join(dir, e.name));
+      } else if (e.name.endsWith('.html')) yield path.join(dir, e.name);
+    }
+  }
+  for (const f of [...htmlFiles(root)]) {
+    const s = fs.readFileSync(f, 'utf8');
+    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]), `${f}: <script> without JSON-LD type`);
+    assert.ok(!/javascript:/i.test(s), `${f}: javascript: URL present`);
+    for (const m of s.matchAll(/<[^>]*\s(on[a-z][a-z]*)\s*=/gi)) throw new Error(`${f}: inline event handler (${m[1]})`);
+  }
 });
 if (process.argv.includes('--live')) {
   const all = [...pages, ...assets];

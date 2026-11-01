@@ -1,0 +1,138 @@
+{
+  "schema": "macbrainslabs.publications.v1",
+  "generated_at": "2026-11-01T23:04:54Z",
+  "source": {
+    "release_repository": "macbrainslabs/ane-research-records",
+    "release_repository_url": "https://github.com/macbrainslabs/ane-research-records",
+    "site_repository": "https://github.com/naytewilson/macbrainslabs-site",
+    "publisher": "MacBrains Labs (independent)",
+    "researcher_orcid": "0009-0003-4026-8212"
+  },
+  "policy": {
+    "qualifies": "a published GitHub release tag vX.Y.Z of the configured archive repository whose manifest.json (schema 1.0) at that tag validates; draft and prerelease releases are structurally excluded",
+    "recheck": "claims are re-derived at rebuild: asset bytes hashed against registered digests and SHA256SUMS; manifest fingerprints compared with pinned-commit bytes; DOI registration cross-checked via the Zenodo API; release prose is never rendered",
+    "last_known_good": "a failed, unreachable or degraded-silent rebuild publishes nothing and leaves the previous snapshot deployed",
+    "refresh": "scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch"
+  },
+  "records": [
+    {
+      "tag": "v0.1.0",
+      "release_name": "MacBrains Labs ANE Research Records v0.1.0 - Public Measurement Summaries",
+      "published_at": "2026-10-30T08:17:50Z",
+      "release_url": "https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0",
+      "record_class": "source-bound curated summary, not raw results",
+      "zenodo_title": "MacBrains Labs ANE Research Records, 2026: Public Measurement Summaries",
+      "record_repository": "https://github.com/macbrainslabs/ane-research-records",
+      "provenance": {
+        "site_repository": "https://github.com/naytewilson/macbrainslabs-site",
+        "site_commit": "27ac1941b26e865b1894a715946e2db7bcf7ed8b",
+        "source_pages": [
+          {
+            "path": "methods/index.html",
+            "url": "https://macbrainslabs.org/methods/",
+            "sha256": "e22fc13c7a6665589ec29e642cbc6657a22cc09f68c961f8843cc9b29e79884f",
+            "fingerprint_check": "match"
+          },
+          {
+            "path": "notes/decode-regimes/index.html",
+            "url": "https://macbrainslabs.org/notes/decode-regimes/",
+            "sha256": "5d70729baca8ea3d82db41588b30eb1e7cfcb48e1498b2ab6e7b36ec50821c03",
+            "fingerprint_check": "match"
+          },
+          {
+            "path": "notes/lfm-parity/index.html",
+            "url": "https://macbrainslabs.org/notes/lfm-parity/",
+            "sha256": "f23b5c38e8916a3b36c0e1f8f515577505a6d6f7d0f5ed701b66308000a3c198",
+            "fingerprint_check": "match"
+          },
+          {
+            "path": "notes/qwen-lut4/index.html",
+            "url": "https://macbrainslabs.org/notes/qwen-lut4/",
+            "sha256": "1a83a9091dc1e4260ca887f95269273b934033da143aa40b4265460ea26f5d25",
+            "fingerprint_check": "match"
+          }
+        ]
+      },
+      "doi": {
+        "version_doi": "10.5281/zenodo.23798037",
+        "concept_doi": "10.5281/zenodo.23798036",
+        "zenodo_record_url": "https://zenodo.org/records/23798037",
+        "doi_status": "not issued; Zenodo authorization and deposit still required",
+        "binding_source": "citation file at main",
+        "crosscheck": {
+          "state": "pass",
+          "comparisons": {
+            "version_doi": "match",
+            "record_version_tag": "match",
+            "archive_reference": "match",
+            "title": "match",
+            "publication_date": "match",
+            "creator_orcid": "match",
+            "license": "match"
+          },
+          "detail": null
+        }
+      },
+      "assets": [
+        {
+          "name": "ane-research-records-v0.1.0.tar.gz",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/v0.1.0/ane-research-records-v0.1.0.tar.gz",
+          "size": 13284,
+          "digest": "sha256:6a05314d58d50481d4bb294f559253489829d45bb5c3a7868868d9e095b90bdd",
+          "sha256": "6a05314d58d50481d4bb294f559253489829d45bb5c3a7868868d9e095b90bdd"
+        },
+        {
+          "name": "SHA256SUMS",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/v0.1.0/SHA256SUMS",
+          "size": 101,
+          "digest": "sha256:657e8ae0cd72ce05aaaeaaa26e549f2c29d4ed737d24dc4acb66ad756aae932e",
+          "sha256": "657e8ae0cd72ce05aaaeaaa26e549f2c29d4ed737d24dc4acb66ad756aae932e"
+        }
+      ],
+      "sha256_sums": {
+        "verified": true
+      },
+      "evidence_limits": [
+        "MLComputePlan ANE assignment is compiler placement and is not direct ANE hardware tracing",
+        "Measurement fixtures, compiled artifacts, and raw ledger receipts are not included",
+        "Production and debug LFM S2 compiled artifacts are distinct",
+        "Aggregate tokens/sec are not per-stream rates",
+        "The initially hypothesized 57.3 tok/s universal bandwidth ceiling was falsified"
+      ],
+      "verification": {
+        "state": "verified",
+        "guards": [
+          {
+            "name": "published release tag",
+            "state": "pass"
+          },
+          {
+            "name": "manifest at the tag (schema 1.0: fingerprints, limits and DOI state)",
+            "state": "pass"
+          },
+          {
+            "name": "DOI binding resolved from: citation file at main",
+            "state": "pass",
+            "detail": "the tagged manifest recorded no DOI at release time; the candidate DOI comes from the citation file on main and was accepted only because the Zenodo registration binds it to this tag"
+          },
+          {
+            "name": "release assets re-downloaded; byte digests and SHA256SUMS agree",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "source document fingerprints re-derived at the pinned commit (4/4)",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)",
+            "state": "pass",
+            "detail": null
+          }
+        ]
+      }
+    }
+  ],
+  "upstream_status": "ok"
+}
