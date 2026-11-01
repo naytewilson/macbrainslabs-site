@@ -107,10 +107,25 @@ t('fingerprint flake (core identical, fingerprint flag differs) -> hold', () => 
   assert.equal(out.decision, 'hold');
 });
 
-t('upstream data genuinely changed (evidence limits edited) while degraded -> publish (honest new data)', () => {
+t('upstream data genuinely changed (evidence limits edited) while degraded -> hold (data change never lowers the verification bar)', () => {
   const next = rec(A, { state: 'degraded', crosscheck: 'unreachable', core: { evidenceLimitsOverride: ['An upstream edit legitimately changed the limits list.'] } });
   const out = lastKnownGoodDecision([rec(A)], [next]);
+  assert.equal(out.decision, 'hold');
+  assert.ok(out.reasons.some(r => r.includes(A) && r.includes('fail closed')), out.reasons.join('; '));
+});
+
+t('changed core where EVERY record still independently verifies -> publish', () => {
+  const next = rec(A, { core: { evidenceLimitsOverride: ['An upstream edit legitimately changed the limits list.'] } });
+  assert.notEqual(coreKey(next), coreKey(rec(A)), 'the core must actually differ');
+  const out = lastKnownGoodDecision([rec(A)], [next]);
   assert.equal(out.decision, 'publish');
+});
+
+t('multi-record: upstream changed for one record while another re-derives degraded -> hold whole update', () => {
+  const changedVerified = rec(B, { core: { evidenceLimitsOverride: ['Upstream edit that still verifies cleanly.'] } });
+  const out = lastKnownGoodDecision([rec(B), rec(A)], [changedVerified, rec(A, { state: 'degraded', crosscheck: 'unreachable' })]);
+  assert.equal(out.decision, 'hold');
+  assert.ok(out.reasons.some(r => r.includes(A) && r.includes('fail closed')), out.reasons.join('; '));
 });
 
 t('new fully verified record -> publish', () => {

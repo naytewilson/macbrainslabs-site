@@ -13,14 +13,13 @@
 //      fields reach the page. Every URL is validated against a host
 //      allowlist before it can appear as a link; rejected URLs degrade the
 //      record instead of silently dropping the claim.
-//   4. A rebuild that would downgrade a previously verified record (same raw
-//      upstream data core, worse re-derived verification) publishes nothing:
-//      the deployed last-known-good snapshot stays. This fails closed on ANY
-//      verified -> degraded transition, no matter how many other records are
-//      unchanged, and it holds the whole update when a NEW record is not fully
-//      verified (no auto-publication of unverified entries). The comparison
-//      uses a data core that excludes re-derived verification state, so a
-//      transient check failure can never smuggle a downgrade through.
+//   4. The public feed carries only independently verified records: if ANY
+//      rebuilt record is not fully verified — a previously verified record
+//      re-deriving degraded (even over changed upstream data), or a new
+//      record that is not fully verified — the whole update is held and the
+//      deployed last-known-good snapshot stays. The data core omits
+//      re-derived verification state, but core changes only matter when
+//      everything still verifies; they never lower the verification bar.
 //
 // Exit codes: 0 wrote changed/changed-state output, or already current;
 // 1 structural failure (never commit); 2 upstream unreachable or the
@@ -652,7 +651,7 @@ function renderFeedPage(data) {
 <li><span class="n">03</span><div><h3>Bytes re-checked</h3><p>Release assets are downloaded at rebuild and hashed. Digests must equal those the release API registers, and <code>SHA256SUMS</code> must be internally consistent and agree.</p></div></li>
 <li><span class="n">04</span><div><h3>Provenance re-derived</h3><p>Every listed source document is fetched from the pinned site commit and its SHA-256 must equal the manifest fingerprint. A mismatch marks the record degraded, it is never deleted quietly.</p></div></li>
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
-<li><span class="n">06</span><div><h3>Last-known-good</h3><p>If upstream is unreachable, rate-limited, or a rebuild would downgrade a verified record, nothing is committed: this page keeps its previous snapshot and any failure stays visible in the repository's public workflow history. A new record that is not fully verified is also held — unverified entries are never auto-published.</p></div></li>
+<li><span class="n">06</span><div><h3>Last-known-good</h3><p>This feed publishes only independently verified records. If upstream is unreachable, rate-limited, if a previously verified record re-derives degraded (even over changed upstream data), if a new record is not fully verified, or if a record is removed, the whole update is held: this page keeps its previous snapshot and the failure stays visible in the repository's public workflow history.</p></div></li>
 </ol>
 </section>
 
@@ -771,7 +770,7 @@ async function main() {
     policy: {
       qualifies: 'a published GitHub release tag vX.Y.Z of the configured archive repository whose manifest.json (schema 1.0) at that tag validates; draft and prerelease releases are structurally excluded',
       recheck: 'claims are re-derived at rebuild: asset bytes hashed against registered digests and SHA256SUMS; manifest fingerprints compared with pinned-commit bytes; DOI registration cross-checked via the Zenodo API; release prose is never rendered',
-      last_known_good: 'a failed, unreachable or held rebuild publishes nothing and leaves the previous snapshot deployed: any previously verified record re-deriving degraded over unchanged data, and any new record that is not fully verified, holds the whole update',
+      last_known_good: 'the whole update is held (previous snapshot stays deployed) unless EVERY rebuilt record is independently verified: any previously verified record re-deriving degraded holds even when its upstream data changed, and any new record that is not fully verified holds; failed, unreachable and removed-record rebuilds never publish',
       refresh: 'scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch'
     },
     records
@@ -813,6 +812,8 @@ async function main() {
 // (cross-check state, guard states, verified asset digests, fingerprint
 // outcomes, checksum status). Two cores differ only when the upstream record,
 // its tag-time manifest or its registered DOI candidate actually changed.
+// Cores are used for churn detection (no_change); under the verified-only
+// publication bar a core change can never excuse a degraded record.
 export function coreKey(rec) {
   return JSON.stringify({
     tag: rec.tag,
@@ -839,34 +840,35 @@ export function coreKey(rec) {
   });
 }
 
-// Multi-record last-known-good rule. Every refusal holds the WHOLE update:
-// partially published feeds would drop records the previous snapshot showed,
-// which is exactly what "nothing disappears on its own" forbids.
+// Multi-record last-known-good rule. The public feed carries ONLY
+// independently verified records, so any rebuilt record that is not fully
+// verified — previously verified or brand new, with unchanged or changed
+// upstream data — holds the WHOLE update. Partially published feeds would
+// drop records the previous snapshot showed or admit unverified findings,
+// and exactly one public bar exists.
 export function lastKnownGoodDecision(prevRecords, newRecords) {
   const reasons = [];
   const prev = Array.isArray(prevRecords) ? prevRecords : [];
   assert.ok(Array.isArray(newRecords) && newRecords.length >= 1, 'no rebuilt records');
-  const newById = new Map(newRecords.map(r => [r.tag, r]));
-  for (const p of prev) {
-    const n = newById.get(p.tag);
-    if (!n) { reasons.push(`${p.tag}: record vanished upstream; removal requires human review`); continue; }
-    const coreSame = coreKey(n) === coreKey(p);
-    if (!coreSame) continue; // upstream data changed: the new data may be published (its state is derived honestly)
-    if (p.verification?.state === 'verified' && n.verification.state === 'degraded') {
-      reasons.push(`${p.tag}: verified record re-derived degraded with unchanged upstream data (fail closed)`);
-    }
-  }
   const prevIds = new Set(prev.map(r => r.tag));
   for (const n of newRecords) {
-    if (!prevIds.has(n.tag) && n.verification.state !== 'verified') {
-      reasons.push(`${n.tag}: new record is not fully verified; holding the update instead of auto-publishing an unverified entry`);
-    }
+    if (n.verification.state === 'verified') continue;
+    reasons.push(prevIds.has(n.tag)
+      ? `${n.tag}: previously verified record re-derived degraded; a changed upstream core does not lower the verification bar (fail closed)`
+      : `${n.tag}: new record is not fully verified; holding the update instead of auto-publishing an unverified entry`);
+  }
+  for (const p of prev) {
+    if (!newById(newRecords).has(p.tag)) reasons.push(`${p.tag}: record vanished upstream; removal requires human review`);
   }
   if (reasons.length) return { decision: 'hold', reasons };
   const identical = prev.length > 0 && prev.length === newRecords.length &&
-    newRecords.every((rec, i) => prev[i].tag === rec.tag && rec.verification.state === prev[i]?.verification?.state && coreKey(rec) === coreKey(prev[i]));
+    newRecords.every((rec, i) => prev[i].tag === rec.tag && rec.verification.state === 'verified' && prev[i]?.verification?.state === 'verified' && coreKey(rec) === coreKey(prev[i]));
   if (identical) return { decision: 'no_change', reasons: [] };
   return { decision: 'publish', reasons: [] };
+}
+
+function newById(newRecords) {
+  return new Map(newRecords.map(r => [r.tag, r]));
 }
 
 const invokedDirectly = process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
