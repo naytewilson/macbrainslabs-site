@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
 const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/'];
-const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-poster.webp', '/assets/notch-v13.mp4', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-intro.avif', '/assets/notch-sway.avif', '/assets/notch-still.webp', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -87,16 +87,21 @@ check('security.txt has required RFC 9116 fields and a future Expires', () => {
 check('contact mailto on every page', () => {
   for (const route of pages) assert.ok(read(route).includes('href="mailto:research@macbrainslabs.org"'), `missing on ${route}`);
 });
-check('home media is local, user-started and does not preload', () => {
+check('home media is local, sized, and still under reduced motion', () => {
   const html = read('/');
-  for (const m of html.matchAll(/\s(?:src|poster)="([^"]+)"/g)) {
-    assert.ok(m[1].startsWith('/') && !m[1].startsWith('//'), `non-local media ${m[1]}`);
-    assert.ok(fs.existsSync(path.join(root, m[1])), `missing ${m[1]}`);
+  for (const m of html.matchAll(/\s(?:src|srcset|poster)="([^"]+)"/g)) {
+    for (const u of m[1].split(',').map(x => x.trim().split(/\s+/)[0])) {
+      assert.ok(u.startsWith('/') && !u.startsWith('//'), `non-local media ${u}`);
+      assert.ok(fs.existsSync(path.join(root, u)), `missing ${u}`);
+    }
   }
-  const v = html.match(/<video\b([^>]*)>/);
-  assert.ok(v, 'home video missing');
-  assert.ok(/\scontrols\b/.test(v[1]) && /\spreload="none"/.test(v[1]), 'video must show controls and preload nothing');
-  assert.ok(!/\s(autoplay|loop)\b/.test(v[1]), 'video must not autoplay or loop');
+  assert.ok(!/<(video|audio|iframe)\b/.test(html), 'home must not embed players');
+  for (const m of html.matchAll(/<img\b([^>]*)>/g)) assert.ok(/\swidth="\d+"/.test(m[1]) && /\sheight="\d+"/.test(m[1]) && /\salt="/.test(m[1]), `img needs width, height and alt: ${m[0].slice(0, 80)}`);
+  const pic = html.match(/<picture>([\s\S]*?)<\/picture>/);
+  assert.ok(pic, 'Notch picture missing');
+  assert.ok(/<source media="\(prefers-reduced-motion: reduce\)" srcset="[^"]+\.webp"/.test(pic[1]), 'Notch needs a still for reduced motion first');
+  assert.ok(/<img class="notch-intro" src="[^"]+\.webp"[^>]*\salt="[^"]{20,}"/.test(pic[1]), 'Notch fallback must be a described still');
+  assert.ok(/@media\(prefers-reduced-motion:reduce\)\{[^@]*\.notch-frame \.notch-sway\{display:none\}/.test(read('/home.css')), 'sway layer must hide under reduced motion');
   assert.ok(!/name="robots"/.test(html), 'home must stay indexable');
 });
 check('placement figure cell counts match its data', () => {
