@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
 const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/'];
-const assets = ['/404.html', '/styles.css', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-poster.webp', '/assets/notch-v13.mp4', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -86,6 +86,18 @@ check('security.txt has required RFC 9116 fields and a future Expires', () => {
 });
 check('contact mailto on every page', () => {
   for (const route of pages) assert.ok(read(route).includes('href="mailto:research@macbrainslabs.org"'), `missing on ${route}`);
+});
+check('home media is local, user-started and does not preload', () => {
+  const html = read('/');
+  for (const m of html.matchAll(/\s(?:src|poster)="([^"]+)"/g)) {
+    assert.ok(m[1].startsWith('/') && !m[1].startsWith('//'), `non-local media ${m[1]}`);
+    assert.ok(fs.existsSync(path.join(root, m[1])), `missing ${m[1]}`);
+  }
+  const v = html.match(/<video\b([^>]*)>/);
+  assert.ok(v, 'home video missing');
+  assert.ok(/\scontrols\b/.test(v[1]) && /\spreload="none"/.test(v[1]), 'video must show controls and preload nothing');
+  assert.ok(!/\s(autoplay|loop)\b/.test(v[1]), 'video must not autoplay or loop');
+  assert.ok(!/name="robots"/.test(html), 'home must stay indexable');
 });
 check('placement figure cell counts match its data', () => {
   const html = read('/');

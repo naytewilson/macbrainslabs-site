@@ -26,7 +26,9 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 - `contact/`: public research correspondence
 - `404.html`: not-found page GitHub Pages serves for unknown paths (`noindex`)
 - `security/`: project-owner advisories and sanitized observation summaries for private tooling; separate from ANE measurement evidence
-- `styles.css`: all styling, light and dark via `prefers-color-scheme`, system fonts only (no client-side JavaScript)
+- `styles.css`: styling for every page except the home page, light and dark via `prefers-color-scheme`, system fonts only (no client-side JavaScript)
+- `home.css`: home page styling (v14 design: dark opening, paper research folios), system fonts only
+- `assets/`: home media. `notch-v13.mp4` is the Notch animation master (SHA-256 `6fc253ce2cf495e2ec9f922495da372e4a9ec914146c8546a9dc618c2845f073`, 8,574,149 bytes, 1350×1890, 24 fps, no audio), shown with native controls, `preload="none"`, no autoplay or loop, so it downloads only when a visitor presses play. `notch-poster.webp` is its first-rest still, `brand-mark-96.png` the brand mark downscaled from the 512 px original
 - `favicon.svg`: vector mark
 
 ## Hosting
