@@ -37,7 +37,7 @@ function rec(tag, { state = 'verified', crosscheck = 'pass', fingerprint = 'matc
       }]
     },
     doi: {
-      version_doi: `10.5281/zenodo.237980${tag === 'v0.1.0' ? '8' : '8'}`,
+      version_doi: '10.5281/zenodo.23798037',
       concept_doi: '10.5281/zenodo.23798036',
       zenodo_record_url: 'https://zenodo.org/records/23798037',
       tagged_manifest_doi_status: 'not issued; Zenodo authorization and deposit still required',
