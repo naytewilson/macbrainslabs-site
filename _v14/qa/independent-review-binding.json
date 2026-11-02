@@ -1,0 +1,70 @@
+{
+  "scope": "Bounded source and supplied screenshot QA; three findings fixed and tests independently rerun. No full accessibility certification.",
+  "files": [
+    {
+      "path": "dist/index.html",
+      "size": 9508,
+      "sha256": "6cf6ef317769217785257300c97bf5739587810154b3b7600c7970f0a109d978"
+    },
+    {
+      "path": "dist/app.js",
+      "size": 2787,
+      "sha256": "de11ed782d72ad0923a19979343c11023fabba17ef8a788ade7b29682e174db5"
+    },
+    {
+      "path": "dist/styles.css",
+      "size": 14051,
+      "sha256": "7029e770a9fcde001930382c880071b1815e12662c4896eff811c2d79189f929"
+    },
+    {
+      "path": "tests/controls.test.cjs",
+      "size": 1925,
+      "sha256": "fd7d2a457eb021d69e37fb4961a7e512315959b4ae5ce9a247ff95604c50046c"
+    },
+    {
+      "path": "tests/verify.py",
+      "size": 2279,
+      "sha256": "cfd6ea4249e8511f710323602430c9c95a50c202d47619d45565bc638b97a91d"
+    },
+    {
+      "path": "qa/INDEPENDENT-REVIEW.md",
+      "size": 1355,
+      "sha256": "5bfdb295079a664cb2d4b1229df4b041e531afaade46ef2d40377343d8b4d562"
+    },
+    {
+      "path": "qa/cua/desktop-hero.jpg",
+      "size": 65582,
+      "sha256": "d8fa450a0e45112fc31b21b26474cdd1c065bec65ab707ed2852a6b1a4fbeb15"
+    },
+    {
+      "path": "qa/cua/mobile320-research.jpg",
+      "size": 33604,
+      "sha256": "b3f2c5572df0bcab1e528dab12f686cb977f50965579676cd3312010b48e4ed3"
+    },
+    {
+      "path": "sources/manifest.json",
+      "size": 959,
+      "sha256": "0610a09813e8d662bf553453991befb257e411f9cd2c7965d4bf259d27c57ecd"
+    },
+    {
+      "path": "sources/source-0.html",
+      "size": 18167,
+      "sha256": "db472c194f913a210e878fd7f77060130354eddbed85bc22d89d111f7beda77e"
+    },
+    {
+      "path": "sources/source-1.html",
+      "size": 14994,
+      "sha256": "1eb1139a08d06f837f89718a48b0502223cdfd793cbd0569b51b4c0cf9a8598f"
+    },
+    {
+      "path": "sources/source-2.html",
+      "size": 11634,
+      "sha256": "6ba1b1d42afa1c830f7949e2db6af87006d216c5139b1dd87765944539d7862b"
+    },
+    {
+      "path": "sources/source-3.html",
+      "size": 11646,
+      "sha256": "5ce2374475b055b3134560a515d384809419721ae87fb14d036683bc55f4c9b5"
+    }
+  ]
+}

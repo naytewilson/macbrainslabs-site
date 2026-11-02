@@ -1,0 +1,215 @@
+{
+  "scope": "Local-only integrated MacBrains homepage draft; no deployment or user design approval implied",
+  "files": [
+    {
+      "path": ".openai/hosting.json",
+      "bytes": 32,
+      "sha256": "c4c91d5ced09678d071e6274bd8a29386a868ef2f5af0d4b1febc1feffbe2ce8"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3599,
+      "sha256": "0a2b6590d84f662d9912ccca194ccc523e04ac296eb8823b1660ada8533b300e"
+    },
+    {
+      "path": "dist/app.js",
+      "bytes": 2787,
+      "sha256": "de11ed782d72ad0923a19979343c11023fabba17ef8a788ade7b29682e174db5"
+    },
+    {
+      "path": "dist/assets/locked-icon.png",
+      "bytes": 128443,
+      "sha256": "34544f30d171d91937607572a00b738a83732c1baf9bfb8a9a786297ee71a52e"
+    },
+    {
+      "path": "dist/assets/notch-held.png",
+      "bytes": 465841,
+      "sha256": "6f548fddbe006436886316c8740dd52af114ae34dae8f0bd0bf05490b7c10df9"
+    },
+    {
+      "path": "dist/assets/notch-rest.png",
+      "bytes": 384675,
+      "sha256": "1a98c066974f8dac8b5a415f0207808bb49f667c9cff5f4eab87ef00ddca65a4"
+    },
+    {
+      "path": "dist/assets/notch-v13.mp4",
+      "bytes": 8574149,
+      "sha256": "6fc253ce2cf495e2ec9f922495da372e4a9ec914146c8546a9dc618c2845f073"
+    },
+    {
+      "path": "dist/index.html",
+      "bytes": 9508,
+      "sha256": "6cf6ef317769217785257300c97bf5739587810154b3b7600c7970f0a109d978"
+    },
+    {
+      "path": "dist/mobile-320.html",
+      "bytes": 656,
+      "sha256": "312a8acc92a92a83b214cffa69a5ffeab8a3731cc75027daef52b6e2efff542a"
+    },
+    {
+      "path": "dist/mobile-390.html",
+      "bytes": 656,
+      "sha256": "c575a26fb84ea5361157c3c5c0f62b9124c77619da83db4dc9261000e2154da5"
+    },
+    {
+      "path": "dist/mobile-review.html",
+      "bytes": 656,
+      "sha256": "c575a26fb84ea5361157c3c5c0f62b9124c77619da83db4dc9261000e2154da5"
+    },
+    {
+      "path": "dist/styles.css",
+      "bytes": 14051,
+      "sha256": "7029e770a9fcde001930382c880071b1815e12662c4896eff811c2d79189f929"
+    },
+    {
+      "path": "package.py",
+      "bytes": 1368,
+      "sha256": "66e2a2e02cec1912c055aa40c9d7f9c518a653055e3d4e8c2baeeea23939c5c2"
+    },
+    {
+      "path": "qa/INDEPENDENT-REVIEW.md",
+      "bytes": 1355,
+      "sha256": "5bfdb295079a664cb2d4b1229df4b041e531afaade46ef2d40377343d8b4d562"
+    },
+    {
+      "path": "qa/REVIEW-NOTES.md",
+      "bytes": 2591,
+      "sha256": "b068e03cf0e4bb83cd668e690657d697ea7ae7ac38118b3fd4694b126919c452"
+    },
+    {
+      "path": "qa/cua/desktop-full.jpg",
+      "bytes": 351689,
+      "sha256": "7940f97f753f706e1102bab65fa3eead60507a9cfd4dd4990362f7f002333236"
+    },
+    {
+      "path": "qa/cua/desktop-hero.jpg",
+      "bytes": 65582,
+      "sha256": "d8fa450a0e45112fc31b21b26474cdd1c065bec65ab707ed2852a6b1a4fbeb15"
+    },
+    {
+      "path": "qa/cua/desktop-method-about.jpg",
+      "bytes": 48019,
+      "sha256": "9f6a139c1eb5fe22f8cb1d5df93f5f68823fbdc4c094e7cc38ba5c1bfd48e0aa"
+    },
+    {
+      "path": "qa/cua/mobile320-research.jpg",
+      "bytes": 33604,
+      "sha256": "b3f2c5572df0bcab1e528dab12f686cb977f50965579676cd3312010b48e4ed3"
+    },
+    {
+      "path": "qa/cua/mobile390-hero.jpg",
+      "bytes": 44780,
+      "sha256": "fba6e73fc88b9949f73dc5789e5827a43cbedd0ffd297cd5143f7aa231d49ed6"
+    },
+    {
+      "path": "qa/cua/walkthrough/observations.json",
+      "bytes": 56584,
+      "sha256": "09604141aa3672b939653f014eea2955fe29debc58b5e3c9faccb72e5f126e98"
+    },
+    {
+      "path": "qa/independent-review-binding.json",
+      "bytes": 2174,
+      "sha256": "08af49d004db096cdd5c84db3402020256c985b636d5431b9710cbd377b90d35"
+    },
+    {
+      "path": "qa/macbrains-homepage-v14-browser-walkthrough.mp4",
+      "bytes": 3152382,
+      "sha256": "dbd972007da44e85fabf9dfafa4c6304ded841023e0c3330f82df9152e961de4"
+    },
+    {
+      "path": "qa/source-verification.json",
+      "bytes": 407,
+      "sha256": "b5e7f95a2f8d5b3e6da7da62daca9deff2a2533bfc1e01c5c12456d7bffba3fe"
+    },
+    {
+      "path": "qa/walkthrough-decoded-900.png",
+      "bytes": 270632,
+      "sha256": "1746497ee47ce608f495aa8617a8168bde8f723a80a81cc54a659a461f739680"
+    },
+    {
+      "path": "qa/walkthrough-selection/0000.jpg",
+      "bytes": 63773,
+      "sha256": "dcbcca2cc60cc73f95ea5e928c4c4bc21e6396cdb45ffe44d3ebbc4ac0a070c4"
+    },
+    {
+      "path": "qa/walkthrough-selection/0150.jpg",
+      "bytes": 66502,
+      "sha256": "0f8e3528e56dbb905502e4919b1aa13b2e94477f8a6eb26776e2cd866bc25fda"
+    },
+    {
+      "path": "qa/walkthrough-selection/0300.jpg",
+      "bytes": 72129,
+      "sha256": "329a6b5e9a14c3a6ae74bfd1dd66df1142f792ccd1dce3dce22d57771967ad11"
+    },
+    {
+      "path": "qa/walkthrough-selection/0450.jpg",
+      "bytes": 72098,
+      "sha256": "8219b7a90754c447d77aa5d877ce1bb94517f98a5b730cf5d9f856743bbccc97"
+    },
+    {
+      "path": "qa/walkthrough-selection/0600.jpg",
+      "bytes": 72098,
+      "sha256": "8219b7a90754c447d77aa5d877ce1bb94517f98a5b730cf5d9f856743bbccc97"
+    },
+    {
+      "path": "qa/walkthrough-selection/0700.jpg",
+      "bytes": 72098,
+      "sha256": "8219b7a90754c447d77aa5d877ce1bb94517f98a5b730cf5d9f856743bbccc97"
+    },
+    {
+      "path": "qa/walkthrough-selection/0800.jpg",
+      "bytes": 56190,
+      "sha256": "e64f2a78c068377c2891f35991c678e1bdb601e6346525242fe01566870bdad5"
+    },
+    {
+      "path": "qa/walkthrough-selection/0900.jpg",
+      "bytes": 59591,
+      "sha256": "f68cdb6eb6c3f914cca34b2438422d5248ebdbd39825ab6af98fc9ac9fd0db9f"
+    },
+    {
+      "path": "qa/walkthrough-selection/0999.jpg",
+      "bytes": 62576,
+      "sha256": "63ae6fcbcd3fd0ebeba5dfcef1fe7d5464b04f12c4ea926ac6d2ad33f7b777c6"
+    },
+    {
+      "path": "qa/walkthrough-verification.json",
+      "bytes": 491,
+      "sha256": "5fa77193cbcc71464ea5162455fa8f6956c2782795d0abff5459ac3f95d4f330"
+    },
+    {
+      "path": "sources/manifest.json",
+      "bytes": 959,
+      "sha256": "0610a09813e8d662bf553453991befb257e411f9cd2c7965d4bf259d27c57ecd"
+    },
+    {
+      "path": "sources/source-0.html",
+      "bytes": 18167,
+      "sha256": "db472c194f913a210e878fd7f77060130354eddbed85bc22d89d111f7beda77e"
+    },
+    {
+      "path": "sources/source-1.html",
+      "bytes": 14994,
+      "sha256": "1eb1139a08d06f837f89718a48b0502223cdfd793cbd0569b51b4c0cf9a8598f"
+    },
+    {
+      "path": "sources/source-2.html",
+      "bytes": 11634,
+      "sha256": "6ba1b1d42afa1c830f7949e2db6af87006d216c5139b1dd87765944539d7862b"
+    },
+    {
+      "path": "sources/source-3.html",
+      "bytes": 11646,
+      "sha256": "5ce2374475b055b3134560a515d384809419721ae87fb14d036683bc55f4c9b5"
+    },
+    {
+      "path": "tests/controls.test.cjs",
+      "bytes": 1925,
+      "sha256": "fd7d2a457eb021d69e37fb4961a7e512315959b4ae5ce9a247ff95604c50046c"
+    },
+    {
+      "path": "tests/verify.py",
+      "bytes": 2279,
+      "sha256": "cfd6ea4249e8511f710323602430c9c95a50c202d47619d45565bc638b97a91d"
+    }
+  ]
+}

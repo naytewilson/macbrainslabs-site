@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Decode regime: the bandwidth ceiling that failed · MacBrains Labs</title>
+<meta name="description" content="A falsified 57.3 tok/s Neural Engine bandwidth-ceiling hypothesis, and A18 Pro aggregate decode throughput of 45.4 to 125.8 tok/s at B=1 to 8 on probe artifacts whose output quality was not validated.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Decode regime: the bandwidth ceiling that failed">
+<meta property="og:description" content="A falsified 57.3 tok/s Neural Engine bandwidth-ceiling hypothesis, and A18 Pro aggregate decode throughput of 45.4 to 125.8 tok/s at B=1 to 8 on probe artifacts whose output quality was not validated.">
+<meta property="og:url" content="https://macbrainslabs.org/notes/decode-regimes/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/notes/decode-regimes/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Field notes",
+          "item": "https://macbrainslabs.org/notes/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "N/003",
+          "item": "https://macbrainslabs.org/notes/decode-regimes/"
+        }
+      ]
+    },
+    {
+      "@type": "TechArticle",
+      "@id": "https://macbrainslabs.org/notes/decode-regimes/#article",
+      "headline": "The ceiling was an illusion.",
+      "alternativeHeadline": "Decode regime: the bandwidth ceiling that failed",
+      "description": "A falsified 57.3 tok/s Neural Engine bandwidth-ceiling hypothesis, and A18 Pro aggregate decode throughput of 45.4 to 125.8 tok/s at B=1 to 8 on probe artifacts whose output quality was not validated.",
+      "url": "https://macbrainslabs.org/notes/decode-regimes/",
+      "mainEntityOfPage": "https://macbrainslabs.org/notes/decode-regimes/",
+      "inLanguage": "en",
+      "author": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "@id": "https://macbrainslabs.org/#organization",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://macbrainslabs.org/#website",
+        "name": "MacBrains Labs",
+        "url": "https://macbrainslabs.org/"
+      },
+      "datePublished": "2026-10-29T20:29:10-04:00",
+      "dateModified": "2026-10-30T07:54:16-04:00",
+      "keywords": [
+        "A18 Pro",
+        "Decode"
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/" aria-current="page">Notes</a>
+<a href="/security/">Security</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Field notes</a> / N/003</p>
+<h1>The ceiling was an illusion.</h1>
+<p class="lede">A plausible throughput explanation failed when its predicted behavior did not appear under a controlled change in input geometry and weight size.</p>
+<dl class="facts">
+<div><dt>Note</dt><dd>N/003</dd></div>
+<div><dt>Device</dt><dd>A18 Pro</dd></div>
+<div><dt>Batch</dt><dd>1 2 4 8</dd></div>
+<div><dt>Observation</dt><dd>On device</dd></div>
+<div><dt>Class</dt><dd>Measured</dd></div>
+<div><dt>Published</dt><dd><time datetime="2026-10-29T20:29:10-04:00">29 Oct 2026</time></dd></div>
+<div><dt>Revised</dt><dd><time datetime="2026-10-30T07:54:16-04:00">30 Oct 2026</time></dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="Field note N/003">
+<span class="label">Field note N/003</span>
+<ol>
+<li><a href="#hypothesis">Hypothesis</a></li>
+<li><a href="#falsifier">Falsifiers</a></li>
+<li><a href="#measured">B sweep</a></li>
+<li><a href="#admission">Test contract</a></li>
+<li><a href="#meaning">Conclusion</a></li>
+</ol>
+<div class="toc-out"><a href="/notes/lfm-chain/">Next: LFM2.5 chain</a></div>
+</nav>
+<article class="article">
+<h2 id="hypothesis"><span class="sec">01</span>The appealing first hypothesis</h2>
+<p>The compiler's <code>analytics.json</code> surfaced an internal DRAM bandwidth planning figure of 51.2 GB/s. Dividing that number by the as-stored 893 MB external weight file yielded approximately <strong>57.3 tokens/sec</strong>, close to an early peak. It seemed to support a hard bandwidth ceiling.</p>
+<p>But dimensional plausibility is not a causal test. The calculation predicted that halving the bytes read per token would increase throughput, and that increasing genuine work per dispatch would remain constrained by the same byte rate.</p>
+
+<h2 id="falsifier"><span class="sec">02</span>Counter-experiments</h2>
+<p>Two observations contradicted that simple model. First, reduced-size LUT2 weights did not produce the corresponding speedup. Second, a K sweep (batch K per dispatch, on a probe model) moved aggregate useful work more rapidly than the supposed throughput limit permitted. The original “57.3 tok/s ceiling” was retracted as a K=1 coincidence, not treated as an ANE architectural law.</p>
+<p>Subsequent work refined the regime analysis: fixed per-call dispatch costs matter at shallow graphs, but at <strong>28-layer production depth</strong> per-layer compute dominates more of the total step time. The productive lever is demonstrated multi-lane execution, not arithmetic on weight bytes alone.</p>
+
+<h2 id="measured"><span class="sec">03</span>The measured B sweep</h2>
+<figure class="figure">
+<div class="figure-head"><p class="figure-title">Fig. 1 — Aggregate tokens per second by real batch shape</p></div>
+<div role="img" aria-label="Measured aggregate throughput: B=1 45.4, B=2 68.1, B=4 102.1, B=8 125.8 tokens per second">
+<ul class="bars">
+<li><span class="key">B=1</span><span class="bar-track"><span class="bar" style="width:32.43%"></span></span><span class="val">45.4</span></li>
+<li><span class="key">B=2</span><span class="bar-track"><span class="bar" style="width:48.64%"></span></span><span class="val">68.1</span></li>
+<li><span class="key">B=4</span><span class="bar-track"><span class="bar" style="width:72.93%"></span></span><span class="val">102.1</span></li>
+<li><span class="key">B=8</span><span class="bar-track"><span class="bar" style="width:89.86%"></span></span><span class="val">125.8</span></li>
+</ul>
+<div class="axis"><span></span><span class="axis-ticks"><span style="left:0">0</span><span style="left:35.71%">50</span><span style="left:71.43%">100</span></span><span>tok/s</span></div>
+</div>
+</figure>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Real batch shape</th><th scope="col" class="numeric">Aggregate tok/s</th><th scope="col" class="numeric">Relative to B=1</th><th scope="col">Interpretation</th></tr></thead>
+<tbody>
+<tr><td>B=1</td><td class="numeric">45.4</td><td class="numeric">1.00×</td><td>Reference</td></tr>
+<tr><td>B=2</td><td class="numeric">68.1</td><td class="numeric">1.50×</td><td>Amortized work</td></tr>
+<tr><td>B=4</td><td class="numeric">102.1</td><td class="numeric">2.25×</td><td>Efficiency knee</td></tr>
+<tr><td>B=8</td><td class="numeric">125.8</td><td class="numeric">2.77×</td><td>Higher memory cost</td></tr>
+</tbody></table></div>
+<p>These are <strong>aggregate</strong> throughputs over five-round interleaved steady-state measurements. B=4 is the efficiency knee for the 8 GB machine. It is not an individual-stream token rate, nor an end-to-end app UX measurement.</p>
+<p>This is a throughput result only. The sweep timed single-function probe artifacts with a real batch dimension. A later perplexity check on the B=4 probe, dated 3 July 2026, found its output logits roughly 1000 times larger than the B=1 model’s; the repository’s current records do not resolve that. The same records note that the batch geometry had not yet been carried into a deployable multi-function model.</p>
+
+<h2 id="admission"><span class="sec">04</span>What qualifies as a speed result</h2>
+<pre tabindex="0"><code>ACCEPT only if:
+  1. compiled input tensor has real [B, ...] shape
+  2. elapsed time scales with actual B work
+  3. reported tokens = work actually executed
+  4. source artifact and device are named
+
+REJECT:
+  fixed [1,1] model + posthoc divide by K
+  synthetic tokens from a benchmark argument
+  projected tokens/sec treated as measured</code></pre>
+<p>The project rejected a K=16 throughput claim derived from a shape-locked <code>[1,1]</code> compiled model and a post-hoc divisor. Its reported wall time was flat while its headline token rate increased, indicating arithmetic rather than additional hardware work.</p>
+
+<h2 id="meaning"><span class="sec">05</span>What to take forward</h2>
+<div class="callout"><span class="label">Conclusion · bounded</span><p>On the tested Qwen decode substrate, real batch geometry increases aggregate throughput. At shallow depth dispatch overhead is material; at 28 layers computation load changes the limiting regime. No single constant extracted from a compiler report should be published as a universal throughput ceiling.</p></div>
+<p class="table-caption">Source evidence: ane-re/docs/FINDINGS.md §§5, 7–9, 13; ANE-RE decision ledger D001, D028, D040, D143, D264. Performance numbers depend on the recorded device, software and thermal conditions.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/security/">Defensive research</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>

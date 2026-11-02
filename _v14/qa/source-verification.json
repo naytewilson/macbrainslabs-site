@@ -1,0 +1,15 @@
+{
+  "masterSha256": "6fc253ce2cf495e2ec9f922495da372e4a9ec914146c8546a9dc618c2845f073",
+  "video": {
+    "width": 1350,
+    "height": 1890,
+    "color_range": "pc",
+    "color_space": "bt709",
+    "color_transfer": "iec61966-2-1",
+    "color_primaries": "bt709",
+    "r_frame_rate": "24/1",
+    "nb_frames": "482"
+  },
+  "localTargets": "pass",
+  "status": "Source checks only; actual browser QA separate"
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "url": "https://macbrainslabs.org/evidence/qwen-placement/",
+    "httpStatus": 200,
+    "file": "sources/source-0.html",
+    "sha256": "db472c194f913a210e878fd7f77060130354eddbed85bc22d89d111f7beda77e",
+    "retrieved": "2026-11-01"
+  },
+  {
+    "url": "https://macbrainslabs.org/notes/lfm-chain/",
+    "httpStatus": 200,
+    "file": "sources/source-1.html",
+    "sha256": "1eb1139a08d06f837f89718a48b0502223cdfd793cbd0569b51b4c0cf9a8598f",
+    "retrieved": "2026-11-01"
+  },
+  {
+    "url": "https://macbrainslabs.org/notes/decode-regimes/",
+    "httpStatus": 200,
+    "file": "sources/source-2.html",
+    "sha256": "6ba1b1d42afa1c830f7949e2db6af87006d216c5139b1dd87765944539d7862b",
+    "retrieved": "2026-11-01"
+  },
+  {
+    "url": "https://macbrainslabs.org/methods/",
+    "httpStatus": 200,
+    "file": "sources/source-3.html",
+    "sha256": "5ce2374475b055b3134560a515d384809419721ae87fb14d036683bc55f4c9b5",
+    "retrieved": "2026-11-01"
+  }
+]

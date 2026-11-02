@@ -1,0 +1,11 @@
+{
+  "sha256": "dbd972007da44e85fabf9dfafa4c6304ded841023e0c3330f82df9152e961de4",
+  "bytes": 3152382,
+  "sourceScreenshots": 1000,
+  "encodedFrames": 1001,
+  "maximumTimestampErrorSeconds": 0.0,
+  "finalHoldSeconds": 1.5,
+  "source": "Actual root-owned CUA screenshots; starts with animation already in progress, then settled hold and13 native scroll steps. Not a full-start animation recording.",
+  "color": "JPEG full-range BT601 to full-range BT709, sRGB transfer",
+  "duration": 29.394
+}
