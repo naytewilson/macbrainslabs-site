@@ -16,6 +16,8 @@ jobs:
           node-version: '22'
       - name: Verify publication last-known-good rules
         run: node scripts/test-publications-lkg.mjs
+      - name: Verify reviewed research record (ane-record) guards and rendering
+        run: node scripts/test-publications-ane-records.mjs
       - name: Re-derive upstream records and rebuild the feed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

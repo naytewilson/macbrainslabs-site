@@ -210,6 +210,7 @@ const pubClean = (s, what, max = 400) => {
   assert.ok(!/[<>"]/.test(s) && !/[\u0000-\u001f\u007f]/.test(s), `${what}: contains angle/quote/control characters`);
   return s;
 };
+const pubEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pubUrl = (u, what) => {
   let p;
   try { p = new URL(u); } catch { throw new Error(`${what}: unparseable URL`); }
@@ -220,6 +221,9 @@ const pubUrl = (u, what) => {
 
 const pubs = (() => {
   const d = JSON.parse(fs.readFileSync(path.join(root, 'publications/publications.json'), 'utf8'));
+  // vX.Y.Z archive releases carry no kind; reviewed research records carry kind "ane-record".
+  const legacy = (d.records ?? []).filter(r => r.kind === undefined);
+  const ane = (d.records ?? []).filter(r => r.kind === 'ane-record');
   check('publications feed schema and policy', () => {
     assert.equal(d.schema, 'macbrainslabs.publications.v1');
     assert.match(d.generated_at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/u);
@@ -235,16 +239,24 @@ const pubs = (() => {
     for (const rec of d.records) {
       assert.ok(!tags.has(rec.tag), `duplicate tag ${rec.tag}`);
       tags.add(rec.tag);
-      assert.match(rec.tag, /^v[0-9]+\.[0-9]+\.[0-9]+$/u, `bad tag ${rec.tag}`);
-      pubClean(rec.release_name, `${rec.tag} release_name`, 300);
-      pubClean(rec.record_class, `${rec.tag} record_class`, 200);
-      pubClean(rec.zenodo_title, `${rec.tag} zenodo_title`, 300);
+      assert.ok(rec.kind === undefined || rec.kind === 'ane-record', `${rec.tag}: unknown record kind`);
+      if (rec.kind === 'ane-record') {
+        assert.match(rec.tag, /^ane-record-[0-9a-f]{24}$/u, `bad tag ${rec.tag}`);
+        pubClean(rec.release_name, `${rec.tag} release_name`, 300);
+        pubClean(rec.title, `${rec.tag} title`, 300);
+        assert.match(rec.version, /^v[0-9]+\.[0-9]+\.[0-9]+$/u, `${rec.tag}: version`);
+      } else {
+        assert.match(rec.tag, /^v[0-9]+\.[0-9]+\.[0-9]+$/u, `bad tag ${rec.tag}`);
+        pubClean(rec.release_name, `${rec.tag} release_name`, 300);
+        pubClean(rec.record_class, `${rec.tag} record_class`, 200);
+        pubClean(rec.zenodo_title, `${rec.tag} zenodo_title`, 300);
+      }
       assert.match(rec.published_at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/u, `${rec.tag}: published_at not ISO-UTC`);
       assert.ok(rec.published_at.slice(0, 10) >= '2026-01-01', `${rec.tag}: implausibly old record`);
     }
   });
   check('publications feed provenance is exact and re-checkable', () => {
-    for (const rec of d.records) {
+    for (const rec of legacy) {
       assert.equal(rec.provenance.site_repository, 'https://github.com/naytewilson/macbrainslabs-site');
       assert.match(rec.provenance.site_commit, /^[a-f0-9]{40}$/u, `${rec.tag}: site_commit`);
       assert.ok(Array.isArray(rec.provenance.source_pages) && rec.provenance.source_pages.length >= 1 && rec.provenance.source_pages.length <= 16, `${rec.tag}: source_pages out of bounds`);
@@ -258,7 +270,7 @@ const pubs = (() => {
     }
   });
   check('publications feed DOI claims derive their registered state from the verified record', () => {
-    for (const rec of d.records) {
+    for (const rec of legacy) {
       const doi = rec.doi;
       pubClean(doi.tagged_manifest_doi_status, `${rec.tag} tagged_manifest_doi_status`, 300);
       assert.ok(!('doi_status' in doi), `${rec.tag}: stale doi_status key must not exist`);
@@ -292,7 +304,7 @@ const pubs = (() => {
     }
   });
   check('publications feed assets are checksummed archives', () => {
-    for (const rec of d.records) {
+    for (const rec of legacy) {
       assert.ok(Array.isArray(rec.assets) && rec.assets.length >= 2, `${rec.tag}: asset list`);
       const names = new Set(rec.assets.map(a => a.name));
       assert.ok(names.has('SHA256SUMS'), `${rec.tag}: no SHA256SUMS asset`);
@@ -307,7 +319,7 @@ const pubs = (() => {
     }
   });
   check('publications feed verification states are self-consistent', () => {
-    for (const rec of d.records) {
+    for (const rec of legacy) {
       assert.ok(['verified', 'degraded'].includes(rec.verification.state), `${rec.tag}: verification state`);
       assert.ok(Array.isArray(rec.verification.guards) && rec.verification.guards.length >= 2, `${rec.tag}: guards`);
       for (const g of rec.verification.guards) {
@@ -329,13 +341,62 @@ const pubs = (() => {
       pubClean(rec.evidence_limits.join(''), `${rec.tag} evidence_limits`, 400 * 12);
     }
   });
+  check('publications feed reviewed research records are bound, labelled and verified', () => {
+    const SHA = /^[a-f0-9]{64}$/u;
+    for (const rec of ane) {
+      assert.equal(rec.release_url, `https://github.com/macbrainslabs/ane-research-records/releases/tag/${rec.tag}`, `${rec.tag}: release_url`);
+      assert.equal(rec.record_url, `${base}/research/records/${rec.tag}/`, `${rec.tag}: record_url is not this record's page`);
+      pubUrl(rec.record_url, `${rec.tag} record_url`);
+      assert.match(rec.released_on, /^\d{4}-\d\d-\d\d$/u, `${rec.tag}: released_on`);
+      const r = rec.replication;
+      assert.ok(['same-chip', 'cross-device'].includes(r.scope), `${rec.tag}: replication scope`);
+      assert.equal(r.cross_device_replication, r.scope === 'cross-device', `${rec.tag}: a same-chip rerun must never count as cross-device replication`);
+      pubClean(r.claim, `${rec.tag} replication claim`, 300);
+      assert.match(r.profile_hash, SHA, `${rec.tag}: setup profile hash`);
+      for (const k of ['run_count', 'pass_count', 'fail_count']) assert.ok(Number.isSafeInteger(r[k]) && r[k] >= 0, `${rec.tag}: ${k}`);
+      assert.ok(r.run_count >= 1 && r.pass_count + r.fail_count === r.run_count, `${rec.tag}: runs kept do not add up`);
+      assert.match(rec.review.review_package_hash, SHA, `${rec.tag}: review package hash`);
+      assert.match(rec.review.verdict_digest, SHA, `${rec.tag}: verdict digest`);
+      assert.equal(rec.review.reviewer, 'macbrains-labs-reviewer', `${rec.tag}: reviewer`);
+      assert.deepEqual(rec.assets.map(a => a.name), ['finding.json', 'citations.json', 'preview.md', 'manifest.json'], `${rec.tag}: asset set`);
+      for (const a of rec.assets) {
+        assert.ok(Number.isInteger(a.size) && a.size > 0, `${rec.tag}: asset size`);
+        assert.match(a.digest, /^sha256:[a-f0-9]{64}$/u, `${rec.tag}: asset registered digest`);
+        pubUrl(a.url, `${rec.tag} asset url`);
+        assert.ok(a.sha256 === null || SHA.test(a.sha256), `${rec.tag}: asset verified digest`);
+      }
+      const doi = rec.doi;
+      assert.equal(doi.concept_doi, '10.5281/zenodo.23798036', `${rec.tag}: all-versions DOI`);
+      const st = doi.crosscheck.state;
+      assert.ok(['pass', 'mismatch', 'unreachable', 'not_minted'].includes(st), `${rec.tag}: crosscheck state`);
+      assert.equal(doi.registered_state, { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now', not_minted: 'not_minted' }[st], `${rec.tag}: registered_state must follow the crosscheck`);
+      assert.ok(['verified', 'degraded'].includes(rec.verification.state), `${rec.tag}: verification state`);
+      assert.ok(Array.isArray(rec.verification.guards) && rec.verification.guards.length >= 2, `${rec.tag}: guards`);
+      for (const g of rec.verification.guards) {
+        pubClean(g.name, `${rec.tag} guard name`, 200);
+        assert.ok(['pass', 'degraded'].includes(g.state), `${rec.tag}: guard state`);
+      }
+      const guardDegraded = rec.verification.guards.some(g => g.state !== 'pass');
+      if (rec.verification.state === 'verified') {
+        assert.ok(!guardDegraded, `${rec.tag}: shown verified while a guard is degraded`);
+        assert.equal(rec.review.decision, 'INCLUDE', `${rec.tag}: shown verified without an INCLUDE verdict`);
+        assert.equal(st, 'pass', `${rec.tag}: shown verified without a passing Zenodo binding`);
+        assert.match(doi.version_doi, /^10\.5281\/zenodo\.\d+$/u, `${rec.tag}: version_doi`);
+        assert.notEqual(doi.version_doi, doi.concept_doi, `${rec.tag}: version DOI equals the all-versions DOI`);
+        assert.equal(doi.zenodo_record_url, `https://zenodo.org/records/${doi.version_doi.split('.').at(-1)}`, `${rec.tag}: record URL does not match the version DOI`);
+        for (const a of rec.assets) assert.equal(a.sha256, a.digest.slice('sha256:'.length), `${rec.tag}: verified record with unverified asset digest`);
+      } else {
+        assert.ok(guardDegraded, `${rec.tag}: degraded with no degraded guard`);
+      }
+    }
+  });
   const feedHtml = read('/publications/');
   check('publications page renders exactly the feed records', () => {
     for (const rec of d.records) assert.ok(feedHtml.includes(`data-tag="${rec.tag}"`), `${rec.tag} not rendered on the publications page`);
     assert.ok(feedHtml.includes(`data-generated="${d.generated_at}"`), 'feed page does not carry the feed generation stamp');
     assert.ok(feedHtml.includes(`data-state="${d.upstream_status}"`), 'feed page does not carry the upstream status');
     for (const rec of d.records) {
-      for (const p of rec.provenance.source_pages) {
+      for (const p of rec.provenance?.source_pages ?? []) {
         if (p.fingerprint_check === 'match') assert.ok(feedHtml.includes(p.sha256), `${rec.tag}: fingerprint ${p.sha256.slice(0, 12)} not shown on the page`);
       }
       for (const a of rec.assets) {
@@ -343,11 +404,30 @@ const pubs = (() => {
       }
     }
   });
+  check('publications page shows each reviewed research record with its bindings and scope label', () => {
+    for (const rec of ane) {
+      const at = feedHtml.indexOf(`data-tag="${rec.tag}"`);
+      assert.ok(at !== -1, `${rec.tag} not rendered`);
+      const art = feedHtml.slice(at, feedHtml.indexOf('</article>', at));
+      const r = rec.replication;
+      for (const s of [pubEsc(rec.version), pubEsc(rec.title), pubEsc(r.claim), r.profile_hash, rec.review.review_package_hash, rec.review.verdict_digest, `href="${rec.record_url}"`]) {
+        assert.ok(art.includes(s), `${rec.tag}: ${s.slice(0, 32)} not shown`);
+      }
+      assert.ok(art.includes(`${r.run_count} runs kept: ${r.pass_count} pass, ${r.fail_count} fail`), `${rec.tag}: runs kept not shown`);
+      if (r.scope === 'same-chip') assert.ok(art.includes('not cross-device replication'), `${rec.tag}: same-chip rerun lacks its scope label`);
+      for (const a of rec.assets) if (a.sha256) assert.ok(art.includes(a.sha256), `${rec.tag}: asset digest not shown`);
+      if (rec.verification.state === 'verified') assert.ok(art.includes(`href="https://doi.org/${rec.doi.version_doi}"`), `${rec.tag}: verified version DOI not shown`);
+    }
+  });
   check('home publications block is bound to the feed', () => {
     const home = read('/');
     const m = home.match(/publications-latest:start([\s\S]*?)publications-latest:end/u);
     assert.ok(m, 'home lacks the publications marker block');
-    for (const rec of d.records) assert.ok(m[1].includes(rec.tag) && m[1].includes(rec.zenodo_title), `home block missing ${rec.tag}`);
+    for (const rec of legacy) assert.ok(m[1].includes(rec.tag) && m[1].includes(rec.zenodo_title), `home block missing ${rec.tag}`);
+    for (const rec of ane) {
+      assert.ok(m[1].includes(`href="${rec.record_url}"`) && m[1].includes(pubEsc(rec.version)) && m[1].includes(pubEsc(rec.title)), `home block missing ${rec.tag}`);
+      if (rec.replication.scope === 'same-chip') assert.ok(m[1].includes('not cross-device replication'), `home block: ${rec.tag} same-chip rerun lacks its scope label`);
+    }
     assert.ok(home.includes('<a class="more" href="/publications/">'), 'home lacks the full-feed link');
     const nav = home.match(/<nav class="nav"[^>]*>([\s\S]*?)<\/nav>/u);
     assert.ok(nav && nav[1].includes('href="/publications/"'), 'home nav misses Publications');
