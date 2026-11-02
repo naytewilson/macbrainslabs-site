@@ -28,7 +28,7 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 - `security/`: project-owner advisories and sanitized observation summaries for private tooling; separate from ANE measurement evidence
 - `styles.css`: styling for every page except the home page, light and dark via `prefers-color-scheme`, system fonts only (no client-side JavaScript)
 - `home.css`: home page styling (v14 design: dark opening, paper research folios), system fonts only
-- `assets/`: home media. Notch is shown as an animated image, not a video player. `notch-intro.avif` (1350×1890, 482 frames at 24 fps, plays once) is encoded frame for frame from the Notch master MP4 (SHA-256 `6fc253ce2cf495e2ec9f922495da372e4a9ec914146c8546a9dc618c2845f073`); its last frame is transparent over the emblem. `notch-sway.avif` is the emblem region of master frames 463–481, looped forever underneath, so the emblem keeps swaying once the intro ends. `notch-still.webp` (master frame 481, lossless) is what reduced-motion settings and browsers without AVIF see. `brand-mark-96.png` is the brand mark downscaled from the 512 px original
+- `assets/`: home media. `notch-v13.mp4` is the Notch animation master, shipped byte-identical (SHA-256 `6fc253ce2cf495e2ec9f922495da372e4a9ec914146c8546a9dc618c2845f073`, 8,574,149 bytes, 1350×1890, 24 fps, H.264, no audio track). It plays once on its own, muted, inline and without a player, and holds on the emblem; the browser's video decoder keeps it at real speed. `notch-first.webp` is its first frame (poster), `notch-still.webp` its last frame (lossless), shown instead under reduced motion. `brand-mark-96.png` is the brand mark downscaled from the 512 px original
 - `favicon.svg`: vector mark
 
 ## Hosting
