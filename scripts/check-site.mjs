@@ -42,6 +42,7 @@ check('research JSON-LD parses and names DOI and ORCID', () => {
   const d = JSON.parse(m[1]);
   assert.equal(d['@type'], 'Dataset');
   assert.equal(d.identifier, 'https://doi.org/10.5281/zenodo.23798037');
+  assert.equal(d.isPartOf && d.isPartOf.identifier, 'https://doi.org/10.5281/zenodo.23798036', 'research JSON-LD must link the all-versions DOI');
   assert.equal(d.creator.identifier, 'https://orcid.org/0009-0003-4026-8212');
 });
 check('public advisory files match checksums and recorded observation relationships', () => {
