@@ -42,9 +42,15 @@ h1 em,h2 em{font-style:normal;color:var(--orange)}
 .notch-stage{margin:0;min-width:0}
 .notch-frame{position:relative;background:var(--ink);width:100%;line-height:0}
 .notch-video,.notch-still{display:block;width:100%;height:auto;aspect-ratio:1350/1890;background:var(--ink)}
-.notch-video{pointer-events:none}
+.notch-video{position:relative;z-index:1;pointer-events:none}
 .notch-video::-webkit-media-controls,.notch-video::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
 .notch-frame .notch-still{display:none}
+.notch-loop{position:absolute;left:0;top:0;z-index:0;width:100%;height:auto;aspect-ratio:1350/1890;pointer-events:none}
+.notch-loop::-webkit-media-controls,.notch-loop::-webkit-media-controls-start-playback-button{display:none!important;-webkit-appearance:none}
+.notch-frame.is-looping .notch-video{visibility:hidden}
+.notch-sway{position:absolute;left:36.7407%;top:15.6614%;width:20.7407%;height:66.8783%;display:block}
+.notch-frame.is-fallback .notch-video,.notch-frame.is-fallback .notch-loop{display:none}
+.notch-frame.is-fallback .notch-still{display:block}
 .notch-stage figcaption{border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;padding-top:14px}
 .notch-caption{color:#9aa396;font-size:12px}
 .opening-foot{padding-block:24px 30px;display:flex;justify-content:space-between;gap:20px;font:11px var(--mono);color:#aeb5a8}
@@ -229,5 +235,5 @@ h1{font-size:48px}
 .placement-numbers strong{font-size:38px}
 .research-index h2,.section-heading h2,.about-grid h2{font-size:36px}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.notch-frame .notch-video{display:none}.notch-frame .notch-still{display:block}*{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.notch-frame .notch-video{display:none}.notch-frame .notch-still{display:block}.notch-loop,.notch-sway{display:none!important}*{animation:none!important;transition:none!important}}
 @media print{.notch-stage,.hero-actions,.opening-foot{display:none}.research-index{position:static}.folio{box-shadow:none;break-inside:avoid}body{background:white;color:black}.paper-section{padding:20px 0}.research-layout{display:block}}
