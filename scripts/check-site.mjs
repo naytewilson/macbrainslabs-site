@@ -8,7 +8,7 @@ import crypto from 'node:crypto';
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
 const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/'];
-const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-sway.avif', '/home.js', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -455,7 +455,7 @@ const pubs = (() => {
     assert.ok(nav && nav[1].includes('href="/publications/"'), 'home nav misses Publications');
   });
 })();
-check('no client-side JavaScript or inline handlers anywhere', () => {
+check('only the home page loads one deferred local script, and no inline JavaScript or handlers anywhere', () => {
   function* htmlFiles(dir) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       if (e.isDirectory()) {
@@ -466,7 +466,7 @@ check('no client-side JavaScript or inline handlers anywhere', () => {
   }
   for (const f of [...htmlFiles(root)]) {
     const s = fs.readFileSync(f, 'utf8');
-    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]), `${f}: <script> without JSON-LD type`);
+    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]) || (path.relative(root, f) === 'index.html' && m[1].trim() === 'src="/home.js" defer'), `${f}: <script> must be JSON-LD or the home page's deferred /home.js`);
     assert.ok(!/javascript:/i.test(s), `${f}: javascript: URL present`);
     for (const m of s.matchAll(/<[^>]*\s(on[a-z][a-z]*)\s*=/gi)) throw new Error(`${f}: inline event handler (${m[1]})`);
   }
