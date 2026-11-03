@@ -1,6 +1,6 @@
 {
   "schema": "macbrainslabs.publications.v1",
-  "generated_at": "2026-11-01T23:22:21Z",
+  "generated_at": "2026-11-03T04:40:16Z",
   "source": {
     "release_repository": "macbrainslabs/ane-research-records",
     "release_repository_url": "https://github.com/macbrainslabs/ane-research-records",
@@ -9,12 +9,163 @@
     "researcher_orcid": "0009-0003-4026-8212"
   },
   "policy": {
-    "qualifies": "a published GitHub release tag vX.Y.Z of the configured archive repository whose manifest.json (schema 1.0) at that tag validates; draft and prerelease releases are structurally excluded",
+    "qualifies": "a published GitHub release of the configured archive repository: either tag vX.Y.Z whose manifest.json (schema 1.0) at that tag validates, or a record tagged ane-record- plus 24 hex digits whose assets re-hash to their registered digests, whose review package or attestation at the tag hashes to its records index entry and binds those digests, whose final verdict is INCLUDE from macbrains-labs-reviewer, and whose Zenodo version is bound to the tag; draft and prerelease releases are structurally excluded",
     "recheck": "claims are re-derived at rebuild: asset bytes hashed against registered digests and SHA256SUMS; manifest fingerprints compared with pinned-commit bytes; DOI registration cross-checked via the Zenodo API; release prose is never rendered",
     "last_known_good": "the whole update is held (previous snapshot stays deployed) unless EVERY rebuilt record is independently verified: any previously verified record re-deriving degraded holds even when its upstream data changed, and any new record that is not fully verified holds; failed, unreachable and removed-record rebuilds never publish",
     "refresh": "scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch"
   },
   "records": [
+    {
+      "kind": "ane-diagnostic",
+      "tag": "ane-record-c188def1e88a0d94018dfe99",
+      "version": "v0.2.0",
+      "title": "LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)",
+      "release_name": "ANE research record v0.2.0 (layer-14 diagnostic, same chip)",
+      "published_at": "2026-11-03T04:28:27Z",
+      "release_url": "https://github.com/macbrainslabs/ane-research-records/releases/tag/ane-record-c188def1e88a0d94018dfe99",
+      "released_on": "2026-11-03",
+      "record_url": "https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/",
+      "record_repository": "https://github.com/macbrainslabs/ane-research-records",
+      "finding_id": "finding:50500988ae81348790c044aff2ef85720d148bf1",
+      "bundle_sha256": "0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3",
+      "attestation_sha256": "cbd11b6c5226a90a36fb22d7e12ebcc4f3290508a4574a8033745d368c002741",
+      "replication": {
+        "scope": "same-chip",
+        "claim": "same-chip, byte-reproducible on Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), CoreML 3600.25.2; ANE execution INFERRED from Core ML compute-plan placement; no novelty claim",
+        "cross_device_replication": false,
+        "profile_hash": "2f0cc0c9371123c7ea4055e755ff9d0ef714ed07e5092ca477581bad14be4042",
+        "logged": 8,
+        "counted": 5,
+        "pre_freeze": 3,
+        "deleted": 1
+      },
+      "review": {
+        "reviewed_package_sha256": "c188def1e88a0d94018dfe99f63aed795f58848871841d1c089d079a28aebff1",
+        "reviewer": "macbrains-labs-reviewer",
+        "decision": "INCLUDE",
+        "verdict_receipt_sha256": "4f8959c34bf39ebafb5ee681aa5cca71857cd987d6b85b2ea75e3cc1ff04230b",
+        "pipeline": [
+          {
+            "role": "evidence_reviewer",
+            "model": "opencode-go/deepseek-v4.1-flash",
+            "verdict": "INCLUDE",
+            "score": 0.82,
+            "session_id": "ses_e60904ac1ffeacsEnVw4ZofYgS"
+          },
+          {
+            "role": "skeptical_reviewer",
+            "model": "opencode-go/glm-5.3",
+            "verdict": "INCLUDE",
+            "score": 0.8,
+            "session_id": "ses_e60904ac1ffePgIg7R2G9ym86a"
+          }
+        ]
+      },
+      "doi": {
+        "version_doi": "10.5281/zenodo.23905811",
+        "concept_doi": "10.5281/zenodo.23798036",
+        "zenodo_record_url": "https://zenodo.org/records/23905811",
+        "binding_source": "Zenodo version search under the all-versions DOI (tag tree URL, or the archive Zenodo named for the tag)",
+        "registered_state": "registered_verified",
+        "crosscheck": {
+          "state": "pass",
+          "comparisons": {
+            "version_doi": "match",
+            "record_id": "match",
+            "concept_doi": "match",
+            "tag_binding": "match",
+            "record_version": "match",
+            "creator_orcid": "match",
+            "license": "match"
+          },
+          "detail": null
+        }
+      },
+      "assets": [
+        {
+          "name": "bundle.json",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/bundle.json",
+          "size": 27769,
+          "digest": "sha256:0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3",
+          "sha256": "0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3"
+        },
+        {
+          "name": "attestation.json",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/attestation.json",
+          "size": 7884,
+          "digest": "sha256:cbd11b6c5226a90a36fb22d7e12ebcc4f3290508a4574a8033745d368c002741",
+          "sha256": "cbd11b6c5226a90a36fb22d7e12ebcc4f3290508a4574a8033745d368c002741"
+        },
+        {
+          "name": "execution-log.jsonl",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/execution-log.jsonl",
+          "size": 5144,
+          "digest": "sha256:879a7172d2531685cb1aef343565a7a4adf7dcee3c5bd5b2bbc53a5c5e11441f",
+          "sha256": "879a7172d2531685cb1aef343565a7a4adf7dcee3c5bd5b2bbc53a5c5e11441f"
+        },
+        {
+          "name": "deletion-disclosure.md",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/deletion-disclosure.md",
+          "size": 5262,
+          "digest": "sha256:f05c7c0649f440a51ad4d539ccfd81e7632ec494af85e9131e65415521cd2958",
+          "sha256": "f05c7c0649f440a51ad4d539ccfd81e7632ec494af85e9131e65415521cd2958"
+        },
+        {
+          "name": "preview.md",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/preview.md",
+          "size": 8090,
+          "digest": "sha256:03410d5f246ffc912fb248725fb2cd3b59b0f4b575b60ff2e75632abf90d28f9",
+          "sha256": "03410d5f246ffc912fb248725fb2cd3b59b0f4b575b60ff2e75632abf90d28f9"
+        },
+        {
+          "name": "SHA256SUMS",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/SHA256SUMS",
+          "size": 413,
+          "digest": "sha256:3793649dc9560f6088f1a8c11eb4a7b2abc997fac8d6f01f6094bbc591c3feab",
+          "sha256": "3793649dc9560f6088f1a8c11eb4a7b2abc997fac8d6f01f6094bbc591c3feab"
+        }
+      ],
+      "verification": {
+        "state": "verified",
+        "guards": [
+          {
+            "name": "published release tag ane-record- plus 24 hex; release shell valid",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "records index at the tag lists this diagnostic record once (schema, all-versions DOI, v0.1.0 baseline)",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "exactly six release assets re-downloaded; bytes equal their registered digests and SHA256SUMS",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "attestation at the tag is canonical, hashes to the index entry and binds the asset digests to the reviewed package",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "final review is INCLUDE from macbrains-labs-reviewer for the reviewed package hash, with an evidence and a skeptical INCLUDE review",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "scope, setup profile and every logged execution recounted from the released log and bundle; no novelty claim",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "Zenodo version under the all-versions DOI bound to this tag (DOI, ORCID, license, version)",
+            "state": "pass",
+            "detail": null
+          }
+        ]
+      }
+    },
     {
       "tag": "v0.1.0",
       "release_name": "MacBrains Labs ANE Research Records v0.1.0 - Public Measurement Summaries",
@@ -58,7 +209,7 @@
         "concept_doi": "10.5281/zenodo.23798036",
         "zenodo_record_url": "https://zenodo.org/records/23798037",
         "tagged_manifest_doi_status": "not issued; Zenodo authorization and deposit still required",
-        "binding_source": "citation file at main",
+        "binding_source": "records index at main",
         "registered_state": "registered_verified",
         "crosscheck": {
           "state": "pass",
@@ -112,9 +263,9 @@
             "state": "pass"
           },
           {
-            "name": "DOI binding resolved from: citation file at main",
+            "name": "DOI binding resolved from: records index at main",
             "state": "pass",
-            "detail": "the tagged manifest recorded no DOI at release time; the candidate DOI comes from the citation file on main and was accepted only because the Zenodo registration binds it to this tag"
+            "detail": "the tagged manifest recorded no DOI at release time and the citation file on main now cites a later version; the candidate DOI comes from the baseline entry of records/index.json on main and was accepted only because the Zenodo registration binds it to this tag"
           },
           {
             "name": "release assets re-downloaded; byte digests and SHA256SUMS agree",

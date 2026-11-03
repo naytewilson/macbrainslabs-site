@@ -61,7 +61,7 @@
 <p class="lede">The archive release feed for the public research record. Every entry is a published GitHub release tag whose provenance chain was re-derived from upstream at rebuild time — not a new result, not a promotion, not a claim of peer review.</p>
 <dl class="facts">
 <div><dt>Record repository</dt><dd><a href="https://github.com/macbrainslabs/ane-research-records">macbrainslabs/ane-research-records</a></dd></div>
-<div><dt>Last rebuilt</dt><dd><time datetime="2026-11-01T23:22:21Z">1 Nov 2026</time></dd></div>
+<div><dt>Last rebuilt</dt><dd><time datetime="2026-11-03T04:40:16Z">3 Nov 2026</time></dd></div>
 <div><dt>Rebuild sources</dt><dd>release API · manifest at tag · pinned-commit bytes · Zenodo registration</dd></div>
 <div><dt>Cite all versions</dt><dd><a href="https://doi.org/10.5281/zenodo.23798036">DOI 10.5281/zenodo.23798036</a></dd></div>
 </dl>
@@ -72,27 +72,58 @@
 <div class="section-head">
 <span class="label">How a record qualifies</span>
 <div>
-<h2 id="qualify-h">Six checks stand between upstream and this page.</h2>
+<h2 id="qualify-h">Seven checks stand between upstream and this page.</h2>
 <p>This feed does not transcribe release text. It renders only structured fields that survived validation, and anything that could not be re-checked is surfaced as a degraded state, never silently smoothed. Draft and prerelease releases cannot enter.</p>
 </div>
 </div>
 <ol class="principles">
-<li><span class="n">01</span><div><h3>Published tag only</h3><p>Records enter as published GitHub release tags <code>vX.Y.Z</code> of the archive repository. Draft and prerelease releases are structurally excluded.</p></div></li>
+<li><span class="n">01</span><div><h3>Published tag only</h3><p>Records enter as published GitHub release tags <code>vX.Y.Z</code> or <code>ane-record-</code> plus 24 hex digits of the archive repository. Draft and prerelease releases are structurally excluded.</p></div></li>
 <li><span class="n">02</span><div><h3>Manifest at the tag</h3><p>Each release must carry <code>manifest.json</code> (schema 1.0) with source document fingerprints, explicit evidence limits and a DOI binding. A missing field stops the whole rebuild before anything is published.</p></div></li>
 <li><span class="n">03</span><div><h3>Bytes re-checked</h3><p>Release assets are downloaded at rebuild and hashed. Digests must equal those the release API registers, and <code>SHA256SUMS</code> must be internally consistent and agree.</p></div></li>
 <li><span class="n">04</span><div><h3>Provenance re-derived</h3><p>Every listed source document is fetched from the pinned site commit and its SHA-256 must equal the manifest fingerprint. A mismatch marks the record degraded, it is never deleted quietly.</p></div></li>
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
 <li><span class="n">06</span><div><h3>Last-known-good</h3><p>This feed publishes only independently verified records. If upstream is unreachable, rate-limited, if a previously verified record re-derives degraded (even over changed upstream data), if a new record is not fully verified, or if a record is removed, the whole update is held: this page keeps its previous snapshot and the failure stays visible in the repository's public workflow history.</p></div></li>
+<li><span class="n">07</span><div><h3>Diagnostic research records</h3><p>A diagnostic <code>ane-record-</code> release must carry exactly six assets (the reviewed bundle, its attestation, the execution log, the deletion disclosure, a preview and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry, bind those digests to the reviewed package hash, and carry the final reviewer's INCLUDE plus an evidence and a skeptical INCLUDE review. Executions are recounted from the released log, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>
 </ol>
 </section>
 
-<section class="section" id="records" aria-labelledby="records-h" data-generated="2026-11-01T23:22:21Z" data-state="ok">
+<section class="section" id="records" aria-labelledby="records-h" data-generated="2026-11-03T04:40:16Z" data-state="ok">
 <div class="wrap">
 <div class="section-head">
 <span class="label">Current records</span>
 <div><h2 id="records-h">Published archive releases.</h2>
 <p>Newest first. The pill reflects the latest successful rebuild; expand each record's guards to see exactly what was and was not re-checked. Feeds are regenerated only from validated upstream data and are refreshed from a scheduled workflow whenever the records change.</p></div>
 </div>
+
+<article class="pub-record" data-tag="ane-record-c188def1e88a0d94018dfe99" data-kind="ane-diagnostic">
+<h3>v0.2.0 · LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)</h3>
+<p class="pub-statusline"><span class="pub-status pub-status-verified">Re-verified at rebuild</span></p>
+<p><time datetime="2026-11-03T04:28:27Z">3 Nov 2026</time> · tag <code>ane-record-c188def1e88a0d94018dfe99</code> · diagnostic research record</p>
+<p><a href="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">Read the record page</a>. <a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/ane-record-c188def1e88a0d94018dfe99">View this release in the archive repository</a>. A reviewed record and an archived DOI are not peer review.</p>
+<div class="pub-dl">
+<div><span class="label">Scope</span><ul>
+<li><strong>Same-chip rerun: repeatability only, not cross-device replication</strong></li>
+<li>Scope as recorded: <q>same-chip, byte-reproducible on Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), CoreML 3600.25.2; ANE execution INFERRED from Core ML compute-plan placement; no novelty claim</q></li>
+<li>Setup profile <code>2f0cc0c9371123c7ea4055e755ff9d0ef714ed07e5092ca477581bad14be4042</code></li>
+<li>8 executions logged and disclosed: 5 counted, 3 before the setup profile froze; 1 counted output deleted, recovered record disclosed</li>
+</ul></div>
+<div><span class="label">Final review</span><ul>
+<li>Reviewed package <code>c188def1e88a0d94018dfe99f63aed795f58848871841d1c089d079a28aebff1</code></li>
+<li>INCLUDE from <code>macbrains-labs-reviewer</code>, receipt <code>4f8959c34bf39ebafb5ee681aa5cca71857cd987d6b85b2ea75e3cc1ff04230b</code></li>
+<li>evidence reviewer: <code>opencode-go/deepseek-v4.1-flash</code>, INCLUDE at 0.82</li><li>skeptical reviewer: <code>opencode-go/glm-5.3</code>, INCLUDE at 0.80</li>
+<li>Bundle <code>0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3</code> · attestation <code>cbd11b6c5226a90a36fb22d7e12ebcc4f3290508a4574a8033745d368c002741</code></li>
+</ul></div>
+<div><span class="label">Registered identifiers</span><ul>
+<li><a href="https://doi.org/10.5281/zenodo.23905811">Version DOI 10.5281/zenodo.23905811</a></li><li><a href="https://doi.org/10.5281/zenodo.23798036">All-versions DOI 10.5281/zenodo.23798036</a></li><li><span class="pub-fp-match">registration state: registered_verified — the Zenodo version bound to this tag was found under the all-versions DOI at rebuild, not taken from release text</span></li>
+</ul></div>
+<div><span class="label">Release assets and integrity</span><ul>
+<li><code>bundle.json</code> <span class="num">(27,769 bytes)</span><br><span class="pub-digest">SHA-256 <code>0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/bundle.json">download at release</a></li><li><code>attestation.json</code> <span class="num">(7,884 bytes)</span><br><span class="pub-digest">SHA-256 <code>cbd11b6c5226a90a36fb22d7e12ebcc4f3290508a4574a8033745d368c002741</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/attestation.json">download at release</a></li><li><code>execution-log.jsonl</code> <span class="num">(5,144 bytes)</span><br><span class="pub-digest">SHA-256 <code>879a7172d2531685cb1aef343565a7a4adf7dcee3c5bd5b2bbc53a5c5e11441f</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/execution-log.jsonl">download at release</a></li><li><code>deletion-disclosure.md</code> <span class="num">(5,262 bytes)</span><br><span class="pub-digest">SHA-256 <code>f05c7c0649f440a51ad4d539ccfd81e7632ec494af85e9131e65415521cd2958</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/deletion-disclosure.md">download at release</a></li><li><code>preview.md</code> <span class="num">(8,090 bytes)</span><br><span class="pub-digest">SHA-256 <code>03410d5f246ffc912fb248725fb2cd3b59b0f4b575b60ff2e75632abf90d28f9</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/preview.md">download at release</a></li><li><code>SHA256SUMS</code> <span class="num">(413 bytes)</span><br><span class="pub-digest">SHA-256 <code>3793649dc9560f6088f1a8c11eb4a7b2abc997fac8d6f01f6094bbc591c3feab</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-c188def1e88a0d94018dfe99/SHA256SUMS">download at release</a></li>
+</ul></div>
+<div><span class="label">Verification guards</span><ul>
+<li><span class="pub-fp-match">✓</span> published release tag ane-record- plus 24 hex; release shell valid</li><li><span class="pub-fp-match">✓</span> records index at the tag lists this diagnostic record once (schema, all-versions DOI, v0.1.0 baseline)</li><li><span class="pub-fp-match">✓</span> exactly six release assets re-downloaded; bytes equal their registered digests and SHA256SUMS</li><li><span class="pub-fp-match">✓</span> attestation at the tag is canonical, hashes to the index entry and binds the asset digests to the reviewed package</li><li><span class="pub-fp-match">✓</span> final review is INCLUDE from macbrains-labs-reviewer for the reviewed package hash, with an evidence and a skeptical INCLUDE review</li><li><span class="pub-fp-match">✓</span> scope, setup profile and every logged execution recounted from the released log and bundle; no novelty claim</li><li><span class="pub-fp-match">✓</span> Zenodo version under the all-versions DOI bound to this tag (DOI, ORCID, license, version)</li>
+</ul></div>
+</div>
+</article>
 
 <article class="pub-record" data-tag="v0.1.0">
 <h3>MacBrains Labs ANE Research Records v0.1.0 - Public Measurement Summaries</h3>
@@ -112,7 +143,7 @@
 <li><span class="pub-fp-match">checksum file re-verified at rebuild: SHA256SUMS bytes match the registered release digest and its entries match the re-hashed assets</span></li>
 </ul></div>
 <div><span class="label">Verification guards</span><ul>
-<li><span class="pub-fp-match">✓</span> published release tag</li><li><span class="pub-fp-match">✓</span> manifest at the tag (schema 1.0: fingerprints, limits and DOI state)</li><li><span class="pub-fp-match">✓</span> DOI binding resolved from: citation file at main — the tagged manifest recorded no DOI at release time; the candidate DOI comes from the citation file on main and was accepted only because the Zenodo registration binds it to this tag</li><li><span class="pub-fp-match">✓</span> release assets re-downloaded; byte digests and SHA256SUMS agree</li><li><span class="pub-fp-match">✓</span> source document fingerprints re-derived at the pinned commit (4/4)</li><li><span class="pub-fp-match">✓</span> DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)</li>
+<li><span class="pub-fp-match">✓</span> published release tag</li><li><span class="pub-fp-match">✓</span> manifest at the tag (schema 1.0: fingerprints, limits and DOI state)</li><li><span class="pub-fp-match">✓</span> DOI binding resolved from: records index at main — the tagged manifest recorded no DOI at release time and the citation file on main now cites a later version; the candidate DOI comes from the baseline entry of records/index.json on main and was accepted only because the Zenodo registration binds it to this tag</li><li><span class="pub-fp-match">✓</span> release assets re-downloaded; byte digests and SHA256SUMS agree</li><li><span class="pub-fp-match">✓</span> source document fingerprints re-derived at the pinned commit (4/4)</li><li><span class="pub-fp-match">✓</span> DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)</li>
 </ul></div>
 </div>
 <div class="callout"><span class="label">Evidence limits</span><p>MLComputePlan ANE assignment is compiler placement and is not direct ANE hardware tracing</p></div>
