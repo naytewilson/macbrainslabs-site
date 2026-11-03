@@ -18,6 +18,8 @@ jobs:
         run: node scripts/test-publications-lkg.mjs
       - name: Verify reviewed research record (ane-record) guards and rendering
         run: node scripts/test-publications-ane-records.mjs
+      - name: Verify diagnostic research record guards and rendering
+        run: node scripts/test-publications-diagnostic-records.mjs
       - name: Re-derive upstream records and rebuild the feed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

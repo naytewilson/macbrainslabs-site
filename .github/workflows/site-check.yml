@@ -16,3 +16,8 @@ jobs:
           node-version: '22'
       - name: Verify local navigation, canonicals, metadata and assets
         run: node scripts/check-site.mjs
+      - name: Verify publication feed rules and record guards (network stubbed)
+        run: |
+          node scripts/test-publications-lkg.mjs
+          node scripts/test-publications-ane-records.mjs
+          node scripts/test-publications-diagnostic-records.mjs

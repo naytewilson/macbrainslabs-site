@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>LFM3-1.7B layer-14 diagnostic record · MacBrains Labs</title>
+<meta name="description" content="Diagnostic research record v0.2.0: LFM3-1.7B layer 14 under Core ML cpuAndNeuralEngine on one A18 Pro device. Same chip only; ANE execution inferred; no novelty claim.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="LFM3-1.7B layer-14 diagnostic record">
+<meta property="og:description" content="Diagnostic research record v0.2.0: LFM3-1.7B layer 14 under Core ML cpuAndNeuralEngine on one A18 Pro device. Same chip only; ANE execution inferred; no novelty claim.">
+<meta property="og:url" content="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Research record",
+          "item": "https://macbrainslabs.org/research/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Record v0.2.0",
+          "item": "https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/"
+        }
+      ]
+    },
+    {
+      "@type": "Dataset",
+      "@id": "https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/#dataset",
+      "name": "LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)",
+      "description": "Diagnostic research record v0.2.0: LFM3-1.7B layer 14 under Core ML cpuAndNeuralEngine on one A18 Pro device. Same chip only; ANE execution inferred; no novelty claim.",
+      "url": "https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/",
+      "version": "v0.2.0",
+      "isPartOf": {
+        "@type": "Dataset",
+        "name": "MacBrains Labs ANE Research Records",
+        "identifier": "https://doi.org/10.5281/zenodo.23798036"
+      },
+      "creator": {
+        "@type": "Person",
+        "name": "Nayte Wilson",
+        "identifier": "https://orcid.org/0009-0003-4026-8212"
+      },
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "datePublished": "2026-11-03",
+      "inLanguage": "en",
+      "keywords": [
+        "Apple Neural Engine",
+        "Core ML",
+        "LFM3"
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/" aria-current="page">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/">Notes</a>
+<a href="/publications/">Publications</a>
+<a href="/security/">Security</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head" data-tag="ane-record-c188def1e88a0d94018dfe99">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/research/">Research record</a> / Record v0.2.0</p>
+<h1>LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)</h1>
+<p class="lede">A diagnostic research record, reviewed and then republished byte for byte. Same-chip rerun: repeatability only, not cross-device replication. ANE execution INFERRED from Core ML compute-plan placement; no novelty claim.</p>
+<dl class="facts">
+<div><dt>Version</dt><dd>v0.2.0 · released <time datetime="2026-11-03">3 Nov 2026</time></dd></div>
+<div><dt>Device</dt><dd>Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), Core ML 3600.25.2</dd></div>
+<div><dt>Tier</dt><dd>Diagnostic · single device</dd></div>
+<div><dt>Cite</dt><dd>version DOI pending registration · <a href="https://doi.org/10.5281/zenodo.23798036">all versions: DOI 10.5281/zenodo.23798036</a></dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="On this page">
+<span class="label">On this page</span>
+<ol>
+<li><a href="#scope">Scope</a></li>
+<li><a href="#claim">Claim</a></li>
+<li><a href="#limits">Limits</a></li>
+<li><a href="#runs">Every execution</a></li>
+<li><a href="#review">Review</a></li>
+<li><a href="#files">Files</a></li>
+</ol>
+<div class="toc-out"><a href="/publications/">Publications</a><a href="/methods/">Methodology</a></div>
+</nav>
+<article class="article">
+<h2 id="scope"><span class="sec">01</span>Scope</h2>
+<div class="callout"><span class="label">Scope as reviewed</span><p><q>same-chip, byte-reproducible on Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), CoreML 3600.25.2; ANE execution INFERRED from Core ML compute-plan placement; no novelty claim</q></p></div>
+<p><strong>Same-chip rerun: repeatability only, not cross-device replication.</strong> Every execution in this record ran on one device, the same chip. Device identity is self-reported-by-OS-and-CoreML-on-run-host-Neo; not independently re-derived. Novelty is UNCLAIMED.</p>
+
+<h2 id="claim"><span class="sec">02</span>Claim, verbatim</h2>
+<p>On a single device whose OS/Core ML reported identity is chip Apple A18 Pro, hwModel Mac17,5, macOS 27.2 (build 26B123), CoreML 3600.25.2, LFM3-1.7B layer-14 inference under computeUnits=cpuAndNeuralEngine is output-reproducible under source rebuild: THREE counted, git-frozen, source-rebuilt clean-room runs (one profile-scoped run ledger keyed to profileHash 2f0cc0c9, totalRuns=3, countedRuns=3, preFreezeRunsNotCounted=0; this ledger is scoped to the current frozen tool commit 926a78ad, and the same profileHash has 8 logged executions device-wide: 5 counted/frozen across tool commits 833b3fc8/5f827c84/926a78ad and 3 pre-freeze, one counted run&#39;s on-disk dump deleted and disclosed with recovered records, all enumerated in allDeviceExecutionsOfProfile and execution-log.jsonl) each produced output byte-identical (24/24 tensors, 0 differing) to the archived device-run baseline index. The replication runner was built from git-committed source at commit c45e8c61 (binary SHA-256 746e1200, which differs from the baseline binary 48d2d0aa); the clean-room tool and profile were git-frozen at 926a78ad / 9d6aa2a2 before each counted run. This is source-level rebuild output reproducibility, not binary identity and not cross-device scientific replication. A separately frozen, counted CPU-vs-ANE control (control profile 33e0e5a9, totalRuns=2, countedRuns=2, under the same frozen tool 926a78ad) ran both arms with the SAME source-rebuilt binary (SHA-256 e0ef750e, built from committed probe source at commit 055b54f7), differing only in the LFM3_PROBE_CPU_LAYERS environment variable (unset for the ANE arm, =14 for the layer-14 CPU arm): a like-for-like, same-binary comparison. An independently written recomputation (own IEEE-half decode) on the two frozen control dumps - cross-checked byte-identical (24/24 files) to the archived Oct-31 probe dumps - gives ANE-enabled output abs-L2 to the FP32 teacher of 0.0062 to 0.0097 at positions 161/203/217 versus the layer-14-only CPU arm&#39;s 0.036 to 0.054; i.e. the CPU-only abs-L2 is 3.8x to 8.7x the ANE-enabled abs-L2. The FP32 teacher is computed by the same runner from the fixture, and the independent recomputation reads the same frozen dumps and shares metric definitions, so it is documentary cross-checking, not an independent measurement. Core ML&#39;s compute plan assigns all 447 layer-14 ops to the ANE (0 CPU/GPU/unassigned); ANE execution is INFERRED from this placement plus the same-binary CPU control, not from a per-op hardware execution trace. Same-chip, single-device, layer-14, three-position diagnostic only; no novelty claim.</p>
+
+<h2 id="limits"><span class="sec">03</span>What the record does not say</h2>
+<ul>
+<li>Single device (Mac17,5, macOS 27.2 build 26B123); three source-rebuilt runs against the archived same-chip baseline, which is not multi-device reproducibility.</li>
+<li>One layer (14) of LFM3-1.7B at three token positions (161, 203, 217) only; do not generalize.</li>
+<li>Only tier A (ANE-enabled) and the layer-14-only CPU control are device-measured; emulated tiers N/G/E, cosine-between-error-vectors and projected_share are not covered.</li>
+<li>Compiler placement is not direct hardware execution: all 447 layer-14 ops are assigned to the ANE in the plan, but no per-op hardware trace exists, so ANE execution is INFERRED.</li>
+<li>The CPU control is layer-14-only (layer 14 forced to CPU via LFM3_PROBE_CPU_LAYERS=14, rest on ANE); the whole-chain CPU-only run produced no finite layer-14 dump, so the ANE-vs-CPU comparison is layer-local.</li>
+<li>The independent recomputation shares metric definitions and reads the same raw dumps; it verifies the archived error metrics, not an independent measurement, and is not cross-device replication.</li>
+<li>Replication runner binary differs from the baseline binary (different SHA-256): source-level rebuild output reproducibility, not binary identity.</li>
+<li>The replication runner (746e1200 @ c45e8c61) and the CPU-vs-ANE control binary (e0ef750e @ 055b54f7) are distinct build artifacts; the control&#39;s same-binary claim is internal to its two arms only.</li>
+<li>Diagnostic only: no responsible ANE op identified, no release gate changed; prior-art coverage of the specific directional claim is INCONCLUSIVE and novelty is explicitly UNCLAIMED.</li>
+<li>Tensor-file unit: tensorFilesPerPosition=24 is the per-position tensor count used in the byte-identity comparisons; each control-arm dump directory holds 25 files (the 24 compared per-position tensors plus one additional non-compared file), so the 24/24 control cross-check covers the 24 tensor files only.</li>
+</ul>
+
+<h2 id="runs"><span class="sec">04</span>Every execution of the setup profile</h2>
+<p>Setup profile <code>2f0cc0c9371123c7ea4055e755ff9d0ef714ed07e5092ca477581bad14be4042</code> was hashed and committed before the first counted run. The device log lists 8 logged executions of it: 5 counted and git-frozen, 3 before the profile froze and not counted. The output of 1 counted run was deleted from the device; its recovered record and the cause analysis are in <code>deletion-disclosure.md</code>. No execution is omitted.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Run</th><th scope="col">Tool commit</th><th scope="col">Started (UTC)</th><th scope="col">Status</th><th scope="col">Counted</th><th scope="col">Output</th></tr></thead>
+<tbody>
+<tr><td><code>pf-baselinebin</code></td><td>none</td><td><code>2026-11-02T19:52:00Z</code></td><td>before freeze, not counted</td><td>no</td><td>kept</td></tr>
+<tr><td><code>pf-freshcompile</code></td><td>none</td><td><code>2026-11-02T19:57:00Z</code></td><td>before freeze, not counted</td><td>no</td><td>kept</td></tr>
+<tr><td><code>pf-toolrun</code></td><td>none</td><td><code>2026-11-02T20:07:00Z</code><br>corrected to <code>2026-11-02T20:03:04Z</code></td><td>before freeze, not counted</td><td>no</td><td>kept</td></tr>
+<tr><td><code>counted-833b3fc8-r4</code></td><td><code>833b3fc8</code></td><td><code>2026-11-02T20:41:39Z</code></td><td>pass</td><td>yes</td><td>deleted; recovered record disclosed</td></tr>
+<tr><td><code>counted-5f827c84-r1</code></td><td><code>5f827c84</code></td><td><code>2026-11-02T22:14:04Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
+<tr><td><code>counted-926a78ad-r1</code></td><td><code>926a78ad</code></td><td><code>2026-11-03T00:04:18Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
+<tr><td><code>counted-926a78ad-r2</code></td><td><code>926a78ad</code></td><td><code>2026-11-03T00:06:17Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
+<tr><td><code>counted-926a78ad-r3</code></td><td><code>926a78ad</code></td><td><code>2026-11-03T00:08:15Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
+</tbody></table></div>
+<p class="table-caption">From <code>execution-log.jsonl</code>, republished exactly as reviewed. The log on the device is append-only; the one correction shown was appended after review. The logged value is the directory modification time; the run&#39;s own runs-log records 20:03:04Z. A correction line was appended to the device log after review; the republished log is the reviewed prefix.</p>
+
+<h2 id="review"><span class="sec">05</span>Review and bindings</h2>
+<ul>
+<li>Reviewed package <code>c188def1e88a0d94018dfe99f63aed795f58848871841d1c089d079a28aebff1</code>: the hand-off manifest the final reviewer read. It is not republished; it binds the files below by hash.</li>
+<li>Final review: INCLUDE from <code>macbrains-labs-reviewer</code> for that package hash, verdict receipt <code>4f8959c34bf39ebafb5ee681aa5cca71857cd987d6b85b2ea75e3cc1ff04230b</code>.</li>
+<li>evidence reviewer: <code>opencode-go/deepseek-v4.1-flash</code>, INCLUDE at 0.82, session <code>ses_e60904ac1ffeacsEnVw4ZofYgS</code>, receipt <code>a242e7104c211bde9238a8a53c3ac9b44b9c6ac877a4d075037292f0077485a4</code></li>
+<li>skeptical reviewer: <code>opencode-go/glm-5.3</code>, INCLUDE at 0.80, session <code>ses_e60904ac1ffePgIg7R2G9ym86a</code>, receipt <code>b2d85d88f4d7ad8714a0c2d3cb37c01cbc034ccc001a57b26ec57cb9cc8ca907</code></li>
+<li>Reviewed bundle <code>0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3</code>, round 5, schema <code>macbrains.research.diagnostic-review-bundle.v1</code>.</li>
+<li>Diagnostic policy digest <code>3c3b6ba4f8ee69849f8c24672d26bc51f1ca36b429203f996849994b8d7ea3fa</code> at commit <code>4d23b937e55fc25a12428eb6ef965ec8666c2cc1</code>.</li>
+</ul>
+<p>A reviewed record and an archived DOI are not peer review. Zenodo registers a version DOI for this release under the all-versions <a href="https://doi.org/10.5281/zenodo.23798036">DOI 10.5281/zenodo.23798036</a>; it is added here once the registration is verified.</p>
+
+<h2 id="files"><span class="sec">06</span>Files</h2>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">File at the tag</th><th scope="col" class="numeric">Bytes</th><th scope="col">SHA-256</th></tr></thead>
+<tbody>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-c188def1e88a0d94018dfe99/records/ane-record-c188def1e88a0d94018dfe99/attestation.json">attestation.json</a></td><td class="numeric">7,884</td><td><code>cbd11b6c5226a90a36fb22d7e12ebcc4f3290508a4574a8033745d368c002741</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-c188def1e88a0d94018dfe99/records/ane-record-c188def1e88a0d94018dfe99/bundle.json">bundle.json</a></td><td class="numeric">27,769</td><td><code>0d2b3f787cf0f98e6d12ed9cebd614d028b0f39e9e210e55fb93cc14ca6f49b3</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-c188def1e88a0d94018dfe99/records/ane-record-c188def1e88a0d94018dfe99/execution-log.jsonl">execution-log.jsonl</a></td><td class="numeric">5,144</td><td><code>879a7172d2531685cb1aef343565a7a4adf7dcee3c5bd5b2bbc53a5c5e11441f</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-c188def1e88a0d94018dfe99/records/ane-record-c188def1e88a0d94018dfe99/deletion-disclosure.md">deletion-disclosure.md</a></td><td class="numeric">5,262</td><td><code>f05c7c0649f440a51ad4d539ccfd81e7632ec494af85e9131e65415521cd2958</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-c188def1e88a0d94018dfe99/records/ane-record-c188def1e88a0d94018dfe99/preview.md">preview.md</a></td><td class="numeric">8,090</td><td><code>03410d5f246ffc912fb248725fb2cd3b59b0f4b575b60ff2e75632abf90d28f9</code></td></tr>
+</tbody></table></div>
+<p class="table-caption">The <a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/ane-record-c188def1e88a0d94018dfe99">GitHub release ane-record-c188def1e88a0d94018dfe99</a> carries the same files with <code>SHA256SUMS</code>; <code>scripts/verify.mjs</code> in the <a href="https://github.com/macbrainslabs/ane-research-records">record repository</a> re-checks every hash and claim field.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="label">MacBrains Labs</span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/publications/">Publications</a></li>
+<li><a href="/security/">Defensive research</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>

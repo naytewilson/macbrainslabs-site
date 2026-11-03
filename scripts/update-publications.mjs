@@ -27,6 +27,13 @@
 //      bound to the records index, and the Zenodo version bound to the tag.
 //      A version not minted yet is degraded, so rule 4 holds the update.
 //
+//   6. Diagnostic research records (same tag form, records index kind
+//      "diagnostic") republish a reviewed bundle byte for byte: six release
+//      assets re-hashed against registered digests and SHA256SUMS, an
+//      attestation at the tag bound to the records index and the reviewed
+//      package hash, executions recounted from the released log, and the
+//      Zenodo version bound to the tag, under the same rule 4.
+//
 // Exit codes: 0 wrote changed/changed-state output, or already current;
 // 1 structural failure (never commit); 2 upstream unreachable or the
 // last-known-good decision held the update (keep last-known-good).
@@ -545,11 +552,13 @@ async function buildRecord(rel) {
 // prose (including the machine marker in the body) is never read or rendered.
 
 const QUALIFIES_LEGACY = 'a published GitHub release tag vX.Y.Z of the configured archive repository whose manifest.json (schema 1.0) at that tag validates; draft and prerelease releases are structurally excluded';
+const QUALIFIES_WITH_DIAGNOSTIC = 'a published GitHub release of the configured archive repository: either tag vX.Y.Z whose manifest.json (schema 1.0) at that tag validates, or a record tagged ane-record- plus 24 hex digits whose assets re-hash to their registered digests, whose review package or attestation at the tag hashes to its records index entry and binds those digests, whose final verdict is INCLUDE from macbrains-labs-reviewer, and whose Zenodo version is bound to the tag; draft and prerelease releases are structurally excluded';
 const QUALIFIES_WITH_RECORDS = 'a published GitHub release of the configured archive repository: either tag vX.Y.Z whose manifest.json (schema 1.0) at that tag validates, or a reviewed research record tagged ane-record- plus 24 hex digits whose four assets re-hash to their registered digests, whose canonical review package at the tag hashes to its records index entry and lists those digests, whose final verdict is INCLUDE from macbrains-labs-reviewer, and whose Zenodo version is bound to the tag; draft and prerelease releases are structurally excluded';
 
 // The policy text describes exactly the record kinds the feed carries, so a
 // feed of vX.Y.Z records alone keeps its previous bytes.
 export function qualifiesPolicy(records) {
+  if (records.some(r => r.kind === DIAG_KIND)) return QUALIFIES_WITH_DIAGNOSTIC;
   return records.some(r => r.kind === ANE_KIND) ? QUALIFIES_WITH_RECORDS : QUALIFIES_LEGACY;
 }
 
@@ -752,7 +761,9 @@ async function crosscheckAneZenodo(tag, entry) {
 export async function buildAneRecord(rel) {
   validateReleaseShell(rel, ANE_TAG_RX);
   const tag = rel.tag_name;
-  const entry = aneIndexEntry(await loadRepoFileAtTag('records/index.json', tag), tag);
+  const indexBuf = await loadRepoFileAtTag('records/index.json', tag);
+  if (aneIndexKind(indexBuf, tag) === DIAG_INDEX_KIND) return buildDiagnosticRecord(rel, indexBuf);
+  const entry = aneIndexEntry(indexBuf, tag);
   const guards = [
     { name: 'published release tag ane-record- plus 24 hex; release shell valid', state: 'pass', detail: null },
     { name: 'records index at the tag lists this record once (schema, all-versions DOI, v0.1.0 baseline)', state: 'pass', detail: null }
@@ -827,6 +838,345 @@ export async function buildAneRecord(rel) {
     assets: relAssets.assets,
     verification: { state, guards }
   };
+}
+
+// -- diagnostic research records (ane-record-*, records index kind "diagnostic")
+//
+// A diagnostic record republishes, byte for byte, a reviewed diagnostic bundle
+// and its evidence files. Its release carries exactly six assets: the bundle,
+// its attestation, the execution log, the deletion disclosure, a preview and
+// SHA256SUMS. At the tag, records/<tag>/attestation.json must hash to its
+// records index entry and bind the asset digests to the reviewed package hash
+// that the final reviewer returned INCLUDE on. Execution counts and the setup
+// profile are recounted from the released log and bundle bytes, never read
+// from a summary. Every guard must pass for state "verified"; a Zenodo version
+// not minted yet is degraded, so the last-known-good rule holds the update.
+
+const DIAG_KIND = 'ane-diagnostic';
+const DIAG_INDEX_KIND = 'diagnostic';
+const DIAG_FILE_NAMES = ['bundle.json', 'execution-log.jsonl', 'deletion-disclosure.md', 'preview.md'];
+const DIAG_ASSET_NAMES = ['bundle.json', 'attestation.json', 'execution-log.jsonl', 'deletion-disclosure.md', 'preview.md', 'SHA256SUMS'];
+const DIAG_ATTESTATION_SCHEMA = 'macbrains.dataset.diagnostic-attestation.v1';
+const DIAG_COUNT_KEYS = ['logged', 'counted', 'preFreeze', 'deleted'];
+const DIAG_PIPELINE_ROLES = ['evidence_reviewer', 'skeptical_reviewer'];
+const FINDING_RX = /^finding:[0-9a-f]{40}$/u;
+
+// The kind of this tag's records index entry, read before any kind-specific
+// validation; an unknown kind is a structural refusal.
+function aneIndexKind(buf, tag) {
+  let index;
+  try { index = JSON.parse(buf.toString('utf8')); } catch { return undefined; }
+  const hits = index && Array.isArray(index.records) ? index.records.filter(r => r && typeof r === 'object' && r.tag === tag) : [];
+  if (hits.length !== 1) return undefined;
+  const k = hits[0].kind;
+  assert.ok(k === undefined || k === DIAG_INDEX_KIND, `${tag}: records index entry kind is unsupported`);
+  return k;
+}
+
+function diagIndexEntry(buf, tag) {
+  let index;
+  try { index = JSON.parse(buf.toString('utf8')); } catch { throw new Error(`${tag}: records/index.json at the tag is not valid JSON`); }
+  assert.ok(index && typeof index === 'object' && !Array.isArray(index), `${tag}: records index is not an object`);
+  assert.equal(index.schema, ANE_INDEX_SCHEMA, `${tag}: records index schema unsupported`);
+  assert.equal(index.conceptDoi, CONCEPT_DOI, `${tag}: records index all-versions DOI`);
+  assert.ok(index.baseline && typeof index.baseline === 'object' && index.baseline.version === ANE_BASELINE_VERSION, `${tag}: records index baseline is not ${ANE_BASELINE_VERSION}`);
+  assert.ok(Array.isArray(index.records), `${tag}: records index has no records list`);
+  const hits = index.records.filter(r => r && typeof r === 'object' && r.tag === tag);
+  assert.equal(hits.length, 1, `${tag}: records index entries for this tag`);
+  const e = hits[0];
+  assert.equal(e.kind, DIAG_INDEX_KIND, `${tag}: index kind`);
+  assert.ok(typeof e.version === 'string' && TAG_RX.test(e.version), `${tag}: index version is not vX.Y.Z`);
+  cleanText(e.title, `${tag} index title`, 300);
+  assert.ok(typeof e.findingId === 'string' && FINDING_RX.test(e.findingId), `${tag}: index findingId malformed`);
+  for (const k of ['bundleSha256', 'reviewedPackageSha256', 'attestationSha256']) assert.ok(SHA_RX.test(e[k]), `${tag}: index ${k} is not lowercase sha256 hex`);
+  assert.equal(e.path, `records/${tag}/`, `${tag}: index path`);
+  assert.ok(typeof e.releasedOn === 'string' && /^\d{4}-\d\d-\d\d$/u.test(e.releasedOn) && !isNaN(Date.parse(e.releasedOn)), `${tag}: index releasedOn is not a date`);
+  const r = e.replication;
+  assert.ok(r && typeof r === 'object' && !Array.isArray(r), `${tag}: index replication missing`);
+  assert.ok(['same-chip', 'cross-device'].includes(r.scope), `${tag}: replication scope unsupported`);
+  cleanText(r.claim, `${tag} replication claim`, 300);
+  if (r.scope === 'same-chip') assert.ok(r.claim.startsWith('same-chip'), `${tag}: a same-chip record's claim must say same-chip first`);
+  assert.ok(SHA_RX.test(r.profileHash), `${tag}: replication profileHash is not lowercase sha256 hex`);
+  for (const k of DIAG_COUNT_KEYS) assert.ok(Number.isSafeInteger(r[k]) && r[k] >= 0, `${tag}: replication ${k} malformed`);
+  assert.ok(r.logged >= 1 && r.counted + r.preFreeze === r.logged && r.deleted <= r.counted, `${tag}: execution counts do not add up`);
+  assert.equal(e.siteUrl, `${BASE}/research/records/${tag}/`, `${tag}: index siteUrl is not this record's page`);
+  checkHost(e.siteUrl, ['macbrainslabs.org'], `${tag} siteUrl`);
+  if (e.versionDoi !== undefined) doiId(e.versionDoi, `${tag} index versionDoi`);
+  return e;
+}
+
+async function verifyDiagAssets(rel) {
+  const tag = rel.tag_name;
+  const list = rel.assets ?? [];
+  assert.ok(Array.isArray(list) && list.length === DIAG_ASSET_NAMES.length, `${tag}: expected exactly six assets (${DIAG_ASSET_NAMES.join(', ')}), got ${Array.isArray(list) ? list.length : 'none'}`);
+  const out = [];
+  for (const name of DIAG_ASSET_NAMES) {
+    const found = list.filter(a => a && a.name === name);
+    assert.equal(found.length, 1, `${tag}: count of asset ${name}`);
+    const a = found[0];
+    assert.ok(Number.isInteger(a.size) && a.size > 0 && a.size <= 64 * 1024 * 1024, `${tag}: asset ${name} size out of bounds`);
+    assert.ok(typeof a.digest === 'string' && /^sha256:[a-f0-9]{64}$/.test(a.digest), `${tag}: asset ${name} lacks a registered sha256 digest`);
+    const url = checkHost(a.browser_download_url, ASSET_HOSTS, `${tag} asset ${name} url`);
+    assert.equal(url.href, `https://github.com/${RELEASES_REPO}/releases/download/${tag}/${name}`, `${tag}: asset ${name} url is not this release's download URL`);
+    out.push({ name, url: url.href, size: a.size, digest: a.digest });
+  }
+  const reasons = [];
+  const bytesBy = new Map();
+  for (const a of out) {
+    let bytes;
+    try { bytes = await fetchBuf(a.url, 'asset'); } catch (e) {
+      if (e.http) throw new Error(`${tag}: asset ${a.name} acted missing (${e.message}); refusing to publish`);
+      reasons.push(`asset ${a.name} could not be downloaded at rebuild`);
+      continue;
+    }
+    if (sha256(bytes) !== a.digest.slice('sha256:'.length)) reasons.push(`asset ${a.name}: downloaded bytes do not hash to the registered digest`);
+    else if (bytes.length !== a.size) reasons.push(`asset ${a.name}: downloaded size differs from the registered size`);
+    else bytesBy.set(a.name, bytes);
+  }
+  const sums = bytesBy.get('SHA256SUMS');
+  if (sums) {
+    const map = new Map();
+    let malformed = false;
+    for (const line of sums.toString('utf8').trim().split('\n')) {
+      const m = line.match(/^([a-f0-9]{64})  ([^/\s]+)$/u);
+      if (!m || map.has(m[2])) { malformed = true; break; }
+      map.set(m[2], m[1]);
+    }
+    const listed = DIAG_ASSET_NAMES.filter(n => n !== 'SHA256SUMS');
+    if (malformed) reasons.push('SHA256SUMS is malformed');
+    else if (map.size !== listed.length || !listed.every(n => map.get(n) === out.find(a => a.name === n).digest.slice('sha256:'.length))) reasons.push('SHA256SUMS entries do not equal the five registered asset digests');
+  }
+  return {
+    assets: out.map(a => ({ ...a, sha256: bytesBy.has(a.name) ? a.digest.slice('sha256:'.length) : null })),
+    verified: reasons.length === 0,
+    reasons,
+    bytesBy
+  };
+}
+
+// Returns the binding, review and scope problems separately so each becomes
+// its own guard, plus the validated review fields for the feed record.
+async function checkDiagAttestation(tag, entry, relAssets) {
+  const binding = [], review = [], scope = [];
+  const unavailable = detail => ({ binding: [detail], review: [detail], scope: [detail], att: null, decision: 'unknown', pipeline: [], verdictReceipt: null });
+  let buf;
+  try { buf = await loadRepoFileAtTag(`records/${tag}/attestation.json`, tag); } catch (e) {
+    if (e.http) throw new Error(`${tag}: attestation.json missing at the tag (${e.message})`);
+    return unavailable('the attestation could not be fetched at rebuild');
+  }
+  const text = buf.toString('utf8');
+  if (!text.endsWith('\n') || text.endsWith('\n\n')) binding.push('file is not canonical text plus exactly one newline');
+  const body = text.endsWith('\n') ? text.slice(0, -1) : text;
+  let a = null;
+  try { a = JSON.parse(body); } catch { binding.push('not valid JSON'); }
+  if (sha256(buf) !== entry.attestationSha256) binding.push('sha256 differs from the records index entry');
+  const attAsset = relAssets.assets.find(x => x.name === 'attestation.json');
+  if (attAsset.digest.slice('sha256:'.length) !== entry.attestationSha256) binding.push('the attestation release asset is not the attestation at the tag');
+  const o = a && typeof a === 'object' && !Array.isArray(a) ? a : {};
+  if (a !== null) {
+    let canonical = null;
+    try { canonical = canonicalJSON(a); } catch { /* reported below */ }
+    if (canonical !== body) binding.push('not canonical JSON');
+  }
+  if (o.schema !== DIAG_ATTESTATION_SCHEMA) binding.push('attestation schema unsupported');
+  if (o.tag !== tag || o.version !== entry.version || o.findingId !== entry.findingId || o.siteUrl !== entry.siteUrl || o.conceptDoi !== CONCEPT_DOI) binding.push('identity fields differ from the records index entry');
+  const files = Array.isArray(o.files) ? o.files : [];
+  const filesOk = files.length === DIAG_FILE_NAMES.length && files.every((f, i) => f && f.name === DIAG_FILE_NAMES[i]) &&
+    files.every(f => { const ra = relAssets.assets.find(x => x.name === f.name); return ra && f.sha256 === ra.digest.slice('sha256:'.length) && f.bytes === ra.size; });
+  if (!filesOk) binding.push('attested files do not equal the registered asset digests and sizes');
+  const b = o.bundle && typeof o.bundle === 'object' ? o.bundle : {};
+  if (b.file !== 'bundle.json' || b.sha256 !== entry.bundleSha256) binding.push('bundle hash differs from the records index entry');
+  const rp = o.reviewedPackage && typeof o.reviewedPackage === 'object' ? o.reviewedPackage : {};
+  if (rp.sha256 !== entry.reviewedPackageSha256) binding.push('reviewed package hash differs from the records index entry');
+
+  const fr = o.finalReview && typeof o.finalReview === 'object' ? o.finalReview : {};
+  const decision = fr.decision === 'INCLUDE' || fr.decision === 'HOLD' ? fr.decision : 'unknown';
+  if (fr.reviewer !== ANE_FINAL_REVIEWER) review.push(`final reviewer is not ${ANE_FINAL_REVIEWER}`);
+  if (decision !== 'INCLUDE') review.push(`decision is ${decision}, not INCLUDE`);
+  if (fr.reviewedPackageSha256 !== entry.reviewedPackageSha256) review.push('final review is for a different package hash');
+  if (!SHA_RX.test(fr.verdictReceiptSha256 ?? '')) review.push('final review lacks a verdict receipt hash');
+  const pr = Array.isArray(o.pipelineReviews) ? o.pipelineReviews : [];
+  const pipeline = [];
+  for (const x of pr) {
+    try {
+      assert.ok(x && typeof x === 'object' && DIAG_PIPELINE_ROLES.includes(x.role), 'role');
+      assert.ok(x.verdict === 'INCLUDE' || x.verdict === 'HOLD', 'verdict');
+      assert.ok(typeof x.score === 'number' && x.score >= 0 && x.score <= 1, 'score');
+      assert.ok(typeof x.sessionId === 'string' && ID_RX.test(x.sessionId), 'session');
+      pipeline.push({ role: x.role, model: cleanText(x.model, 'pipeline review model', 120), verdict: x.verdict, score: x.score, session_id: x.sessionId });
+    } catch { review.push('a pipeline review entry is malformed'); }
+  }
+  if (pipeline.length !== 2 || pipeline.map(x => x.role).sort().join(',') !== DIAG_PIPELINE_ROLES.join(',') || !pipeline.every(x => x.verdict === 'INCLUDE')) review.push('pipeline reviews are not one evidence and one skeptical INCLUDE review');
+
+  const rr = o.replication && typeof o.replication === 'object' ? o.replication : {};
+  const er = entry.replication;
+  const rf = ['scope', 'profileHash', ...DIAG_COUNT_KEYS].filter(k => rr[k] !== er[k]);
+  if (rf.length) scope.push(`attested replication differs from the index entry on: ${rf.join(', ')}`);
+  if (rr.crossDeviceReplication !== (er.scope === 'cross-device')) scope.push('attested cross-device flag disagrees with the replication scope');
+  if (o.claimScope !== er.claim) scope.push('attested claim scope differs from the index entry');
+  if (o.noveltyClaim !== 'UNCLAIMED') scope.push('novelty claim is not UNCLAIMED');
+  const log = relAssets.bytesBy.get('execution-log.jsonl');
+  if (!log) scope.push('the execution log was not verified, so executions were not recounted');
+  else {
+    try {
+      const ex = log.toString('utf8').trim().split('\n').map(l => JSON.parse(l)).filter(x => x.kind !== 'log-header');
+      const c = { logged: ex.length, counted: ex.filter(x => x.counted === true).length, preFreeze: ex.filter(x => x.status === 'pre-freeze').length, deleted: ex.filter(x => x.present === 'deleted').length };
+      const diff = DIAG_COUNT_KEYS.filter(k => c[k] !== er[k]);
+      if (diff.length) scope.push(`executions recounted from the released log differ on: ${diff.join(', ')}`);
+      if (!ex.every(x => x.profileHash === er.profileHash)) scope.push('a logged execution names another setup profile');
+    } catch { scope.push('the released execution log is not JSON lines'); }
+  }
+  const bundle = relAssets.bytesBy.get('bundle.json');
+  if (!bundle) scope.push('the bundle was not verified, so its scope was not re-read');
+  else {
+    try {
+      const bj = JSON.parse(bundle.toString('utf8'));
+      const br = bj && bj.evidence && bj.evidence.byteReproducibility;
+      if (bj.findingId !== entry.findingId) scope.push('released bundle names another finding');
+      if (bj.claimScope !== er.claim) scope.push('released bundle claim scope differs from the index entry');
+      if (!br || br.profileHash !== er.profileHash) scope.push('released bundle names another setup profile');
+      if (!br || br.crossDeviceReplication !== (er.scope === 'cross-device')) scope.push('released bundle cross-device flag disagrees with the replication scope');
+      if (!bj.evidence || !bj.evidence.priorArt || bj.evidence.priorArt.noveltyClaim !== 'UNCLAIMED') scope.push('released bundle claims novelty');
+    } catch { scope.push('the released bundle is not valid JSON'); }
+  }
+  return { binding, review, scope, att: a, decision, pipeline, verdictReceipt: SHA_RX.test(fr.verdictReceiptSha256 ?? '') ? fr.verdictReceiptSha256 : null };
+}
+
+export async function buildDiagnosticRecord(rel, indexBuf) {
+  validateReleaseShell(rel, ANE_TAG_RX);
+  const tag = rel.tag_name;
+  const entry = diagIndexEntry(indexBuf, tag);
+  const guard = (name, problems) => ({ name, state: problems.length ? 'degraded' : 'pass', detail: problems.length ? problems.join('; ') : null });
+  const guards = [
+    { name: 'published release tag ane-record- plus 24 hex; release shell valid', state: 'pass', detail: null },
+    { name: 'records index at the tag lists this diagnostic record once (schema, all-versions DOI, v0.1.0 baseline)', state: 'pass', detail: null }
+  ];
+  const relAssets = await verifyDiagAssets(rel);
+  guards.push(guard('exactly six release assets re-downloaded; bytes equal their registered digests and SHA256SUMS', relAssets.reasons));
+  const at = await checkDiagAttestation(tag, entry, relAssets);
+  guards.push(guard('attestation at the tag is canonical, hashes to the index entry and binds the asset digests to the reviewed package', at.binding));
+  guards.push(guard(`final review is INCLUDE from ${ANE_FINAL_REVIEWER} for the reviewed package hash, with an evidence and a skeptical INCLUDE review`, at.review));
+  guards.push(guard('scope, setup profile and every logged execution recounted from the released log and bundle; no novelty claim', at.scope));
+  const z = await crosscheckAneZenodo(tag, entry);
+  guards.push({
+    name: 'Zenodo version under the all-versions DOI bound to this tag (DOI, ORCID, license, version)',
+    state: z.state === 'pass' ? 'pass' : 'degraded',
+    detail: z.state === 'pass' ? null : z.detail
+  });
+  const state = guards.every(g => g.state === 'pass') ? 'verified' : 'degraded';
+  const r = entry.replication;
+  return {
+    kind: DIAG_KIND,
+    tag,
+    version: entry.version,
+    title: entry.title,
+    release_name: rel.name,
+    published_at: rel.published_at,
+    release_url: rel.html_url,
+    released_on: entry.releasedOn,
+    record_url: entry.siteUrl,
+    record_repository: `https://github.com/${RELEASES_REPO}`,
+    finding_id: entry.findingId,
+    bundle_sha256: entry.bundleSha256,
+    attestation_sha256: entry.attestationSha256,
+    replication: {
+      scope: r.scope,
+      claim: r.claim,
+      cross_device_replication: r.scope === 'cross-device',
+      profile_hash: r.profileHash,
+      logged: r.logged,
+      counted: r.counted,
+      pre_freeze: r.preFreeze,
+      deleted: r.deleted
+    },
+    review: {
+      reviewed_package_sha256: entry.reviewedPackageSha256,
+      reviewer: ANE_FINAL_REVIEWER,
+      decision: at.decision,
+      verdict_receipt_sha256: at.verdictReceipt,
+      pipeline: at.pipeline
+    },
+    doi: {
+      version_doi: z.version_doi,
+      concept_doi: CONCEPT_DOI,
+      zenodo_record_url: z.version_doi ? `https://zenodo.org/records/${doiId(z.version_doi, 'zenodo version doi')}` : null,
+      binding_source: 'Zenodo version search under the all-versions DOI (tree URL of the tag)',
+      registered_state: { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now', not_minted: 'not_minted' }[z.state],
+      crosscheck: { state: z.state, comparisons: z.comparisons, detail: z.detail }
+    },
+    assets: relAssets.assets,
+    verification: { state, guards }
+  };
+}
+
+function diagCoreKey(rec) {
+  return JSON.stringify({
+    kind: rec.kind, tag: rec.tag, version: rec.version, title: rec.title, release_name: rec.release_name,
+    published_at: rec.published_at, release_url: rec.release_url, released_on: rec.released_on, record_url: rec.record_url,
+    record_repository: rec.record_repository, finding_id: rec.finding_id, bundle_sha256: rec.bundle_sha256,
+    attestation_sha256: rec.attestation_sha256, replication: rec.replication,
+    review: { reviewed_package_sha256: rec.review.reviewed_package_sha256, reviewer: rec.review.reviewer },
+    doi: { version_doi: rec.doi.version_doi, concept_doi: rec.doi.concept_doi, zenodo_record_url: rec.doi.zenodo_record_url },
+    assets: rec.assets.map(a => ({ name: a.name, url: a.url, size: a.size, digest: a.digest }))
+  });
+}
+
+function diagRunsLine(r) {
+  return `${r.logged} executions logged and disclosed: ${r.counted} counted, ${r.pre_freeze} before the setup profile froze; ${r.deleted} counted output${r.deleted === 1 ? '' : 's'} deleted, recovered record disclosed`;
+}
+
+export function renderDiagRecord(rec) {
+  const ok = rec.verification.state === 'verified';
+  const pill = `<span class="pub-status ${ok ? 'pub-status-verified' : 'pub-status-degraded'}">${ok ? 'Re-verified at rebuild' : 'Degraded — treat unverified'}</span>`;
+  const r = rec.replication;
+  const doiShown = ok && rec.doi.registered_state === 'registered_verified' && rec.doi.version_doi;
+  const doiLines = doiShown
+    ? `<li>${attrsLink(`https://doi.org/${rec.doi.version_doi}`, `Version DOI ${rec.doi.version_doi}`)}</li><li>${attrsLink(`https://doi.org/${rec.doi.concept_doi}`, `All-versions DOI ${rec.doi.concept_doi}`)}</li><li><span class="pub-fp-match">registration state: registered_verified — the Zenodo version bound to this tag was found under the all-versions DOI at rebuild, not taken from release text</span></li>`
+    : `<li><span class="pub-fp-unreachable">no version DOI shown: registration state ${esc(rec.doi.registered_state)}${rec.doi.crosscheck.detail ? ` — ${esc(rec.doi.crosscheck.detail)}` : ''}</span></li>`;
+  const assets = rec.assets.map(a =>
+    `<li><code>${esc(a.name)}</code> <span class="num">(${a.size.toLocaleString('en-US')} bytes)</span><br><span class="pub-digest">SHA-256 <code>${esc(a.sha256 ?? 'byte verification pending')}</code></span> · ${attrsLink(a.url, 'download at release')}</li>`
+  ).join('');
+  const pipeline = rec.review.pipeline.map(p => `<li>${esc(p.role.replace('_', ' '))}: <code>${esc(p.model)}</code>, ${esc(p.verdict)} at ${esc(p.score.toFixed(2))}</li>`).join('');
+  return `
+<article class="pub-record" data-tag="${esc(rec.tag)}" data-kind="${esc(rec.kind)}">
+<h3>${esc(rec.version)} · ${esc(rec.title)}</h3>
+<p class="pub-statusline">${pill}</p>
+<p><time datetime="${esc(rec.published_at)}">${esc(humanDate(rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · diagnostic research record</p>
+<p>${attrsLink(rec.record_url, 'Read the record page')}. ${attrsLink(rec.release_url, 'View this release in the archive repository')}. A reviewed record and an archived DOI are not peer review.</p>
+<div class="pub-dl">
+<div><span class="label">Scope</span><ul>
+<li><strong>${esc(aneScopeLabel(r))}</strong></li>
+<li>Scope as recorded: <q>${esc(r.claim)}</q></li>
+<li>Setup profile <code>${esc(r.profile_hash)}</code></li>
+<li>${esc(diagRunsLine(r))}</li>
+</ul></div>
+<div><span class="label">Final review</span><ul>
+<li>Reviewed package <code>${esc(rec.review.reviewed_package_sha256)}</code></li>
+<li>${esc(rec.review.decision)} from <code>${esc(rec.review.reviewer)}</code>${rec.review.verdict_receipt_sha256 ? `, receipt <code>${esc(rec.review.verdict_receipt_sha256)}</code>` : ''}</li>
+${pipeline}
+<li>Bundle <code>${esc(rec.bundle_sha256)}</code> · attestation <code>${esc(rec.attestation_sha256)}</code></li>
+</ul></div>
+<div><span class="label">Registered identifiers</span><ul>
+${doiLines}
+</ul></div>
+<div><span class="label">Release assets and integrity</span><ul>
+${assets}
+</ul></div>
+<div><span class="label">Verification guards</span><ul>
+${renderGuards(rec)}
+</ul></div>
+</div>
+</article>`;
+}
+
+function renderDiagIndexItem(rec) {
+  const ok = rec.verification.state === 'verified';
+  const r = rec.replication;
+  let href = '/publications/';
+  try { checkHost(rec.record_url, ['macbrainslabs.org'], 'record page'); href = rec.record_url; } catch { /* keep the feed link */ }
+  const short = h => `${esc(String(h).slice(0, 12))}…`;
+  const doi = ok && rec.doi.registered_state === 'registered_verified' && rec.doi.version_doi ? ` · DOI ${esc(rec.doi.version_doi)}` : '';
+  return `<li><a href="${esc(href)}"><span class="id">${esc(rec.version)}</span><div><h3>${esc(rec.title)}</h3><p>${esc(aneScopeLabel(r))}. Scope: ${esc(r.claim)}</p><p>Setup profile <code>${short(r.profile_hash)}</code> · ${esc(diagRunsLine(r))} · reviewed package <code>${short(rec.review.reviewed_package_sha256)}</code> · ${esc(rec.review.decision)}${doi}</p></div><span class="tags">${ok ? 'Diagnostic record · DOI registered' : 'Diagnostic record · degraded verification'}</span></a></li>`;
 }
 
 function aneCoreKey(rec) {
@@ -962,8 +1312,10 @@ function renderAneIndexItem(rec) {
 }
 
 export function renderFeedPage(data) {
-  const records = data.records.map(rec => rec.kind === ANE_KIND ? renderAneRecord(rec) : renderRecord(rec)).join('\n');
+  const records = data.records.map(rec => rec.kind === ANE_KIND ? renderAneRecord(rec) : rec.kind === DIAG_KIND ? renderDiagRecord(rec) : renderRecord(rec)).join('\n');
   const hasAne = data.records.some(rec => rec.kind === ANE_KIND);
+  const hasDiag = data.records.some(rec => rec.kind === DIAG_KIND);
+  const checkCount = ['Six', 'Seven', 'Eight'][Number(hasAne) + Number(hasDiag)];
   const generated = data.generated_at;
   const newest = data.records[0];
   return `<!DOCTYPE html>
@@ -1040,18 +1392,19 @@ export function renderFeedPage(data) {
 <div class="section-head">
 <span class="label">How a record qualifies</span>
 <div>
-<h2 id="qualify-h">${hasAne ? 'Seven' : 'Six'} checks stand between upstream and this page.</h2>
+<h2 id="qualify-h">${checkCount} checks stand between upstream and this page.</h2>
 <p>This feed does not transcribe release text. It renders only structured fields that survived validation, and anything that could not be re-checked is surfaced as a degraded state, never silently smoothed. Draft and prerelease releases cannot enter.</p>
 </div>
 </div>
 <ol class="principles">
-<li><span class="n">01</span><div><h3>Published tag only</h3><p>Records enter as published GitHub release tags <code>vX.Y.Z</code>${hasAne ? ' or <code>ane-record-</code> plus 24 hex digits' : ''} of the archive repository. Draft and prerelease releases are structurally excluded.</p></div></li>
+<li><span class="n">01</span><div><h3>Published tag only</h3><p>Records enter as published GitHub release tags <code>vX.Y.Z</code>${hasAne || hasDiag ? ' or <code>ane-record-</code> plus 24 hex digits' : ''} of the archive repository. Draft and prerelease releases are structurally excluded.</p></div></li>
 <li><span class="n">02</span><div><h3>Manifest at the tag</h3><p>Each release must carry <code>manifest.json</code> (schema 1.0) with source document fingerprints, explicit evidence limits and a DOI binding. A missing field stops the whole rebuild before anything is published.</p></div></li>
 <li><span class="n">03</span><div><h3>Bytes re-checked</h3><p>Release assets are downloaded at rebuild and hashed. Digests must equal those the release API registers, and <code>SHA256SUMS</code> must be internally consistent and agree.</p></div></li>
 <li><span class="n">04</span><div><h3>Provenance re-derived</h3><p>Every listed source document is fetched from the pinned site commit and its SHA-256 must equal the manifest fingerprint. A mismatch marks the record degraded, it is never deleted quietly.</p></div></li>
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
 <li><span class="n">06</span><div><h3>Last-known-good</h3><p>This feed publishes only independently verified records. If upstream is unreachable, rate-limited, if a previously verified record re-derives degraded (even over changed upstream data), if a new record is not fully verified, or if a record is removed, the whole update is held: this page keeps its previous snapshot and the failure stays visible in the repository's public workflow history.</p></div></li>${hasAne ? `
-<li><span class="n">07</span><div><h3>Reviewed research records</h3><p>An <code>ane-record-</code> release must carry exactly four assets whose re-downloaded bytes equal their registered digests. At the tag, its canonical review package must hash to its records index entry and list those digests, and the final reviewer's verdict for that hash must be INCLUDE. Zenodo must hold one version under the all-versions DOI bound to the tag, with matching ORCID, license and version; a version not minted yet holds the update. Same-chip reruns are labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}
+<li><span class="n">07</span><div><h3>Reviewed research records</h3><p>An <code>ane-record-</code> release must carry exactly four assets whose re-downloaded bytes equal their registered digests. At the tag, its canonical review package must hash to its records index entry and list those digests, and the final reviewer's verdict for that hash must be INCLUDE. Zenodo must hold one version under the all-versions DOI bound to the tag, with matching ORCID, license and version; a version not minted yet holds the update. Same-chip reruns are labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}${hasDiag ? `
+<li><span class="n">${hasAne ? '08' : '07'}</span><div><h3>Diagnostic research records</h3><p>A diagnostic <code>ane-record-</code> release must carry exactly six assets (the reviewed bundle, its attestation, the execution log, the deletion disclosure, a preview and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry, bind those digests to the reviewed package hash, and carry the final reviewer's INCLUDE plus an evidence and a skeptical INCLUDE review. Executions are recounted from the released log, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}
 </ol>
 </section>
 
@@ -1101,7 +1454,7 @@ ${records}
 </ul>
 </div>
 </div>
-<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No scripts, cookies or analytics.</span></div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
 </div>
 </footer>
 </body>
@@ -1109,7 +1462,7 @@ ${records}
 }
 
 export function renderIndexBlock(data) {
-  const items = data.records.map(rec => rec.kind === ANE_KIND ? renderAneIndexItem(rec) : `<li><a href="/publications/"><span class="id">${esc(rec.tag)}</span><div><h3>${esc(rec.zenodo_title)}</h3><p>${esc(rec.record_class)}</p></div><span class="tags">${rec.verification.state === 'verified' ? 'Archive record · DOI registered' : 'Archive record · degraded verification'}</span></a></li>`).join('\n');
+  const items = data.records.map(rec => rec.kind === ANE_KIND ? renderAneIndexItem(rec) : rec.kind === DIAG_KIND ? renderDiagIndexItem(rec) : `<li><a href="/publications/"><span class="id">${esc(rec.tag)}</span><div><h3>${esc(rec.zenodo_title)}</h3><p>${esc(rec.record_class)}</p></div><span class="tags">${rec.verification.state === 'verified' ? 'Archive record · DOI registered' : 'Archive record · degraded verification'}</span></a></li>`).join('\n');
   return `<ul class="notes">\n${items}\n</ul>`;
 }
 
@@ -1216,6 +1569,7 @@ async function main() {
 // publication bar a core change can never excuse a degraded record.
 export function coreKey(rec) {
   if (rec.kind === ANE_KIND) return aneCoreKey(rec);
+  if (rec.kind === DIAG_KIND) return diagCoreKey(rec);
   return JSON.stringify({
     tag: rec.tag,
     release_name: rec.release_name,
