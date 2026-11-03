@@ -353,6 +353,26 @@ function parseCitation(text, what) {
   return out;
 }
 
+const citedVersion = cff => cff.version.startsWith('v') ? cff.version.slice(1) : cff.version;
+
+// Candidate DOI for a release whose tagged manifest recorded none. CITATION.cff
+// on main cites that release while it is the newest; once a later record
+// exists it cites the newest version instead, and the baseline release's DOI
+// is then read from records/index.json on main. Either way the Zenodo
+// registration must still bind the candidate to this exact tag.
+export function citationCandidate(tag, cffText, indexText) {
+  const cff = parseCitation(cffText, `${tag} citation file`);
+  if (citedVersion(cff) === tag.slice(1)) return { doi: cff.doi, source: 'citation file at main' };
+  assert.ok(typeof indexText === 'string', `${tag}: citation file version does not correspond to this tag; refusing to bind a DOI`);
+  let idx;
+  try { idx = JSON.parse(indexText); } catch (e) { throw new Error(`${tag}: records index at main is not valid JSON: ${e.message}`); }
+  const b = idx && typeof idx === 'object' ? idx.baseline : null;
+  assert.ok(b && typeof b === 'object' && b.tag === tag && b.version === tag && typeof b.versionDoi === 'string',
+    `${tag}: citation file cites another version and the records index baseline does not name this tag; refusing to bind a DOI`);
+  assert.ok(doiId(b.versionDoi, `${tag} records index baseline versionDoi`), 'baseline versionDoi malformed');
+  return { doi: b.versionDoi, source: 'records index at main' };
+}
+
 async function resolveDoi(manifest, rel) {
   const tag = rel.tag_name;
   const limits = basicManifestChecks(manifest, rel);
@@ -390,10 +410,16 @@ async function resolveDoi(manifest, rel) {
   const raw = await fetchBuf(`https://api.github.com/repos/${RELEASES_REPO}/contents/CITATION.cff?ref=main`, 'gh');
   const item = JSON.parse(raw.toString('utf8'));
   assert.equal(item.encoding, 'base64', 'CITATION.cff contents item not base64');
-  const cff = parseCitation(Buffer.from(String(item.content).replace(/\s/g, ''), 'base64').toString('utf8'), `${tag} citation file`);
-  assert.equal(cff.version.startsWith('v') ? cff.version.slice(1) : cff.version, tag.slice(1), `${tag}: citation file version does not correspond to this tag; refusing to bind a DOI`);
+  const cffText = Buffer.from(String(item.content).replace(/\s/g, ''), 'base64').toString('utf8');
+  let indexText = null;
+  if (citedVersion(parseCitation(cffText, `${tag} citation file`)) !== tag.slice(1)) {
+    const ir = JSON.parse((await fetchBuf(`https://api.github.com/repos/${RELEASES_REPO}/contents/records/index.json?ref=main`, 'gh')).toString('utf8'));
+    assert.equal(ir.encoding, 'base64', 'records/index.json contents item not base64');
+    indexText = Buffer.from(String(ir.content).replace(/\s/g, ''), 'base64').toString('utf8');
+  }
+  const cand = citationCandidate(tag, cffText, indexText);
   let rec;
-  const candidate = cff.doi;
+  const candidate = cand.doi;
   try {
     const buf = await fetchBuf(`https://zenodo.org/api/records/${doiId(candidate, 'citation doi')}`, 'zenodo');
     rec = JSON.parse(buf.toString('utf8'));
@@ -427,8 +453,10 @@ async function resolveDoi(manifest, rel) {
     concept_doi: typeof rec.conceptdoi === 'string' && doiId(rec.conceptdoi, 'concept doi') ? rec.conceptdoi : null,
     zenodo_record_url: `https://zenodo.org/records/${doiId(candidate, 'candidate')}`,
     tagged_manifest_doi_status: taggedManifestDoiStatus,
-    binding_source: 'citation file at main',
-    source_detail: 'the tagged manifest recorded no DOI at release time; the candidate DOI comes from the citation file on main and was accepted only because the Zenodo registration binds it to this tag',
+    binding_source: cand.source,
+    source_detail: cand.source === 'citation file at main'
+      ? 'the tagged manifest recorded no DOI at release time; the candidate DOI comes from the citation file on main and was accepted only because the Zenodo registration binds it to this tag'
+      : 'the tagged manifest recorded no DOI at release time and the citation file on main now cites a later version; the candidate DOI comes from the baseline entry of records/index.json on main and was accepted only because the Zenodo registration binds it to this tag',
     crosscheck: { state: failed.length ? 'mismatch' : 'pass', comparisons, detail: failed.length ? `registration disagrees on: ${failed.join(', ')}` : null },
     evidence_limits: limits
   };
