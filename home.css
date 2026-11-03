@@ -51,6 +51,8 @@ h1 em,h2 em{font-style:normal;color:var(--orange)}
 .notch-sway{position:absolute;left:36.7407%;top:15.6614%;width:20.7407%;height:66.8783%;display:block}
 .notch-frame.is-fallback .notch-video,.notch-frame.is-fallback .notch-loop{display:none}
 .notch-frame.is-fallback .notch-still{display:block}
+.notch-anim{position:absolute;left:0;top:0;z-index:2;width:100%;height:auto;aspect-ratio:1350/1890;opacity:0;pointer-events:none;background:var(--ink)}
+.notch-frame.is-anim .notch-anim{opacity:1}
 .notch-stage figcaption{border-top:1px solid var(--line);display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px;padding-top:14px}
 .notch-caption{color:#9aa396;font-size:12px}
 .opening-foot{padding-block:24px 30px;display:flex;justify-content:space-between;gap:20px;font:11px var(--mono);color:#aeb5a8}
@@ -235,5 +237,5 @@ h1{font-size:48px}
 .placement-numbers strong{font-size:38px}
 .research-index h2,.section-heading h2,.about-grid h2{font-size:36px}
 }
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.notch-frame .notch-video{display:none}.notch-frame .notch-still{display:block}.notch-loop,.notch-sway{display:none!important}*{animation:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.notch-frame .notch-video{display:none}.notch-frame .notch-still{display:block}.notch-loop,.notch-sway,.notch-anim{display:none!important}*{animation:none!important;transition:none!important}}
 @media print{.notch-stage,.hero-actions,.opening-foot{display:none}.research-index{position:static}.folio{box-shadow:none;break-inside:avoid}body{background:white;color:black}.paper-section{padding:20px 0}.research-layout{display:block}}

@@ -1,11 +1,12 @@
 // Notch: play the walk when it is on screen, then hand off to the emblem's
 // sway loop forever. Both pause while off screen.
 //
-// Only a real refusal to play (NotAllowedError, for example iOS Low Power
-// Mode) shows the fallback: the final still with the sway as a small animated
-// image. The first tap or key press then plays the walk from the start. A
-// play() interrupted by a pause (AbortError, which happens whenever the reader
-// scrolls past before the video has loaded) is not a refusal and is ignored.
+// When the browser refuses to play video without a tap (NotAllowedError, for
+// example iOS Low Power Mode), the same walk-then-sway plays as an image:
+// Safari plays an MP4 in <img> like a GIF, with no tap and no autoplay rule.
+// Browsers that cannot do that get the final still with the sway as a small
+// animated image, and a tap plays the walk. A play() interrupted by a pause
+// (AbortError, from scrolling past before the video loaded) is ignored.
 // Reduce Motion keeps the still and loads nothing.
 (() => {
   const frame = document.querySelector('.notch-frame');
@@ -20,14 +21,37 @@
   let state = 'intro';
   let visible = false;
   let seen = false;
+  let mode = 'video';
   let sway = null;
 
-  const settle = (p) => p && p.catch((e) => { if (e && e.name === 'NotAllowedError') fallback(); });
+  const refused = (e) => e && e.name === 'NotAllowedError';
+  const settle = (p, then) => p && p.catch((e) => { if (refused(e)) then(); });
 
-  function fallback() {
-    if (frame.classList.contains('is-fallback')) return;
+  function stopVideo() {
     intro.pause();
     loop.pause();
+  }
+
+  // Walk then sway, as an image. Until it has loaded, the walk's first frame stays up.
+  function imageWalk() {
+    if (mode !== 'video') return;
+    mode = 'image';
+    stopVideo();
+    const img = new Image(1350, 1890);
+    img.className = 'notch-anim';
+    img.alt = '';
+    img.decoding = 'async';
+    img.onload = () => (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(() => { if (mode === 'image') frame.classList.add('is-anim'); });
+    img.onerror = () => { img.remove(); mode = 'video'; swayStill(); };
+    img.src = '/assets/notch-img.mp4';
+    frame.append(img);
+  }
+
+  // Last resort: the final still with the sway over the emblem; a tap plays the walk.
+  function swayStill() {
+    if (mode === 'still') return;
+    mode = 'still';
+    stopVideo();
     if (!sway) {
       sway = new Image(280, 1264);
       sway.className = 'notch-sway';
@@ -40,28 +64,28 @@
     for (const t of ['pointerup', 'keydown']) addEventListener(t, retry, { once: true, passive: true });
   }
 
-  // A tap or key press is a user gesture, so the browser lets the walk play now.
   function retry() {
     for (const t of ['pointerup', 'keydown']) removeEventListener(t, retry);
+    mode = 'video';
     state = 'intro';
     frame.classList.remove('is-looping', 'is-fallback');
     intro.currentTime = 0;
     const p = intro.play();
     if (!p) return;
-    p.then(() => { if (sway) { sway.remove(); sway = null; } }, () => fallback());
+    p.then(() => { if (sway) { sway.remove(); sway = null; } }, () => swayStill());
   }
 
   function toLoop() {
-    if (state !== 'intro') return;
+    if (state !== 'intro' || mode !== 'video') return;
     state = 'loop';
     loop.currentTime = 0;
     const show = () => frame.classList.add('is-looping');
     if (loop.requestVideoFrameCallback) loop.requestVideoFrameCallback(show); else loop.addEventListener('playing', show, { once: true });
-    settle(loop.play());
+    settle(loop.play(), swayStill);
   }
 
   function run() {
-    if (frame.classList.contains('is-fallback')) return;
+    if (mode !== 'video') return;
     if (!visible || document.hidden) {
       if (!intro.paused) intro.pause();
       if (!loop.paused) loop.pause();
@@ -70,8 +94,8 @@
     if (state === 'intro') {
       // The browser may start the walk before it is on screen: start it over the first time it is seen.
       if (!seen) { seen = true; if (intro.currentTime > 0.25 && !intro.ended) intro.currentTime = 0; }
-      if (intro.paused && !intro.ended) settle(intro.play());
-    } else if (loop.paused) settle(loop.play());
+      if (intro.paused && !intro.ended) settle(intro.play(), imageWalk);
+    } else if (loop.paused) settle(loop.play(), swayStill);
   }
 
   intro.addEventListener('ended', toLoop);
