@@ -301,7 +301,7 @@ const pubs = (() => {
       const doi = rec.doi;
       pubClean(doi.tagged_manifest_doi_status, `${rec.tag} tagged_manifest_doi_status`, 300);
       assert.ok(!('doi_status' in doi), `${rec.tag}: stale doi_status key must not exist`);
-      assert.ok(['manifest at the tag', 'citation file at main', 'not issued'].includes(doi.binding_source), `${rec.tag}: binding_source`);
+      assert.ok(['manifest at the tag', 'citation file at main', 'records index at main', 'not issued'].includes(doi.binding_source), `${rec.tag}: binding_source`);
       assert.ok(['registered_verified', 'mismatch_detected', 'unverifiable_now', 'none'].includes(doi.registered_state), `${rec.tag}: registered_state enum`);
       const st = doi.crosscheck.state;
       assert.ok(['pass', 'mismatch', 'unreachable'].includes(st), `${rec.tag}: crosscheck state`);
@@ -316,7 +316,7 @@ const pubs = (() => {
         assert.notEqual(doi.version_doi, doi.concept_doi);
         pubUrl(doi.zenodo_record_url, `${rec.tag}: zenodo_record_url`);
         assert.equal(new URL(doi.zenodo_record_url).pathname, `/records/${doi.version_doi.split('.').at(-1)}`, `${rec.tag}: record URL does not match the version DOI`);
-        if (doi.binding_source === 'citation file at main') {
+        if (doi.binding_source === 'citation file at main' || doi.binding_source === 'records index at main') {
           assert.ok('record_version_tag' in doi.crosscheck.comparisons, `${rec.tag}: citation-file binding must show the tag cross-check`);
           assert.ok('archive_reference' in doi.crosscheck.comparisons, `${rec.tag}: citation-file binding must show the archive cross-check`);
         }

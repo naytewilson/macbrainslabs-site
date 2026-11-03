@@ -21,3 +21,4 @@ jobs:
           node scripts/test-publications-lkg.mjs
           node scripts/test-publications-ane-records.mjs
           node scripts/test-publications-diagnostic-records.mjs
+          node scripts/test-publications-legacy-doi.mjs
