@@ -37,7 +37,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;'
 const PROFILE = '2f'.repeat(32);
 const SCOPE = 'same-chip, byte-reproducible on Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), CoreML 3600.25.2; ANE execution INFERRED from Core ML compute-plan placement; no novelty claim';
 
-function fixture({ decision = 'INCLUDE', minted = true, tamper = null, prettyAttestation = false, dropRun = false, crossDeviceLie = false, tagHex = 'ab'.repeat(12), indexKind = 'diagnostic' } = {}) {
+function fixture({ decision = 'INCLUDE', minted = true, tamper = null, prettyAttestation = false, dropRun = false, crossDeviceLie = false, tagHex = 'ab'.repeat(12), indexKind = 'diagnostic', binding = 'tree' } = {}) {
   const tag = `ane-record-${tagHex}`;
   const version = 'v0.2.0';
   const findingId = `finding:${'5'.repeat(40)}`;
@@ -101,10 +101,12 @@ function fixture({ decision = 'INCLUDE', minted = true, tamper = null, prettyAtt
     published_at: '2026-11-03T12:00:00Z', draft: false, prerelease: false, body: 'Prose that must never be rendered <script>.', assets
   };
   const versionDoi = '10.5281/zenodo.23900002';
-  const hit = (id, doi, v, t) => ({ id, doi, conceptdoi: CONCEPT, conceptrecid: '23798036',
+  const hit = (id, doi, v, t, b = 'tree') => ({ id, doi, conceptdoi: CONCEPT, conceptrecid: '23798036',
+    files: b === 'archive' ? [{ key: `${REPO}-${t}.zip` }] : b === 'archive-wrong' ? [{ key: `${REPO}-v9.9.9.zip` }] : b === 'archive-extra' ? [{ key: `${REPO}-${t}.zip` }, { key: 'extra.zip' }] : [],
     metadata: { version: v, license: { id: 'cc-by-4.0' }, creators: [{ name: 'Wilson, Nayte', orcid: '0009-0003-4026-8212' }],
-      related_identifiers: [{ identifier: `https://github.com/${REPO}/tree/${t}`, relation: 'isSupplementTo' }] } });
-  const hits = [hit(23798037, '10.5281/zenodo.23798037', 'v0.1.0', 'v0.1.0'), ...(minted ? [hit(23900002, versionDoi, version, tag)] : [])];
+      related_identifiers: b === 'tree' ? [{ identifier: `https://github.com/${REPO}/tree/${t}`, relation: 'isSupplementTo' }]
+        : [{ identifier: `https://github.com/${REPO}`, relation: 'isSupplementTo' }] } });
+  const hits = [hit(23798037, '10.5281/zenodo.23798037', 'v0.1.0', 'v0.1.0'), ...(minted ? [hit(23900002, versionDoi, version, tag, binding)] : [])];
   const routes = new Map();
   const contents = (p, text) => routes.set(`https://api.github.com/repos/${REPO}/contents/${p}?ref=${tag}`,
     JSON.stringify({ type: 'file', encoding: 'base64', content: Buffer.from(text).toString('base64') }));
@@ -194,6 +196,20 @@ await t('an attested cross-device flag on a same-chip record -> degraded', async
   assert.equal(rec.verification.state, 'degraded');
   assert.match(guard(rec, 'scope, setup profile').detail, /cross-device flag disagrees/);
   assert.equal(rec.replication.cross_device_replication, false);
+});
+
+await t('Zenodo version bound only by its integration archive name (no tree link) -> verified', async () => {
+  const { rec } = await build({ binding: 'archive' });
+  assert.equal(rec.verification.state, 'verified');
+  assert.equal(rec.doi.registered_state, 'registered_verified');
+});
+
+await t('wrong archive name, extra files or no binding at all -> not minted, held', async () => {
+  for (const binding of ['archive-wrong', 'archive-extra', 'none']) {
+    const { rec } = await build({ binding });
+    assert.equal(rec.verification.state, 'degraded', binding);
+    assert.equal(rec.doi.registered_state, 'not_minted', binding);
+  }
 });
 
 await t('Zenodo version not minted yet -> degraded, held, and no version DOI rendered', async () => {

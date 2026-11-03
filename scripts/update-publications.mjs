@@ -739,8 +739,14 @@ async function crosscheckAneZenodo(tag, entry) {
     if (e.http) throw new Error(`zenodo version search failed structurally: ${e.message}`);
     return { state: 'unreachable', version_doi: null, comparisons: null, detail: 'the Zenodo version search could not be completed at rebuild time' };
   }
+  // Zenodo's GitHub integration binds a version to its release in two ways: a
+  // related identifier pointing at the tag tree (dropped when .zenodo.json sets
+  // its own related_identifiers), and the archive it deposits, named
+  // <owner>/<repo>-<tag>.zip. Either binds; the archive must be the only file.
+  const archiveKey = `${RELEASES_REPO}-${tag}.zip`;
   const bound = hits.filter(h => h && typeof h === 'object' && h.metadata && typeof h.metadata === 'object' &&
-    Array.isArray(h.metadata.related_identifiers) && h.metadata.related_identifiers.some(x => x && x.identifier === treeUrl));
+    ((Array.isArray(h.metadata.related_identifiers) && h.metadata.related_identifiers.some(x => x && x.identifier === treeUrl)) ||
+     (Array.isArray(h.files) && h.files.length === 1 && h.files[0] && h.files[0].key === archiveKey)));
   if (bound.length === 0) return { state: 'not_minted', version_doi: null, comparisons: null, detail: 'Zenodo has not minted a version bound to this release tag yet' };
   if (bound.length > 1) return { state: 'mismatch', version_doi: null, comparisons: null, detail: `${bound.length} Zenodo versions are bound to this release tag` };
   const rec = bound[0];
@@ -831,7 +837,7 @@ export async function buildAneRecord(rel) {
       version_doi: z.version_doi,
       concept_doi: CONCEPT_DOI,
       zenodo_record_url: z.version_doi ? `https://zenodo.org/records/${doiId(z.version_doi, 'zenodo version doi')}` : null,
-      binding_source: 'Zenodo version search under the all-versions DOI (tree URL of the tag)',
+      binding_source: 'Zenodo version search under the all-versions DOI (tag tree URL, or the archive Zenodo named for the tag)',
       registered_state: { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now', not_minted: 'not_minted' }[z.state],
       crosscheck: { state: z.state, comparisons: z.comparisons, detail: z.detail }
     },
@@ -1100,7 +1106,7 @@ export async function buildDiagnosticRecord(rel, indexBuf) {
       version_doi: z.version_doi,
       concept_doi: CONCEPT_DOI,
       zenodo_record_url: z.version_doi ? `https://zenodo.org/records/${doiId(z.version_doi, 'zenodo version doi')}` : null,
-      binding_source: 'Zenodo version search under the all-versions DOI (tree URL of the tag)',
+      binding_source: 'Zenodo version search under the all-versions DOI (tag tree URL, or the archive Zenodo named for the tag)',
       registered_state: { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now', not_minted: 'not_minted' }[z.state],
       crosscheck: { state: z.state, comparisons: z.comparisons, detail: z.detail }
     },
