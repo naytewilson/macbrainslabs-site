@@ -6,12 +6,12 @@
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
-<title>Methodology: Core ML placement, parity and throughput · MacBrains Labs</title>
-<meta name="description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
+<title>Methodology: measurement, review and publication · MacBrains Labs</title>
+<meta name="description" content="MacBrains Labs methodology: Core ML placement audits, parity and throughput tests, frozen run profiles, run accounting, review gates and verified publication of research records.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="MacBrains Labs">
-<meta property="og:title" content="Methodology: Core ML placement, parity and throughput">
-<meta property="og:description" content="Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.">
+<meta property="og:title" content="Methodology: measurement, review and publication">
+<meta property="og:description" content="MacBrains Labs methodology: Core ML placement audits, parity and throughput tests, frozen run profiles, run accounting, review gates and verified publication of research records.">
 <meta property="og:url" content="https://macbrainslabs.org/methods/">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="https://macbrainslabs.org/methods/">
@@ -42,8 +42,8 @@
       "@type": "TechArticle",
       "@id": "https://macbrainslabs.org/methods/#article",
       "headline": "A result needs a falsifier.",
-      "alternativeHeadline": "Methodology: Core ML placement, parity and throughput",
-      "description": "Native Apple Neural Engine methodology: graph authoring, Core ML placement, MLComputePlan audits, parity metrics, and real-shape throughput tests.",
+      "alternativeHeadline": "Methodology: measurement, review and publication",
+      "description": "MacBrains Labs methodology: Core ML placement audits, parity and throughput tests, frozen run profiles, run accounting, review gates and verified publication of research records.",
       "url": "https://macbrainslabs.org/methods/",
       "mainEntityOfPage": "https://macbrainslabs.org/methods/",
       "inLanguage": "en",
@@ -92,9 +92,10 @@
 <h1>A result needs a falsifier.</h1>
 <p class="lede">Compiler success does not prove hardware placement. Placement does not prove numerical fidelity. A synthetic token count does not prove throughput. Our measurement pipeline treats each as an independent claim.</p>
 <dl class="facts">
-<div><dt>Method revision</dt><dd>2026.10</dd></div>
+<div><dt>Method revision</dt><dd>2026.11</dd></div>
 <div><dt>Authoring</dt><dd>SwiftMIL</dd></div>
 <div><dt>Placement</dt><dd>MLComputePlan</dd></div>
+<div><dt>Release gate</dt><dd>Reviewer INCLUDE</dd></div>
 </dl>
 </div>
 </header>
@@ -107,6 +108,13 @@
 <li><a href="#parity">Parity</a></li>
 <li><a href="#throughput">Throughput</a></li>
 <li><a href="#reversals">Retractions</a></li>
+<li><a href="#freeze">Frozen profiles</a></li>
+<li><a href="#runs">Run accounting</a></li>
+<li><a href="#labels">Claim labels</a></li>
+<li><a href="#review">Review</a></li>
+<li><a href="#publication">Publication</a></li>
+<li><a href="#intake">Intake</a></li>
+<li><a href="#records">Records</a></li>
 <li><a href="#scope">Scope</a></li>
 </ol>
 <div class="toc-out"><a href="/research/">Research record</a></div>
@@ -150,7 +158,51 @@
 <p>Early work proposed a 57.3 tok/s bandwidth ceiling inferred from a compiler-reported DRAM budget and compressed model size. A K sweep contradicted the prediction; reducing weights to LUT2 also failed to improve throughput. Later observations refined the explanation again: at shallow depth, fixed dispatch cost dominates; at 28 layers, per-layer compute becomes the larger contributor.</p>
 <p>Such reversals are part of the result. A model should be rejected as a causal explanation when it fails a straightforward counter-experiment.</p>
 
-<h2 id="scope"><span class="sec">06</span>Authorized and bounded research</h2>
+<h2 id="freeze"><span class="sec">06</span>Frozen profiles</h2>
+<p>A reproducibility claim starts with a profile: a JSON declaration of the binary, inputs, parameters and number of runs. The profile's identity is the SHA-256 of its canonical JSON as read from the git commit that holds it. A hash of a working copy, or a self-declared &ldquo;frozen&rdquo; flag, is not accepted.</p>
+<p>A profile is frozen in two steps, and both must come before the first counted run. First it is committed to version control, with a commit time earlier than that run's start. Then the clean-room tool writes a freeze manifest that names the profile hash, the tool commit and the inputs. A run that starts before the freeze manifest exists is not counted. It is disclosed as a pre-freeze execution.</p>
+
+<h2 id="runs"><span class="sec">07</span>Run accounting</h2>
+<p>Every execution of a profile on the measurement device is written to an append-only execution log for that device. A start entry is made durable before the run begins, and a completion entry records the exit status. The clean-room tool refuses to start if the start entry cannot be made durable. It also refuses to reuse a run directory that holds any earlier artifact. These guards were merged on 3 November 2026, and the clean-room build in use includes them.</p>
+<p>Accounting is per profile and per device, not per output folder. Every execution is listed, passed or failed. A counted run is one made after the freeze under the same tool commit. One failed counted run blocks a reproducibility claim, and disclosing the failure does not rescue it. Executions under a different tool commit, and runs that started without completing, are disclosed and not counted.</p>
+<p>A published record states the profile hash, the number of counted runs and the total number of executions, and it lists each execution when the total exceeds the count. Record v0.2.0 discloses eight executions of profile <code>2f0cc0c9</code>: five counted and three made before the freeze. One of the eight had its run folder deleted. That execution remains in the execution log and in the record.</p>
+
+<h2 id="labels"><span class="sec">08</span>Claim scope and evidence labels</h2>
+<p>Each claim carries one of four labels. <strong>PROVEN</strong> means directly observed in a receipt from the measurement device. <strong>INFERRED</strong> means it follows from proven evidence but was not itself observed. <strong>SUSPECTED</strong> means plausible but not established. <strong>UNKNOWN</strong> means the evidence is insufficient.</p>
+<p>Core ML compute-plan placement is a compiler assignment, not a hardware trace. Neural Engine execution is therefore stated as INFERRED from placement unless a hardware execution trace exists. No published record has one.</p>
+<p>Reruns on the measurement machine are labeled as same-chip clean-room reruns on one device. They are never presented as cross-device replication, and no published record claims cross-device replication. The claim scope names the chip, hardware model, OS build and Core ML version, and each field must match the run receipts. No novelty is claimed unless a completed prior-art search supports it.</p>
+
+<h2 id="review"><span class="sec">09</span>Review before release</h2>
+<p>A finding reaches publication as one package: a canonical JSON manifest, identified by its SHA-256, that binds the finding, the evidence bundle hash, the policy digest, the receipts and the reviews. A package is never edited after submission. Any change produces a new hash and a new review. Three checks apply, in order.</p>
+<ul>
+<li><strong>Two independent AI reviews.</strong> An evidence reviewer and a skeptical reviewer, each a pinned model, review the exact bundle. Each review is bound to the policy digest, the bundle hash and the finding, and records its session and usage. A split verdict is a hold. Model verdicts are advisory and cannot override the gate.</li>
+<li><strong>A deterministic gate.</strong> A versioned policy module with a fixed digest checks freeze provenance, run accounting, claim scope, receipt integrity, an exact independent recompute of the published value, and prior-art coverage. Any failed check holds the package with a named reason.</li>
+<li><strong>A final reviewer.</strong> A separate reviewer, never the submitter, returns INCLUDE or HOLD for the exact package hash. The first review walks a versioned checklist item by item and reports every blocker at once. A second round checks only the listed fixes, and there is no third round. The submitter must run the reviewer's cumulative adversarial probe suite against the exact package and attach the passing output, or the package is rejected unopened. Probes are added after every miss and are never weakened to fit a package.</li>
+</ul>
+<p>A held package hash, and its evidence bundle, are blocked permanently. They are never resubmitted or republished.</p>
+
+<h2 id="publication"><span class="sec">10</span>Publication and verification</h2>
+<p>Only a final INCLUDE releases a package. The publication manager then issues a new semantic version: a release in the public records repository, a new version under the series concept DOI on Zenodo, an updated citation file, and a record page and feed entry on this site. Earlier tags and their bytes are never altered.</p>
+<p>A publication is complete only when it is verified live. The tag and every asset digest must match the records index. The deposited archive must match its checksum, and its contents must equal the tagged tree. The version DOI must resolve and be registered as findable, the record must appear on the author's ORCID profile, and the record page must be served with its DOI. The manager writes a receipt of these checks and acknowledges the hand-off. A daily drift check compares every public surface with the records index, and the <a href="/publications/">Publications</a> feed re-derives each record's verification about every six hours.</p>
+
+<h2 id="intake"><span class="sec">11</span>Intake: what is automated</h2>
+<p>Packages move as files, not messages. Each package is written as a read-only drop named by its hash, with a checksum sidecar and an append-only ledger entry. The receiver re-hashes the drop before acting and records its outcome. A hold, retirement or invalid verdict blocks that hash and its bundle permanently.</p>
+<p>Since 3 November 2026 the front half runs on a schedule. Every fifteen minutes an intake scan picks up findings staged on the measurement device and runs any requested same-chip reruns of a frozen profile. It then runs both reviews, the gate and the full probe suite on the exact pipeline commit, and drops the resulting package for the publication manager. The intake never publishes.</p>
+<div class="proof"><span class="label">Still in progress</span><dl>
+<dt>Staging</dt><dd>Findings and rerun requests are still prepared by hand on the measurement device.</dd>
+<dt>Live lane</dt><dd>Enabled 3 November 2026 and proven end to end on dry-run passing and failing rerun sets. No live finding has passed through it yet.</dd>
+<dt>Recompute, prior art</dt><dd>Not automated. A live finding holds until both are supplied.</dd>
+<dt>Execution evidence</dt><dd>Neural Engine execution remains INFERRED. No cross-device replication.</dd>
+</dl></div>
+
+<h2 id="records"><span class="sec">12</span>Published records</h2>
+<p>The ANE Research Records series is archived under the concept DOI <a href="https://doi.org/10.5281/zenodo.23798036">10.5281/zenodo.23798036</a>, which resolves to the latest version. Current verification status for each record is on <a href="/publications/">Publications</a>.</p>
+<div class="proof"><span class="label">Versions</span><dl>
+<dt>v0.1.0</dt><dd>Baseline archive &middot; <a href="https://doi.org/10.5281/zenodo.23798037">10.5281/zenodo.23798037</a></dd>
+<dt>v0.2.0</dt><dd><a href="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">LFM3-1.7B layer-14 diagnostic, same chip</a> &middot; <a href="https://doi.org/10.5281/zenodo.23905811">10.5281/zenodo.23905811</a> &middot; the first record released through this procedure</dd>
+</dl></div>
+
+<h2 id="scope"><span class="sec">13</span>Authorized and bounded research</h2>
 <p>MacBrains Labs experiments on owned Apple Silicon systems and software artifacts with a lawful basis for analysis. The research includes system performance qualification, compiler output examination, binary-format inspection, native-runtime debugging, defensive code review, and validation of software and infrastructure under the operator's control. Work is conducted through public APIs and authorized userspace inspection paths; the lab does not claim privileged firmware access or unbounded authorization to assess third-party systems.</p>
 <p>Private measurements and internal repositories are not automatically published. We publish bounded technical summaries, identify instrumentation limits, and make supporting details available for legitimate technical correspondence when shareable.</p>
 <div class="proof"><span class="label">Evidence references · internal</span><dl>
