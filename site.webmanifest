@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "MacBrains Labs",
+  "short_name": "MacBrains",
+  "description": "Independent Apple Silicon and Apple Neural Engine research, with reproducible evidence and explicit measurement limits.",
+  "lang": "en",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0d0f0f",
+  "theme_color": "#0d0f0f",
+  "icons": [
+    {
+      "src": "/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
