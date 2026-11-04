@@ -1,0 +1,71 @@
+{
+  "schema": "macbrainslabs.notch.mobile.v1",
+  "source": "approved original static website media assets; no animation frames added or removed",
+  "full_range_color": {
+    "primaries": "bt709",
+    "transfer": "iec61966-2-1",
+    "space": "bt709",
+    "range": "pc"
+  },
+  "mobile_video": {
+    "width": 720,
+    "height": 1008,
+    "fps": 24,
+    "codec": "h264",
+    "profile": "High"
+  },
+  "comparison": "FFmpeg 8.0.1; mobile encode compared with approved master scaled to 720x1008 using full-range Lanczos; SSIM All and average PSNR",
+  "pairs": [
+    {
+      "source": {
+        "name": "notch-v13.mp4",
+        "size_bytes": 8574149,
+        "sha256": "6fc253ce2cf495e2ec9f922495da372e4a9ec914146c8546a9dc618c2845f073"
+      },
+      "mobile": {
+        "name": "notch-v13-mobile.mp4",
+        "size_bytes": 1849783,
+        "sha256": "4459d114ad5862f9115049686807ab57b30e1e886414c7254717787ae1fc516d"
+      },
+      "frame_count": 482,
+      "duration_seconds": 20.083333,
+      "ssim_all": 0.996804,
+      "psnr_average_db": 43.673779,
+      "saving_percent": 78.4
+    },
+    {
+      "source": {
+        "name": "notch-loop.mp4",
+        "size_bytes": 1311937,
+        "sha256": "339bfc26d69ac6d63cf9fe2186c435bd9e20cf5aa9e629c3ce6efe6e6d5a1ea8"
+      },
+      "mobile": {
+        "name": "notch-loop-mobile.mp4",
+        "size_bytes": 139194,
+        "sha256": "1fca2347c540d87ca1eff0e12b144b092a0d38b46badf84c44fe5d7e95080177"
+      },
+      "frame_count": 152,
+      "duration_seconds": 6.333333,
+      "ssim_all": 0.997872,
+      "psnr_average_db": 46.121682,
+      "saving_percent": 89.4
+    },
+    {
+      "source": {
+        "name": "notch-img.mp4",
+        "size_bytes": 9940957,
+        "sha256": "5ab9faee8126e9f00e216e2331314ffd8663c57482cea7b1e5dfb26bb326fff9"
+      },
+      "mobile": {
+        "name": "notch-img-mobile.mp4",
+        "size_bytes": 2072820,
+        "sha256": "11acd34f36b59dcfec3d1c8412ee8fa8774b2c580dca55f20c22d2a1acb547d0"
+      },
+      "frame_count": 767,
+      "duration_seconds": 31.958333,
+      "ssim_all": 0.997417,
+      "psnr_average_db": 44.63546,
+      "saving_percent": 79.1
+    }
+  ]
+}

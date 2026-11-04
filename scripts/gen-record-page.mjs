@@ -4,6 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import {socialPathForRoute} from './social-path.mjs';
 
 const [recordsRepo, siteRepo, tag, versionDoi] = process.argv.slice(2);
 if (!recordsRepo || !siteRepo || !/^ane-record-[0-9a-f]{24}$/.test(tag ?? '')) throw new Error('usage: node gen-page.mjs <records-repo> <site-repo> <tag> [versionDoi]');
@@ -28,6 +29,7 @@ if (ex.length !== r.logged) throw new Error('logged count differs');
 const BASE = 'https://macbrainslabs.org';
 const ROUTE = `/research/records/${tag}/`;
 const URL_ = BASE + ROUTE;
+const socialURL = BASE + socialPathForRoute(ROUTE);
 if (URL_ !== a.siteUrl) throw new Error('siteUrl differs');
 const REPO = 'https://github.com/macbrainslabs/ane-research-records';
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -91,14 +93,14 @@ const html = `<!DOCTYPE html>
 <meta property="og:description" content="${esc(description)}">
 <meta property="og:url" content="${URL_}">
 <meta name="twitter:card" content="summary_large_image">
-<meta property="og:image" content="https://macbrainslabs.org/assets/social-card.png">
-<meta property="og:image:secure_url" content="https://macbrainslabs.org/assets/social-card.png">
+<meta property="og:image" content="${socialURL}">
+<meta property="og:image:secure_url" content="${socialURL}">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="MacBrains Labs. Look beneath the claim. Independent Apple Silicon research.">
-<meta name="twitter:image" content="https://macbrainslabs.org/assets/social-card.png">
-<meta name="twitter:image:alt" content="MacBrains Labs. Look beneath the claim.">
+<meta property="og:image:alt" content="MacBrains Labs research: ${esc(title)}">
+<meta name="twitter:image" content="${socialURL}">
+<meta name="twitter:image:alt" content="MacBrains Labs research: ${esc(title)}">
 <link rel="canonical" href="${URL_}">
 <link rel="icon" href="/assets/brand-mark-96.png" type="image/png" sizes="96x96">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
@@ -116,7 +118,7 @@ ${JSON.stringify(ld, null, 2)}
 <a class="skip" href="#main">Skip to content</a>
 <header class="masthead">
 <div class="wrap">
-<a class="wordmark" href="/"><span class="wordmark-name">MacBrains Labs</span><span class="wordmark-desc">Apple Silicon research</span></a>
+<a class="wordmark" href="/" aria-label="MacBrains Labs home"><img class="wordmark-icon" src="/assets/brand-mark-96.png" width="42" height="42" alt=""><span class="wordmark-stack"><span class="wordmark-name">MacBrains <span>Labs</span></span><span class="wordmark-desc">Independent Apple Silicon research</span></span></a>
 <nav class="nav" aria-label="Main navigation">
 <a href="/research/" aria-current="page">Research</a>
 <a href="/methods/">Methods</a>
@@ -200,7 +202,7 @@ ${fileRows}
 <div class="wrap">
 <div class="footer-grid">
 <div>
-<span class="label">MacBrains Labs</span>
+<span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
 <p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
 </div>
 <div>

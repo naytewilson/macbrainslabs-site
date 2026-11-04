@@ -12,10 +12,11 @@
   const frame = document.querySelector('.notch-frame');
   if (!frame || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const intro = frame.querySelector('.notch-video');
+  const mobile = matchMedia('(max-width: 700px)').matches;
   const loop = document.createElement('video');
   for (const [k, v] of [['class', 'notch-loop'], ['muted', ''], ['playsinline', ''], ['loop', ''], ['preload', 'none'], ['aria-hidden', 'true'], ['disablepictureinpicture', ''], ['disableremoteplayback', '']]) loop.setAttribute(k, v);
   loop.muted = loop.defaultMuted = true;
-  loop.src = '/assets/notch-loop.mp4';
+  loop.src = mobile ? '/assets/notch-loop-mobile.mp4' : '/assets/notch-loop.mp4';
   frame.append(loop);
 
   let state = 'intro';
@@ -43,7 +44,7 @@
     img.decoding = 'async';
     img.onload = () => (img.decode ? img.decode() : Promise.resolve()).catch(() => {}).then(() => { if (mode === 'image') frame.classList.add('is-anim'); });
     img.onerror = () => { img.remove(); mode = 'video'; swayStill(); };
-    img.src = '/assets/notch-img.mp4';
+    img.src = mobile ? '/assets/notch-img-mobile.mp4' : '/assets/notch-img.mp4';
     frame.append(img);
   }
 

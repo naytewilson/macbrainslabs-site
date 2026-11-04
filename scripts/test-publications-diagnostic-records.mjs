@@ -288,6 +288,13 @@ function siteCopyWith(data, { pageFor = null, doiOnPage = true } = {}) {
   if (pageFor) {
     const from = path.join(tmp, 'research/records', realTag), to = path.join(tmp, 'research/records', pageFor.tag);
     fs.renameSync(from, to);
+    // A renamed synthetic public record has a renamed public share card too;
+    // keep the production site's exact per-route asset contract enabled.
+    for (const ext of ['png', 'svg']) {
+      const oldArt = path.join(tmp, 'assets/social', 'research-records-' + realTag + '.' + ext);
+      const newArt = path.join(tmp, 'assets/social', 'research-records-' + pageFor.tag + '.' + ext);
+      fs.copyFileSync(oldArt, newArt);
+    }
     for (const f of [path.join(to, 'index.html'), path.join(tmp, 'sitemap.xml'), path.join(tmp, 'research/index.html')]) {
       fs.writeFileSync(f, fs.readFileSync(f, 'utf8').split(realTag).join(pageFor.tag));
     }

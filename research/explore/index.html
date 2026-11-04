@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Research evidence explorer · MacBrains Labs</title>
+<meta name="description" content="Browse source-linked Apple Neural Engine measurements, Core ML planner observations, field notes, and verified research archives with clear evidence boundaries.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Research evidence explorer">
+<meta property="og:description" content="Browse source-linked Apple Neural Engine measurements, Core ML planner observations, field notes, and verified research archives with clear evidence boundaries.">
+<meta property="og:url" content="https://macbrainslabs.org/research/explore/">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://macbrainslabs.org/assets/social/research-explore.png">
+<meta property="og:image:secure_url" content="https://macbrainslabs.org/assets/social/research-explore.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MacBrains Labs research: Research evidence explorer">
+<meta name="twitter:image" content="https://macbrainslabs.org/assets/social/research-explore.png">
+<meta name="twitter:image:alt" content="MacBrains Labs research: Research evidence explorer">
+<link rel="canonical" href="https://macbrainslabs.org/research/explore/">
+<link rel="icon" href="/assets/brand-mark-96.png" type="image/png" sizes="96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+<meta name="apple-mobile-web-app-title" content="MacBrains Labs">
+<link rel="icon" href="/assets/icon-16.png" type="image/png" sizes="16x16">
+<link rel="icon" href="/assets/icon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/icon-48.png" type="image/png" sizes="48x48">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/experience.css">
+<script src="/explore.js" defer></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "MacBrains Labs",
+      "item": "https://macbrainslabs.org/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Evidence explorer",
+      "item": "https://macbrainslabs.org/research/explore/"
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/" aria-label="MacBrains Labs home"><img class="wordmark-icon" src="/assets/brand-mark-96.png" width="42" height="42" alt=""><span class="wordmark-stack"><span class="wordmark-name">MacBrains <span>Labs</span></span><span class="wordmark-desc">Independent Apple Silicon research</span></span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/" >Notes</a>
+<a href="/publications/">Publications</a>
+<a href="/security/">Security</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="experience-hero">
+<div class="wrap"><p class="kicker">THE PUBLIC RECORD / 01</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Evidence explorer</p>
+<div class="experience-hero-grid"><div><h1>Find the claim.<br><em>Follow the evidence.</em></h1>
+<p class="experience-lede">Search the measurements, field notes, and verified archive releases already published by MacBrains Labs. Every entry links back to its public source.</p>
+<div class="experience-actions"><a href="/start/">New to ANE research? Start here ↗</a><a href="/methods/">Read the method ↗</a></div></div>
+<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">WHAT IS INDEXED</span><strong>13 <span>public entries</span></strong>
+<dl><div><dt>Measured</dt><dd>3</dd></div><div><dt>Planner reported</dt><dd>3</dd></div><div><dt>Field notes</dt><dd>5</dd></div><div><dt>Verified archives</dt><dd>2</dd></div></dl>
+<p>Index derived from the published research summary, note index, and last-known-good archive feed. It does not create or validate experiments.</p></aside></div>
+</div></header>
+<section class="wrap evidence-section" aria-labelledby="index-h"><div class="experience-section-head"><span class="kicker">PUBLIC EVIDENCE INDEX / 02</span><div><h2 id="index-h">What is actually on record.</h2><p>Measurement, compiler assignment, interpretation, and archive integrity are different kinds of evidence.</p></div></div>
+<form class="evidence-controls" role="search" id="evidence-controls" hidden>
+<label for="evidence-query">Search records</label><input id="evidence-query" type="search" autocomplete="off" placeholder="Model, metric, result, source..." aria-controls="evidence-list">
+<label for="evidence-filter">Evidence kind</label><select id="evidence-filter" aria-controls="evidence-list">
+<option value="all">All public entries</option><option value="measured">Measured</option><option value="planner">Planner reported</option><option value="note">Field notes</option><option value="archive">Verified archives</option>
+</select><button type="reset">Clear</button></form>
+<p class="evidence-count" id="evidence-count" aria-live="polite">13 entries from published sources</p>
+<div class="evidence-grid" id="evidence-list"><article class="evidence-card" data-kind="planner" data-search="qwen2.5-1.5b instruct / 28l lut4, production anemll core ml conversion mlcomputeplan / infer 2,090 ane / 79 cpu cpu residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops. evidence public research summary qwen2.5">
+<div class="evidence-meta"><span class="evidence-type evidence-type-planner">Planner reported</span><span>Qwen2.5</span></div>
+<h3>Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion</h3>
+<p class="evidence-observation">MLComputePlan / infer<span class="evidence-value">2,090 ANE / 79 CPU</span></p>
+<p class="evidence-limit">CPU residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops. Evidence</p>
+<a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="planner" data-search="qwen2.5-1.5b / kv state path ane-assigned state primitives 394 / 394 56 slice_update + 57 read_state + 56 write_state + 225 slice_by_index. public research summary qwen2.5">
+<div class="evidence-meta"><span class="evidence-type evidence-type-planner">Planner reported</span><span>Qwen2.5</span></div>
+<h3>Qwen2.5-1.5B / KV state path</h3>
+<p class="evidence-observation">ANE-assigned state primitives<span class="evidence-value">394 / 394</span></p>
+<p class="evidence-limit">56 slice_update + 57 read_state + 56 write_state + 225 slice_by_index.</p>
+<a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="measured" data-search="qwen2.5 / decode batch sweep aggregate tokens per second 102.1 at b=4 five-round interleaved steady-state run on a single-function, batch-shaped probe. throughput only; output quality not validated. public research summary qwen2.5">
+<div class="evidence-meta"><span class="evidence-type evidence-type-measured">Measured</span><span>Qwen2.5</span></div>
+<h3>Qwen2.5 / decode batch sweep</h3>
+<p class="evidence-observation">Aggregate tokens per second<span class="evidence-value">102.1 at B=4</span></p>
+<p class="evidence-limit">Five-round interleaved steady-state run on a single-function, batch-shaped probe. Throughput only; output quality not validated.</p>
+<a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="measured" data-search="qwen2.5 / lut4 model quality wikitext-2 perplexity 16.8033 hand-authored 28l quantized model, run as two 14l halves sharing kv, with position-correct rope. full 12,000-token validation set. public research summary qwen2.5">
+<div class="evidence-meta"><span class="evidence-type evidence-type-measured">Measured</span><span>Qwen2.5</span></div>
+<h3>Qwen2.5 / LUT4 model quality</h3>
+<p class="evidence-observation">WikiText-2 perplexity<span class="evidence-value">16.8033</span></p>
+<p class="evidence-limit">Hand-authored 28L quantized model, run as two 14L halves sharing KV, with position-correct RoPE. Full 12,000-token validation set.</p>
+<a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="planner" data-search="lfm s2 sealed production graph ane compute placement 743 / 743 mlcomputeplan for two-output artifact, not separately compiled debug graph. public research summary lfm">
+<div class="evidence-meta"><span class="evidence-type evidence-type-planner">Planner reported</span><span>LFM</span></div>
+<h3>LFM S2 sealed production graph</h3>
+<p class="evidence-observation">ANE compute placement<span class="evidence-value">743 / 743</span></p>
+<p class="evidence-limit">MLComputePlan for two-output artifact, not separately compiled debug graph.</p>
+<a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="measured" data-search="lfm s2 / output parity ane vs fixture relative l2 0.01730 / 0.02786 two declared production outputs. ane gate relative l2 ≤ 0.03. public research summary lfm">
+<div class="evidence-meta"><span class="evidence-type evidence-type-measured">Measured</span><span>LFM</span></div>
+<h3>LFM S2 / output parity</h3>
+<p class="evidence-observation">ANE vs fixture relative L2<span class="evidence-value">0.01730 / 0.02786</span></p>
+<p class="evidence-limit">Two declared production outputs. ANE gate relative L2 ≤ 0.03.</p>
+<a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="note" data-search="28 layers, lut4, and the cost of exact placement research field note qwen2.5 · mil · kv state state reads, indexed slices, weight.bin offsets and the non-ane tail. public field note n/001 qwen2.5 · mil · kv state">
+<div class="evidence-meta"><span class="evidence-type evidence-type-note">Field note</span><span>Qwen2.5 · MIL · KV state</span></div>
+<h3>28 layers, LUT4, and the cost of exact placement</h3>
+<p class="evidence-observation">Research field note<span class="evidence-value">Qwen2.5 · MIL · KV state</span></p>
+<p class="evidence-limit">State reads, indexed slices, weight.bin offsets and the non-ANE tail.</p>
+<a class="evidence-link" href="/notes/qwen-lut4/">Public field note N/001 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="note" data-search="a passing production graph and a failing diagnostic one research field note lfm · s2 · parity lfm block-pair parity, 743/743 assignment and why probes alter the experiment. public field note n/002 lfm · s2 · parity">
+<div class="evidence-meta"><span class="evidence-type evidence-type-note">Field note</span><span>LFM · S2 · Parity</span></div>
+<h3>A passing production graph and a failing diagnostic one</h3>
+<p class="evidence-observation">Research field note<span class="evidence-value">LFM · S2 · Parity</span></p>
+<p class="evidence-limit">LFM block-pair parity, 743/743 assignment and why probes alter the experiment.</p>
+<a class="evidence-link" href="/notes/lfm-parity/">Public field note N/002 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="note" data-search="the bandwidth limit that was not a limit research field note a18 pro · decode batch sweeps, dispatch floors and a hypothesis overturned by measurement. public field note n/003 a18 pro · decode">
+<div class="evidence-meta"><span class="evidence-type evidence-type-note">Field note</span><span>A18 Pro · Decode</span></div>
+<h3>The bandwidth limit that was not a limit</h3>
+<p class="evidence-observation">Research field note<span class="evidence-value">A18 Pro · Decode</span></p>
+<p class="evidence-limit">Batch sweeps, dispatch floors and a hypothesis overturned by measurement.</p>
+<a class="evidence-link" href="/notes/decode-regimes/">Public field note N/003 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="note" data-search="every slice passed. the chain did not. research field note lfm2.5 · parity · negative lfm2.5-1.2b layer slices meet a strict ane parity gate; the 16-layer chain and token logits miss it. public field note n/004 lfm2.5 · parity · negative">
+<div class="evidence-meta"><span class="evidence-type evidence-type-note">Field note</span><span>LFM2.5 · Parity · Negative</span></div>
+<h3>Every slice passed. The chain did not.</h3>
+<p class="evidence-observation">Research field note<span class="evidence-value">LFM2.5 · Parity · Negative</span></p>
+<p class="evidence-limit">LFM2.5-1.2B layer slices meet a strict ANE parity gate; the 16-layer chain and token logits miss it.</p>
+<a class="evidence-link" href="/notes/lfm-chain/">Public field note N/004 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="note" data-search="correct, placed, paid for research field note placement · dispatch · grafts a ring-buffer attention graft placed nothing on the ane; an eagle draft head made every call slower and has to earn it back. public field note n/005 placement · dispatch · grafts">
+<div class="evidence-meta"><span class="evidence-type evidence-type-note">Field note</span><span>Placement · Dispatch · Grafts</span></div>
+<h3>Correct, placed, paid for</h3>
+<p class="evidence-observation">Research field note<span class="evidence-value">Placement · Dispatch · Grafts</span></p>
+<p class="evidence-limit">A ring-buffer attention graft placed nothing on the ANE; an EAGLE draft head made every call slower and has to earn it back.</p>
+<a class="evidence-link" href="/notes/graft-costs/">Public field note N/005 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="archive" data-search="lfm3-1.7b layer-14 diagnostic under core ml cpuandneuralengine (same chip, single device) published archive integrity: verified v0.2.0 same-chip, byte-reproducible on apple a18 pro (mac17,5), macos 27.2 (build 26b123), coreml 3600.25.2; ane execution inferred from core ml compute-plan placement; no novelty claim published release and doi 10.5281/zenodo.23905811 lfm3">
+<div class="evidence-meta"><span class="evidence-type evidence-type-archive">Verified archive</span><span>LFM3</span></div>
+<h3>LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)</h3>
+<p class="evidence-observation">Published archive integrity: verified<span class="evidence-value">v0.2.0</span></p>
+<p class="evidence-limit">same-chip, byte-reproducible on Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), CoreML 3600.25.2; ANE execution INFERRED from Core ML compute-plan placement; no novelty claim</p>
+<a class="evidence-link" href="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">Published release and DOI 10.5281/zenodo.23905811 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="archive" data-search="macbrains labs ane research records, 2026: public measurement summaries published archive integrity: verified v0.1.0 source-bound curated summary, not raw results; archive integrity is not independent replication or peer review published release and doi 10.5281/zenodo.23798037 archive">
+<div class="evidence-meta"><span class="evidence-type evidence-type-archive">Verified archive</span><span>Archive</span></div>
+<h3>MacBrains Labs ANE Research Records, 2026: Public Measurement Summaries</h3>
+<p class="evidence-observation">Published archive integrity: verified<span class="evidence-value">v0.1.0</span></p>
+<p class="evidence-limit">source-bound curated summary, not raw results; archive integrity is not independent replication or peer review</p>
+<a class="evidence-link" href="https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0">Published release and DOI 10.5281/zenodo.23798037 <span aria-hidden="true">↗</span></a>
+</article></div>
+<p class="evidence-empty" id="evidence-empty" hidden>No published records match these filters. Try a broader search.</p></section>
+<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">HOW TO READ IT / 03</span><h2>Evidence isn't a single badge.</h2></div><div>
+<p><strong>Planner reported:</strong> Core ML's assigned compute unit, not a physical trace of the Neural Engine.</p>
+<p><strong>Measured:</strong> an observed result for a named model, device, compiler and method. It does not generalize automatically.</p>
+<p><strong>Field note:</strong> engineering interpretation, including counterexamples and failed hypotheses.</p>
+<p><strong>Verified archive:</strong> release provenance and file integrity. A DOI does not imply peer review or independent replication.</p>
+<a href="/research/">Read the full research record ↗</a></div></div></section>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Field notes</a></li>
+<li><a href="/publications/">Publications</a></li>
+<li><a href="/security/">Defensive research</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
