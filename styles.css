@@ -54,15 +54,21 @@ small{font-size:.8em}
 
 /* Masthead */
 .masthead{border-bottom:1px solid var(--rule)}
-.masthead .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:1rem 2rem;flex-wrap:wrap;padding-block:1.1rem}
-.wordmark{display:flex;align-items:baseline;gap:.75rem;text-decoration:none;color:var(--ink)}
-.wordmark-name{font:500 1.3rem/1 var(--serif);letter-spacing:-.01em}
-.wordmark-desc{font:500 .72rem/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.masthead .wrap{display:flex;align-items:center;justify-content:space-between;gap:1rem 2rem;flex-wrap:wrap;padding-block:1.1rem}
+.wordmark{display:inline-flex;align-items:center;gap:.7rem;text-decoration:none;color:var(--ink);min-height:44px}
+.wordmark-icon{width:42px;height:42px;display:block;border-radius:9px;flex:none}
+.wordmark-stack{display:flex;flex-direction:column;gap:.18rem}
+.wordmark-name{font:650 1.12rem/1.1 var(--sans);letter-spacing:-.035em;white-space:nowrap}
+.wordmark-name span{font-weight:400;color:var(--ink-2)}
+.wordmark-desc{font:500 .58rem/1.25 var(--mono);letter-spacing:.035em;text-transform:uppercase;color:var(--ink-3)}
 .nav{display:flex;gap:.25rem 1.6rem;flex-wrap:wrap;font:500 .9rem/1 var(--sans)}
 .nav a{text-decoration:none;color:var(--ink-2);padding:.45rem 0;border-bottom:1px solid transparent}
 .nav a:hover{color:var(--ink)}
 .nav a[aria-current="page"]{color:var(--ink);border-bottom-color:var(--signal)}
 
+.research-entry{display:flex;gap:.8rem 1.6rem;flex-wrap:wrap;margin:1.5rem 0 0;font:600 .82rem/1.5 var(--sans)}
+.research-entry a{color:var(--ink);text-underline-offset:.25rem;text-decoration-color:var(--signal)}
+.research-entry a:hover{color:var(--signal)}
 /* Shared section rhythm */
 .section{padding-block:clamp(3rem,7vw,5.5rem);border-top:1px solid var(--rule)}
 .section-head{display:grid;grid-template-columns:minmax(0,15rem) minmax(0,1fr);gap:.75rem 3rem;margin-bottom:2.25rem;align-items:baseline}
@@ -227,6 +233,8 @@ small{font-size:.8em}
 .footer-grid ul{list-style:none;margin:0;padding:0;display:grid;gap:.35rem}
 .footer-grid a{color:var(--ink)}
 .footer-grid p{margin:.6rem 0 0}
+.footer-brand{display:inline-flex;align-items:center;gap:.65rem;font:650 .98rem/1.25 var(--sans);letter-spacing:-.02em;color:var(--ink)}
+.footer-brand img{width:30px;height:30px;border-radius:7px;flex:none}
 .footer-mail{font:400 1.25rem/1.3 var(--serif);color:var(--ink);overflow-wrap:anywhere}
 .footer-fine{margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--rule);font-size:.78rem;color:var(--ink-3);display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem 2rem}
 
@@ -261,7 +269,7 @@ small{font-size:.8em}
   .notes a{grid-template-columns:1fr;gap:.2rem}
   .notes .tags{text-align:left}
   .masthead .wrap{flex-direction:column;align-items:flex-start;gap:.75rem}
-  .wordmark{flex-direction:column;gap:.35rem}
+  .wordmark{flex-direction:row;align-items:center;gap:.65rem}
   .nav{gap:.1rem 1.25rem}
   .bars li,.axis{grid-template-columns:2.6rem minmax(0,1fr) 3.4rem;gap:.6rem}
   .gate-chart li{grid-template-columns:minmax(0,1fr) 4.8rem}

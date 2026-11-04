@@ -1,0 +1,159 @@
+{
+  "schema": "macbrainslabs.public-evidence-index.v1",
+  "generated_from": [
+    "research/index.html",
+    "notes/index.html",
+    "publications/publications.json"
+  ],
+  "classification": {
+    "planner": "Public planner/API assignment observations; not a physical ANE trace",
+    "measured": "Specific experiment measurements, not general benchmark guarantees",
+    "note": "Source-bound field note, possibly a negative result or interpretation",
+    "archive": "Published release integrity, not peer review or independent replication"
+  },
+  "items": [
+    {
+      "id": "measurement-1",
+      "kind": "planner",
+      "title": "Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion",
+      "observation": "MLComputePlan / infer",
+      "value": "2,090 ANE / 79 CPU",
+      "limitation": "CPU residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops. Evidence",
+      "url": "/research/#measurements",
+      "source": "Public research summary",
+      "tag": "Qwen2.5"
+    },
+    {
+      "id": "measurement-2",
+      "kind": "planner",
+      "title": "Qwen2.5-1.5B / KV state path",
+      "observation": "ANE-assigned state primitives",
+      "value": "394 / 394",
+      "limitation": "56 slice_update + 57 read_state + 56 write_state + 225 slice_by_index.",
+      "url": "/research/#measurements",
+      "source": "Public research summary",
+      "tag": "Qwen2.5"
+    },
+    {
+      "id": "measurement-3",
+      "kind": "measured",
+      "title": "Qwen2.5 / decode batch sweep",
+      "observation": "Aggregate tokens per second",
+      "value": "102.1 at B=4",
+      "limitation": "Five-round interleaved steady-state run on a single-function, batch-shaped probe. Throughput only; output quality not validated.",
+      "url": "/research/#measurements",
+      "source": "Public research summary",
+      "tag": "Qwen2.5"
+    },
+    {
+      "id": "measurement-4",
+      "kind": "measured",
+      "title": "Qwen2.5 / LUT4 model quality",
+      "observation": "WikiText-2 perplexity",
+      "value": "16.8033",
+      "limitation": "Hand-authored 28L quantized model, run as two 14L halves sharing KV, with position-correct RoPE. Full 12,000-token validation set.",
+      "url": "/research/#measurements",
+      "source": "Public research summary",
+      "tag": "Qwen2.5"
+    },
+    {
+      "id": "measurement-5",
+      "kind": "planner",
+      "title": "LFM S2 sealed production graph",
+      "observation": "ANE compute placement",
+      "value": "743 / 743",
+      "limitation": "MLComputePlan for two-output artifact, not separately compiled debug graph.",
+      "url": "/research/#measurements",
+      "source": "Public research summary",
+      "tag": "LFM"
+    },
+    {
+      "id": "measurement-6",
+      "kind": "measured",
+      "title": "LFM S2 / output parity",
+      "observation": "ANE vs fixture relative L2",
+      "value": "0.01730 / 0.02786",
+      "limitation": "Two declared production outputs. ANE gate relative L2 ≤ 0.03.",
+      "url": "/research/#measurements",
+      "source": "Public research summary",
+      "tag": "LFM"
+    },
+    {
+      "id": "note-N/001",
+      "kind": "note",
+      "title": "28 layers, LUT4, and the cost of exact placement",
+      "observation": "Research field note",
+      "value": "Qwen2.5 · MIL · KV state",
+      "limitation": "State reads, indexed slices, weight.bin offsets and the non-ANE tail.",
+      "url": "/notes/qwen-lut4/",
+      "source": "Public field note N/001",
+      "tag": "Qwen2.5 · MIL · KV state"
+    },
+    {
+      "id": "note-N/002",
+      "kind": "note",
+      "title": "A passing production graph and a failing diagnostic one",
+      "observation": "Research field note",
+      "value": "LFM · S2 · Parity",
+      "limitation": "LFM block-pair parity, 743/743 assignment and why probes alter the experiment.",
+      "url": "/notes/lfm-parity/",
+      "source": "Public field note N/002",
+      "tag": "LFM · S2 · Parity"
+    },
+    {
+      "id": "note-N/003",
+      "kind": "note",
+      "title": "The bandwidth limit that was not a limit",
+      "observation": "Research field note",
+      "value": "A18 Pro · Decode",
+      "limitation": "Batch sweeps, dispatch floors and a hypothesis overturned by measurement.",
+      "url": "/notes/decode-regimes/",
+      "source": "Public field note N/003",
+      "tag": "A18 Pro · Decode"
+    },
+    {
+      "id": "note-N/004",
+      "kind": "note",
+      "title": "Every slice passed. The chain did not.",
+      "observation": "Research field note",
+      "value": "LFM2.5 · Parity · Negative",
+      "limitation": "LFM2.5-1.2B layer slices meet a strict ANE parity gate; the 16-layer chain and token logits miss it.",
+      "url": "/notes/lfm-chain/",
+      "source": "Public field note N/004",
+      "tag": "LFM2.5 · Parity · Negative"
+    },
+    {
+      "id": "note-N/005",
+      "kind": "note",
+      "title": "Correct, placed, paid for",
+      "observation": "Research field note",
+      "value": "Placement · Dispatch · Grafts",
+      "limitation": "A ring-buffer attention graft placed nothing on the ANE; an EAGLE draft head made every call slower and has to earn it back.",
+      "url": "/notes/graft-costs/",
+      "source": "Public field note N/005",
+      "tag": "Placement · Dispatch · Grafts"
+    },
+    {
+      "id": "archive-ane-record-c188def1e88a0d94018dfe99",
+      "kind": "archive",
+      "title": "LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)",
+      "observation": "Published archive integrity: verified",
+      "value": "v0.2.0",
+      "limitation": "same-chip, byte-reproducible on Apple A18 Pro (Mac17,5), macOS 27.2 (build 26B123), CoreML 3600.25.2; ANE execution INFERRED from Core ML compute-plan placement; no novelty claim",
+      "url": "https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/",
+      "source": "Published release and DOI 10.5281/zenodo.23905811",
+      "tag": "LFM3"
+    },
+    {
+      "id": "archive-v0.1.0",
+      "kind": "archive",
+      "title": "MacBrains Labs ANE Research Records, 2026: Public Measurement Summaries",
+      "observation": "Published archive integrity: verified",
+      "value": "v0.1.0",
+      "limitation": "source-bound curated summary, not raw results; archive integrity is not independent replication or peer review",
+      "url": "https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0",
+      "source": "Published release and DOI 10.5281/zenodo.23798037",
+      "tag": "Archive"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="#4c5a4b" opacity=".46"/></pattern></defs><rect width="1200" height="630" fill="#0d0f0f"/><rect x="777" y="0" width="423" height="630" fill="#151b16"/><rect x="777" y="0" width="423" height="630" fill="url(#dots)"/><path d="M64 150H1138 M64 578H1138" stroke="#384139" stroke-width="1.5"/><g transform="translate(58 44) scale(.15)">
+  <!-- MacBrains Labs: approved Concept 3 angular MB mark, accurately recentered.
+       Paths traced from the original identity board; no new brand design. -->
+  <rect width="512" height="512" rx="96" fill="#0B0B0B"/>
+  <g transform="translate(76 138.7805) scale(0.87804878)">
+    <path fill="#F3F1EA" d="M0,0 L0,266 L61,211 L62,104 L134,174 L261,59 L334,60 L333,85 L268,161 L317,161 L351,195 L331,215 L231,215 L173,267 L362,267 L410,219 L410,174 L365,128 L395,89 L394,58 L339,4 L329,0 L216,0 L139,75 L64,0 Z"/>
+    <path fill="#FF4A27" d="M243,104 L128,210 L128,267 L139,265 L244,171 Z"/>
+  </g>
+</g><text x="152" y="99" font-family="Arial,Helvetica,sans-serif" font-size="29" font-weight="650" fill="#efede5">MacBrains<tspan font-weight="400" fill="#b8c3b4"> Labs</tspan></text><rect x="64" y="186" width="5" height="5" fill="#ff633a"/><text x="80" y="194" font-family="monospace" font-size="14" letter-spacing="1.2" fill="#ff9c7d">RESEARCH FIELD NOTE</text><text x="64" y="248.0" font-family="Arial,Helvetica,sans-serif" font-size="55" font-weight="500" letter-spacing="-1.4" fill="#efede5">LFM: a passing graph and</text><text x="64" y="311.8" font-family="Arial,Helvetica,sans-serif" font-size="55" font-weight="500" letter-spacing="-1.4" fill="#efede5">failing diagnostic taps</text><path d="M64 349.8 H170" stroke="#ff633a" stroke-width="4"/><rect x="824" y="191" width="316" height="306" fill="#182119" rx="11" stroke="#536352" stroke-width="1.5"/><g transform="translate(847 210) scale(.595)">
+  <!-- MacBrains Labs: approved Concept 3 angular MB mark, accurately recentered.
+       Paths traced from the original identity board; no new brand design. -->
+  <rect width="512" height="512" rx="96" fill="#0B0B0B"/>
+  <g transform="translate(76 138.7805) scale(0.87804878)">
+    <path fill="#F3F1EA" d="M0,0 L0,266 L61,211 L62,104 L134,174 L261,59 L334,60 L333,85 L268,161 L317,161 L351,195 L331,215 L231,215 L173,267 L362,267 L410,219 L410,174 L365,128 L395,89 L394,58 L339,4 L329,0 L216,0 L139,75 L64,0 Z"/>
+    <path fill="#FF4A27" d="M243,104 L128,210 L128,267 L139,265 L244,171 Z"/>
+  </g>
+</g><text x="842" y="535" font-family="monospace" font-size="12" letter-spacing="1" fill="#c3d0bf">PUBLIC / SOURCE-LINKED / BOUNDED</text><text x="65" y="613" font-family="monospace" font-size="12" letter-spacing="1.7" fill="#bcc5b9">macbrainslabs.org</text><text x="846" y="612" font-family="monospace" font-size="11" letter-spacing=".4" fill="#cbd5c9">EVIDENCE BEFORE INFERENCE</text></svg>

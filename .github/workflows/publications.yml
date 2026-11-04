@@ -26,13 +26,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: node scripts/update-publications.mjs
-      - name: Verify the site with the rebuilt feed
-        run: node scripts/check-site.mjs
+      - name: Refresh public explorer from the last-known-good feed
+        run: node scripts/build-public-experience.mjs
+      - name: Rebuild page-specific social cards for published records
+        run: |
+          npm install --no-save --no-package-lock sharp@0.35.5
+          node scripts/build-social-cards.mjs
+      - name: Verify the site, public explorer and social cards before publishing
+        run: |
+          node scripts/check-site.mjs
+          node scripts/build-public-experience.mjs --check
+          node scripts/build-social-cards.mjs --check
+          node scripts/check-mobile-media.mjs --check
       - name: Commit the rebuilt feed (last-known-good on any failure)
         run: |
           git config user.name "publications-feed-bot"
           git config user.email "publications@macbrainslabs.org"
-          git add index.html publications
+          git add index.html publications research/explore start assets/social
           if git diff --cached --quiet; then
             echo "No record changes to publish; the last-known-good feed is current."
           else

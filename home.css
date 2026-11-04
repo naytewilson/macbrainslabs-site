@@ -38,7 +38,10 @@ h1 em,h2 em{font-style:normal;color:var(--orange)}
 .orange{background:var(--orange);color:#131613}
 .orange:hover{background:#ff805c}
 .quiet-link{font:12px var(--mono);border-bottom:1px solid #7c8278;padding-bottom:5px}
-.small-note{font:10px/1.6 var(--mono);text-transform:uppercase;letter-spacing:1.2px;color:#8e978a;margin-top:36px}
+.intro-entry{font:400 .73rem/1.65 var(--sans);color:#9ca99b;margin:.9rem 0 0}
+.intro-entry a{color:#f4f4ec;text-decoration:underline;text-decoration-color:#657663;text-underline-offset:.3rem}
+.intro-entry a:hover{color:var(--orange)}
+.small-note{font:10px/1.6 var(--mono);text-transform:uppercase;letter-spacing:1.2px;color:#8e978a;margin-top:28px}
 .notch-stage{margin:0;min-width:0}
 .notch-frame{position:relative;background:var(--ink);width:100%;line-height:0}
 .notch-video,.notch-still{display:block;width:100%;height:auto;aspect-ratio:1350/1890;background:var(--ink)}

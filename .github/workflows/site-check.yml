@@ -22,3 +22,12 @@ jobs:
           node scripts/test-publications-ane-records.mjs
           node scripts/test-publications-diagnostic-records.mjs
           node scripts/test-publications-legacy-doi.mjs
+      - name: Verify production-release gate against real HTTP bytes and a corrupted-image control
+        run: node scripts/test-live-site-verifier.mjs
+      - name: Recheck source-generated explorer, mobile media and share cards
+        run: |
+          node scripts/build-public-experience.mjs --check
+          node scripts/check-mobile-media.mjs --check
+          npm install --no-save --no-package-lock sharp@0.35.5
+          node scripts/build-social-cards.mjs --check
+          node scripts/check-site.mjs

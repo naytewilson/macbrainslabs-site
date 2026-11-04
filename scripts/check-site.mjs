@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { assertCenteredBrandIcons } from './assert-brand-icons.mjs';
 import { assertReviewedTextContrast } from './check-contrast.mjs';
+import { socialPathForRoute } from './social-path.mjs';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
@@ -13,8 +14,9 @@ const recordRoutes = (() => {
   const dir = path.join(root, 'research/records');
   return fs.existsSync(dir) ? fs.readdirSync(dir).filter(n => /^ane-record-[0-9a-f]{24}$/u.test(n) && fs.existsSync(path.join(dir, n, 'index.html'))).sort().map(n => `/research/records/${n}/`) : [];
 })();
-const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/', ...recordRoutes];
-const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-img.mp4', '/assets/notch-sway.avif', '/home.js', '/favicon.svg', '/favicon.ico', '/site.webmanifest', '/apple-touch-icon.png', '/assets/icon-16.png', '/assets/icon-32.png', '/assets/icon-48.png', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/social-card.svg', '/assets/social-card.png', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/research/explore/', '/start/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/', ...recordRoutes];
+const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-v13-mobile.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-loop-mobile.mp4', '/assets/notch-img.mp4', '/assets/notch-img-mobile.mp4', '/assets/notch-mobile-manifest.json', '/assets/notch-sway.avif', '/home.js', '/explore.js', '/experience.css', '/research/explore/catalog.json', '/favicon.svg', '/favicon.ico', '/site.webmanifest', '/apple-touch-icon.png', '/assets/icon-16.png', '/assets/icon-32.png', '/assets/icon-48.png', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/social-card.svg', '/assets/social-card.png', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+assets.push(...pages.map(route => socialPathForRoute(route)));
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -43,11 +45,13 @@ for (const urlPath of pages) {
   });
   check(`${label} branded social preview and install metadata`, () => {
     assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
-    assert.ok(html.includes('<meta property="og:image" content="https://macbrainslabs.org/assets/social-card.png">'));
+    const imageURL = base + socialPathForRoute(urlPath);
+    assert.ok(html.includes(`<meta property="og:image" content="${imageURL}">`), `incorrect social card: ${urlPath}`);
+    assert.ok(html.includes(`<meta name="twitter:image" content="${imageURL}">`));
     assert.ok(html.includes('<meta property="og:image:width" content="1200">'));
     assert.ok(html.includes('<meta property="og:image:height" content="630">'));
     assert.ok(html.includes('<meta property="og:image:alt"'));
-    assert.ok(html.includes('<meta name="twitter:image" content="https://macbrainslabs.org/assets/social-card.png">'));
+    assert.ok(html.includes('<meta property="og:image:alt" content="MacBrains Labs research:') || urlPath === '/', 'social image needs a page-specific description');
     assert.ok(html.includes('<link rel="manifest" href="/site.webmanifest">'));
     for (const size of [16, 32, 48]) {
       assert.ok(html.includes(`href="/assets/icon-${size}.png"`), `missing browser icon ${size}`);
@@ -59,6 +63,34 @@ for (const urlPath of pages) {
     assert.ok(!html.includes('naytewilson.github.io/macbrainslabs-site'));
   });
 }
+check('all published pages expose a source-specific card with working image assets', () => {
+  for (const route of pages) {
+    const file = socialPathForRoute(route);
+    const png = fs.readFileSync(fileFor(file));
+    assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a', file);
+    assert.equal(png.readUInt32BE(16), 1200, file + ' width');
+    assert.equal(png.readUInt32BE(20), 630, file + ' height');
+    if (route !== '/') {
+      assert.ok(fs.existsSync(fileFor(file.replace(/\\.png$/, '.svg'))), route + ' social SVG source absent');
+      assert.ok(read(route).includes('<meta property="og:image:alt" content="MacBrains Labs research:'));
+    }
+  }
+});
+check('evidence explorer derives only public records with explicit observation classes', () => {
+  const catalog = JSON.parse(fs.readFileSync(path.join(root, 'research/explore/catalog.json'),'utf8'));
+  assert.equal(catalog.schema, 'macbrainslabs.public-evidence-index.v1');
+  assert.ok(catalog.generated_from.includes('publications/publications.json'));
+  const counts = catalog.items.reduce((m,x)=>(m[x.kind]=(m[x.kind]||0)+1,m),{});
+  assert.ok(counts.measured >= 3 && counts.planner >= 3 && counts.note >= 5 && counts.archive >= 2);
+  const ids = catalog.items.map(x => x.id);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const item of catalog.items) {
+    assert.ok(item.title && item.limitation && item.observation && item.url);
+    if (item.kind === 'planner') assert.match(item.observation, /MLComputePlan|assigned|placement/i);
+    if (item.kind === 'archive') assert.match(item.observation, /integrity: verified/);
+  }
+  assert.equal((read('/research/explore/').match(/class="evidence-card"/g)||[]).length, ids.length);
+});
 check('social preview image and full icon set have correct native formats', () => {
   const inspect = (name, w, h) => {
     const data = fs.readFileSync(path.join(root, name));
@@ -75,11 +107,11 @@ check('social preview image and full icon set have correct native formats', () =
   assert.equal(ico.readUInt16LE(0), 0);
   assert.equal(ico.readUInt16LE(2), 1);
   assert.equal(ico.readUInt16LE(4), 3);
-  for (const file of ['scripts/gen-record-page.mjs', 'scripts/update-publications.mjs']) {
-    const tpl = fs.readFileSync(path.join(root, file), 'utf8');
-    assert.ok(tpl.includes('https://macbrainslabs.org/assets/social-card.png'));
-    assert.ok(tpl.includes('<link rel="manifest" href="/site.webmanifest">'));
-  }
+  const recordTemplate = fs.readFileSync(path.join(root, 'scripts/gen-record-page.mjs'), 'utf8');
+  const publicationsTemplate = fs.readFileSync(path.join(root, 'scripts/update-publications.mjs'), 'utf8');
+  assert.ok(recordTemplate.includes('socialPathForRoute(ROUTE)'), 'diagnostic generator must use its own social URL');
+  assert.ok(publicationsTemplate.includes('https://macbrainslabs.org/assets/social/publications.png'), 'publication feed must retain its own social URL');
+  for (const tpl of [recordTemplate, publicationsTemplate]) assert.ok(tpl.includes('<link rel="manifest" href="/site.webmanifest">'));
 });
 check('installable manifest is scoped, icon-complete, and has no service worker requirement', () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, 'site.webmanifest'), 'utf8'));
@@ -157,6 +189,27 @@ check('security.txt has required RFC 9116 fields and a future Expires', () => {
 });
 check('contact mailto on every page', () => {
   for (const route of pages) assert.ok(read(route).includes('href="mailto:research@macbrainslabs.org"'), `missing on ${route}`);
+});
+check('mobile Notch encodes preserve source identities, full-range color and >50% transfer savings', () => {
+  const data = JSON.parse(fs.readFileSync(path.join(root,'assets/notch-mobile-manifest.json'),'utf8'));
+  assert.equal(data.schema, 'macbrainslabs.notch.mobile.v1');
+  assert.equal(data.mobile_video.width,720);
+  assert.equal(data.mobile_video.height,1008);
+  assert.equal(data.mobile_video.fps,24);
+  assert.equal(data.full_range_color.range,'pc');
+  assert.equal(data.full_range_color.transfer,'iec61966-2-1');
+  assert.equal(data.pairs.length,3);
+  for (const pair of data.pairs) {
+    for (const kind of ['source','mobile']) {
+      const raw=fs.readFileSync(path.join(root,'assets',pair[kind].name));
+      assert.equal(raw.length,pair[kind].size_bytes,pair[kind].name);
+      assert.equal(crypto.createHash('sha256').update(raw).digest('hex'),pair[kind].sha256,pair[kind].name);
+    }
+    assert.ok(pair.saving_percent>50 && pair.ssim_all>.98);
+  }
+  assert.ok(read('/').includes('<source src="/assets/notch-v13-mobile.mp4" type="video/mp4" media="(max-width: 700px)">'));
+  const script=read('/home.js');
+  assert.ok(script.includes("'/assets/notch-loop-mobile.mp4'") && script.includes("'/assets/notch-img-mobile.mp4'"));
 });
 check('home media is local, silent, player-free and still under reduced motion', () => {
   const html = read('/');
@@ -621,18 +674,20 @@ const pubs = (() => {
     assert.ok(nav && nav[1].includes('href="/publications/"'), 'home nav misses Publications');
   });
 })();
-check('only the home page loads one deferred local script, and no inline JavaScript or handlers anywhere', () => {
+check('only the home and evidence explorer load scoped deferred local scripts, never inline JavaScript or handlers', () => {
   function* htmlFiles(dir) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       if (e.isDirectory()) {
-        if (e.name === '.git') continue;
+        // Nonpublished development dependencies may contain their own HTML.
+        // Inspect public site HTML only, not packages installed for build-time QA.
+        if (e.name === '.git' || e.name === 'node_modules') continue;
         yield* htmlFiles(path.join(dir, e.name));
       } else if (e.name.endsWith('.html')) yield path.join(dir, e.name);
     }
   }
   for (const f of [...htmlFiles(root)]) {
     const s = fs.readFileSync(f, 'utf8');
-    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]) || (path.relative(root, f) === 'index.html' && m[1].trim() === 'src="/home.js" defer'), `${f}: <script> must be JSON-LD or the home page's deferred /home.js`);
+    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]) || ((path.relative(root, f) === 'index.html' && m[1].trim() === 'src="/home.js" defer') || (path.relative(root, f) === 'research/explore/index.html' && m[1].trim() === 'src="/explore.js" defer')), `${f}: <script> must be JSON-LD or an approved scoped deferred script`);
     assert.ok(!/javascript:/i.test(s), `${f}: javascript: URL present`);
     for (const m of s.matchAll(/<[^>]*\s(on[a-z][a-z]*)\s*=/gi)) throw new Error(`${f}: inline event handler (${m[1]})`);
   }

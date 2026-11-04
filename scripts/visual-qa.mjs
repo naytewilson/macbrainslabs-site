@@ -123,7 +123,12 @@ const cases = [
   { id: '09-research-light-mobile-390', route: '/research/', w: 390, h: 844, scheme: 'light' },
   { id: '10-research-dark-desktop-1440', route: '/research/', w: 1440, h: 900 },
   { id: '11-methods-light-desktop-1440', route: '/methods/', w: 1440, h: 900, scheme: 'light' },
-  { id: '12-research-small-320', route: '/research/', w: 320, h: 740 }
+  { id: '12-research-small-320', route: '/research/', w: 320, h: 740 },
+  { id: '13-explorer-mobile-390', route: '/research/explore/', w: 390, h: 844 },
+  { id: '14-explorer-desktop-1440', route: '/research/explore/', w: 1440, h: 900 },
+  { id: '15-start-mobile-390', route: '/start/', w: 390, h: 844 },
+  { id: '16-start-desktop-1440', route: '/start/', w: 1440, h: 900 },
+  { id: '17-explorer-filtered-390', route: '/research/explore/', w: 390, h: 844, selector: '#evidence-list', filter: { q: 'LFM', kind: 'note' } }
 ];
 
 async function run() {
@@ -137,6 +142,16 @@ async function run() {
       const begin = served.length;
       await browser('open', base + c.route);
       await browser('wait', '150');
+      if (c.filter) {
+        await browser('fill', '#evidence-query', c.filter.q);
+        await browser('select', '#evidence-filter', c.filter.kind);
+        const { result: filtered } = await browser('eval', "({visible:[...document.querySelectorAll('#evidence-list .evidence-card')].filter(x=>!x.hidden).map(x=>({title:x.querySelector('h3')?.textContent,kind:x.dataset.kind,search:x.dataset.search})),shown:document.querySelector('#evidence-count')?.textContent,search:new URLSearchParams(location.search).get('q'),kind:new URLSearchParams(location.search).get('kind')})");
+        assert.ok(filtered.visible.length>=1 && filtered.visible.length<=5, 'filtered result count unexpectedly changed');
+        assert.ok(filtered.visible.every(x => x.kind === 'note' && x.search.includes('lfm')), 'LFM note filter returned an unrelated result');
+        assert.equal(filtered.search,'lfm');
+        assert.equal(filtered.kind,'note');
+        assert.match(filtered.shown,/public entr/);
+      }
       const { result: m } = await browser('eval', metricsJS);
       assert.equal(m.width, c.w, c.id + ' effective viewport');
       assert.ok(m.scrollWidth <= c.w + 1, c.id + ' horizontal scroll ' + m.scrollWidth);
@@ -173,6 +188,22 @@ async function run() {
       console.log(`PASS ${c.id} viewport=${c.w}x${c.h} mismatch=${difference}%`);
     }
 
+    // Filter edge cases: no-results message and accessible reset.
+    await browser('set', 'viewport', '390', '844');
+    await browser('open', base + '/research/explore/');
+    await browser('fill', '#evidence-query', 'no-published-experiment-has-this-name');
+    const { result: noMatch } = await browser('eval', "({visible:[...document.querySelectorAll('#evidence-list .evidence-card')].filter(e=>!e.hidden).length,emptyHidden:document.querySelector('#evidence-empty')?.hidden,search:new URLSearchParams(location.search).get('q')})");
+    assert.equal(noMatch.visible,0,'search should return no unrelated findings');
+    assert.equal(noMatch.emptyHidden,false,'no-match explanation must appear');
+    assert.equal(noMatch.search,'no-published-experiment-has-this-name','search query should be shareable');
+    await browser('click', '#evidence-controls button[type=reset]');
+    await browser('wait', '75');
+    const { result: resetResult } = await browser('eval', "({visible:[...document.querySelectorAll('#evidence-list .evidence-card')].filter(e=>!e.hidden).length,total:document.querySelectorAll('#evidence-list .evidence-card').length,emptyHidden:document.querySelector('#evidence-empty')?.hidden,search:new URLSearchParams(location.search).get('q')})");
+    assert.equal(resetResult.visible,resetResult.total,'reset should restore every entry');
+    assert.equal(resetResult.emptyHidden,true,'empty-state message must hide when records return');
+    assert.equal(resetResult.search,null,'reset should clear shareable search parameters');
+    console.log('PASS evidence explorer zero-results and reset behaviors with shareable query state');
+
     // Real keyboard navigation: skip-to-main and native detail disclosure.
     await browser('set', 'viewport', '390', '844');
     await browser('open', base + '/');
@@ -200,6 +231,22 @@ async function run() {
     assert.ok(served.some(v => v.pathname === '/assets/notch-v13.mp4'), 'the visible Notch intro must request its video only under normal motion');
     assert.equal(motion.video[0].paused, false, 'the visible Notch intro must actually play');
     console.log('PASS visible Notch animation loads only under normal motion');
+    // Mobile normal-motion uses the new lower-transfer encode. Desktop keeps
+    // the untouched high-resolution master and full color profile.
+    const mobileStart = served.length;
+    await browser('set', 'viewport', '390', '844');
+    await browser('set', 'media', 'dark');
+    await browser('open', base + '/');
+    await browser('wait', '850');
+    const { result: mobileMedia } = await browser('eval', "({currentSrc:document.querySelector('.notch-video')?.currentSrc,loopSrc:document.querySelector('.notch-loop')?.src,paused:document.querySelector('.notch-video')?.paused})");
+    const mobileRequests = served.slice(mobileStart).filter(v => v.pathname.endsWith('.mp4')).map(v => v.pathname);
+    assert.ok(mobileRequests.includes('/assets/notch-v13-mobile.mp4'), 'mobile must fetch optimized intro instead of desktop master');
+    assert.ok(!mobileRequests.includes('/assets/notch-v13.mp4'), 'mobile must not fetch the full-resolution intro');
+    assert.ok(mobileMedia.currentSrc.endsWith('/assets/notch-v13-mobile.mp4'), 'mobile video selected the wrong <source>');
+    assert.ok(mobileMedia.loopSrc.endsWith('/assets/notch-loop-mobile.mp4'), 'mobile sway loop selected the wrong size');
+    assert.equal(mobileMedia.paused, false, 'mobile intro must still play');
+    console.log('PASS mobile Notch selects optimized intro/loop and keeps native playback');
+
 
     fs.writeFileSync(path.join(root, 'tests/visual/last-run.json'), JSON.stringify({ mode: update ? 'update' : 'verify', results, motion: { mediaRequests: motion.mediaRequests } }, null, 2) + '\n');
     console.log(`Visual QA: ${results.length}/${results.length} responsive screenshots and interaction checks passed`);
