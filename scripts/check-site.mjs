@@ -678,14 +678,16 @@ check('only the home and evidence explorer load scoped deferred local scripts, n
   function* htmlFiles(dir) {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       if (e.isDirectory()) {
-        if (e.name === '.git') continue;
+        // Nonpublished development dependencies may contain their own HTML.
+        // Inspect public site HTML only, not packages installed for build-time QA.
+        if (e.name === '.git' || e.name === 'node_modules') continue;
         yield* htmlFiles(path.join(dir, e.name));
       } else if (e.name.endsWith('.html')) yield path.join(dir, e.name);
     }
   }
   for (const f of [...htmlFiles(root)]) {
     const s = fs.readFileSync(f, 'utf8');
-    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]) || ((path.relative(root, f) === 'index.html' && m[1].trim() === 'src="/home.js" defer') || (path.relative(root, f) === 'research/explore/index.html' && m[1].trim() === 'src="/explore.js" defer')), `${f}: <script> must be JSON-LD or the home page's deferred /home.js`);
+    for (const m of s.matchAll(/<script\b([^>]*)>/gi)) assert.ok(/type="application\/ld\+json"/i.test(m[1]) || ((path.relative(root, f) === 'index.html' && m[1].trim() === 'src="/home.js" defer') || (path.relative(root, f) === 'research/explore/index.html' && m[1].trim() === 'src="/explore.js" defer')), `${f}: <script> must be JSON-LD or an approved scoped deferred script`);
     assert.ok(!/javascript:/i.test(s), `${f}: javascript: URL present`);
     for (const m of s.matchAll(/<[^>]*\s(on[a-z][a-z]*)\s*=/gi)) throw new Error(`${f}: inline event handler (${m[1]})`);
   }
