@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import { assertCenteredBrandIcons } from './assert-brand-icons.mjs';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
@@ -51,6 +52,7 @@ check('iPhone Home Screen icon exists as a 180x180 PNG with app label', () => {
   assert.equal(png.readUInt32BE(20), 180);
   assert.ok(read('/').includes('<meta name="apple-mobile-web-app-title" content="MacBrains Labs">'));
 });
+check('approved MB brand icons are visually centered and background-safe', () => assertCenteredBrandIcons(root));
 check('research JSON-LD parses and names DOI and ORCID', () => {
   const m = read('/research/').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(m, 'no JSON-LD block');
