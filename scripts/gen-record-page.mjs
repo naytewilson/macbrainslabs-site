@@ -92,7 +92,8 @@ const html = `<!DOCTYPE html>
 <meta property="og:url" content="${URL_}">
 <meta name="twitter:card" content="summary">
 <link rel="canonical" href="${URL_}">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/brand-mark-96.png" type="image/png" sizes="96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
 <link rel="stylesheet" href="/styles.css">
 <script type="application/ld+json">
 ${JSON.stringify(ld, null, 2)}

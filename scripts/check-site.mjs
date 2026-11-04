@@ -12,7 +12,7 @@ const recordRoutes = (() => {
   return fs.existsSync(dir) ? fs.readdirSync(dir).filter(n => /^ane-record-[0-9a-f]{24}$/u.test(n) && fs.existsSync(path.join(dir, n, 'index.html'))).sort().map(n => `/research/records/${n}/`) : [];
 })();
 const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/', ...recordRoutes];
-const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-img.mp4', '/assets/notch-sway.avif', '/home.js', '/favicon.svg', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-img.mp4', '/assets/notch-sway.avif', '/home.js', '/favicon.svg', '/apple-touch-icon.png', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -35,11 +35,22 @@ for (const urlPath of pages) {
       assert.ok(fs.existsSync(fileFor(url)), `${m[1]} unresolved`);
     }
   });
+  check(`${label} branded browser and iPhone icons`, () => {
+    assert.ok(html.includes('<link rel="icon" href="/assets/brand-mark-96.png" type="image/png" sizes="96x96">'));
+    assert.ok(html.includes('<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">'));
+  });
   check(`${label} no stale host or project prefix`, () => {
     assert.ok(!html.includes('/macbrainslabs-site/'));
     assert.ok(!html.includes('naytewilson.github.io/macbrainslabs-site'));
   });
 }
+check('iPhone Home Screen icon exists as a 180x180 PNG with app label', () => {
+  const png = fs.readFileSync(path.join(root, 'apple-touch-icon.png'));
+  assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
+  assert.equal(png.readUInt32BE(16), 180);
+  assert.equal(png.readUInt32BE(20), 180);
+  assert.ok(read('/').includes('<meta name="apple-mobile-web-app-title" content="MacBrains Labs">'));
+});
 check('research JSON-LD parses and names DOI and ORCID', () => {
   const m = read('/research/').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(m, 'no JSON-LD block');
