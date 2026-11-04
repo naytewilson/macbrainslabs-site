@@ -1,1 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80"><rect width="80" height="80" rx="10" fill="#10191e"/><path d="M10 12H70V68H10z" fill="none" stroke="#9fcdb0" stroke-width="2"/><path d="M18 52V28l9 13 9-13v24" fill="none" stroke="#b4e2c3" stroke-width="4.5" stroke-linecap="square"/><path d="M46 28h10c12 0 12 10 2 12 12 0 12 12 0 12H46V28z" fill="none" stroke="#b4e2c3" stroke-width="4.5"/><path d="M39 54 46 26" stroke="#e2ae86" stroke-width="2.5"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- MacBrains Labs: approved Concept 3 angular MB mark, accurately recentered.
+       Paths traced from the original identity board; no new brand design. -->
+  <rect width="512" height="512" rx="96" fill="#0B0B0B"/>
+  <g transform="translate(76 138.7805) scale(0.87804878)">
+    <path fill="#F3F1EA" d="M0,0 L0,266 L61,211 L62,104 L134,174 L261,59 L334,60 L333,85 L268,161 L317,161 L351,195 L331,215 L231,215 L173,267 L362,267 L410,219 L410,174 L365,128 L395,89 L394,58 L339,4 L329,0 L216,0 L139,75 L64,0 Z"/>
+    <path fill="#FF4A27" d="M243,104 L128,210 L128,267 L139,265 L244,171 Z"/>
+  </g>
+</svg>
