@@ -5,6 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import { assertCenteredBrandIcons } from './assert-brand-icons.mjs';
+import { assertReviewedTextContrast } from './check-contrast.mjs';
 
 const base = 'https://macbrainslabs.org';
 const root = process.cwd();
@@ -13,7 +14,7 @@ const recordRoutes = (() => {
   return fs.existsSync(dir) ? fs.readdirSync(dir).filter(n => /^ane-record-[0-9a-f]{24}$/u.test(n) && fs.existsSync(path.join(dir, n, 'index.html'))).sort().map(n => `/research/records/${n}/`) : [];
 })();
 const pages = ['/', '/research/', '/methods/', '/publications/', '/contact/', '/notes/', '/notes/qwen-lut4/', '/notes/lfm-parity/', '/notes/decode-regimes/', '/notes/lfm-chain/', '/notes/graft-costs/', '/evidence/qwen-placement/', '/security/', '/security/archive-path-traversal/', '/security/evidence-validation/', ...recordRoutes];
-const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-img.mp4', '/assets/notch-sway.avif', '/home.js', '/favicon.svg', '/apple-touch-icon.png', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
+const assets = ['/404.html', '/styles.css', '/home.css', '/assets/brand-mark-96.png', '/assets/notch-v13.mp4', '/assets/notch-first.webp', '/assets/notch-still.webp', '/assets/notch-loop.mp4', '/assets/notch-img.mp4', '/assets/notch-sway.avif', '/home.js', '/favicon.svg', '/favicon.ico', '/site.webmanifest', '/apple-touch-icon.png', '/assets/icon-16.png', '/assets/icon-32.png', '/assets/icon-48.png', '/assets/icon-192.png', '/assets/icon-512.png', '/assets/social-card.svg', '/assets/social-card.png', '/sitemap.xml', '/robots.txt', '/.well-known/security.txt', '/security/evidence/results.json', '/security/evidence/README.md', '/security/evidence/SHA256SUMS', '/publications/publications.json'];
 const failures = [];
 let checks = 0;
 function check(label, fn) { checks++; try { fn(); console.log(`PASS ${label}`); } catch (e) { failures.push(`${label}: ${e.message}`); console.error(`FAIL ${label}: ${e.message}`); } }
@@ -40,11 +41,62 @@ for (const urlPath of pages) {
     assert.ok(html.includes('<link rel="icon" href="/assets/brand-mark-96.png" type="image/png" sizes="96x96">'));
     assert.ok(html.includes('<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">'));
   });
+  check(`${label} branded social preview and install metadata`, () => {
+    assert.ok(html.includes('<meta name="twitter:card" content="summary_large_image">'));
+    assert.ok(html.includes('<meta property="og:image" content="https://macbrainslabs.org/assets/social-card.png">'));
+    assert.ok(html.includes('<meta property="og:image:width" content="1200">'));
+    assert.ok(html.includes('<meta property="og:image:height" content="630">'));
+    assert.ok(html.includes('<meta property="og:image:alt"'));
+    assert.ok(html.includes('<meta name="twitter:image" content="https://macbrainslabs.org/assets/social-card.png">'));
+    assert.ok(html.includes('<link rel="manifest" href="/site.webmanifest">'));
+    for (const size of [16, 32, 48]) {
+      assert.ok(html.includes(`href="/assets/icon-${size}.png"`), `missing browser icon ${size}`);
+    }
+    assert.ok(html.includes('<meta name="apple-mobile-web-app-title" content="MacBrains Labs">'));
+  });
   check(`${label} no stale host or project prefix`, () => {
     assert.ok(!html.includes('/macbrainslabs-site/'));
     assert.ok(!html.includes('naytewilson.github.io/macbrainslabs-site'));
   });
 }
+check('social preview image and full icon set have correct native formats', () => {
+  const inspect = (name, w, h) => {
+    const data = fs.readFileSync(path.join(root, name));
+    assert.equal(data.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', name);
+    assert.equal(data.readUInt32BE(16), w, name + ' width');
+    assert.equal(data.readUInt32BE(20), h, name + ' height');
+    return data;
+  };
+  for (const size of [16, 32, 48, 192, 512]) inspect(`assets/icon-${size}.png`, size, size);
+  const card = inspect('assets/social-card.png', 1200, 630);
+  assert.ok(card.length < 250_000, 'large preview should stay under 250 kB');
+  assert.ok(read('/404.html').includes('<link rel="manifest" href="/site.webmanifest">'));
+  const ico = fs.readFileSync(path.join(root, 'favicon.ico'));
+  assert.equal(ico.readUInt16LE(0), 0);
+  assert.equal(ico.readUInt16LE(2), 1);
+  assert.equal(ico.readUInt16LE(4), 3);
+  for (const file of ['scripts/gen-record-page.mjs', 'scripts/update-publications.mjs']) {
+    const tpl = fs.readFileSync(path.join(root, file), 'utf8');
+    assert.ok(tpl.includes('https://macbrainslabs.org/assets/social-card.png'));
+    assert.ok(tpl.includes('<link rel="manifest" href="/site.webmanifest">'));
+  }
+});
+check('installable manifest is scoped, icon-complete, and has no service worker requirement', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, 'site.webmanifest'), 'utf8'));
+  assert.equal(manifest.id, '/');
+  assert.equal(manifest.name, 'MacBrains Labs');
+  assert.equal(manifest.start_url, '/');
+  assert.equal(manifest.scope, '/');
+  assert.equal(manifest.display, 'standalone');
+  assert.match(manifest.background_color, /^#[0-9a-f]{6}$/);
+  assert.match(manifest.theme_color, /^#[0-9a-f]{6}$/);
+  assert.deepEqual(manifest.icons.map(icon => icon.sizes), ['192x192', '512x512']);
+  for (const icon of manifest.icons) {
+    assert.ok(icon.purpose.includes('maskable') && icon.purpose.includes('any'));
+    assert.equal(icon.type, 'image/png');
+    assert.ok(fs.existsSync(fileFor(icon.src)));
+  }
+});
 check('iPhone Home Screen icon exists as a 180x180 PNG with app label', () => {
   const png = fs.readFileSync(path.join(root, 'apple-touch-icon.png'));
   assert.equal(png.subarray(0,8).toString('hex'), '89504e470d0a1a0a');
@@ -53,6 +105,7 @@ check('iPhone Home Screen icon exists as a 180x180 PNG with app label', () => {
   assert.ok(read('/').includes('<meta name="apple-mobile-web-app-title" content="MacBrains Labs">'));
 });
 check('approved MB brand icons are visually centered and background-safe', () => assertCenteredBrandIcons(root));
+check('reviewed body text and metadata colors meet AA normal-text contrast', () => assertReviewedTextContrast(root));
 check('research JSON-LD parses and names DOI and ORCID', () => {
   const m = read('/research/').match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
   assert.ok(m, 'no JSON-LD block');
@@ -118,7 +171,8 @@ check('home media is local, silent, player-free and still under reduced motion',
   const vids = [...html.matchAll(/<video\b([^>]*)>/g)].map(m => m[1]);
   assert.equal(vids.length, 1, 'expected exactly one Notch video');
   for (const a of vids) {
-    for (const attr of ['muted', 'playsinline', 'autoplay']) assert.ok(new RegExp('\\s' + attr + '\\b').test(a), `video needs ${attr}`);
+    for (const attr of ['muted', 'playsinline']) assert.ok(new RegExp('\\s' + attr + '\\b').test(a), `video needs ${attr}`);
+    assert.ok(/\spreload="none"/.test(a) && !/\sautoplay\b/.test(a), 'video must defer playback and avoid eager reduced-motion downloads');
     assert.ok(!/\s(controls|loop)\b/.test(a), 'video must show no player and play once');
     assert.ok(/\sposter="\/assets\/[^"]+"/.test(a) && /\saria-hidden="true"/.test(a), 'video needs a local poster and is described by its frame');
   }

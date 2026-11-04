@@ -34,6 +34,15 @@ Terms like "ANE placement" refer to Core ML MLComputePlan assignment, *not* dire
 - `apple-touch-icon.png`: 180 x 180 full-bleed black iPhone Home Screen icon from the same mark. iOS applies its own corner mask.
 - `scripts/build-brand-icons.sh`: macOS `sips` regeneration of both PNGs from the SVG master. Run after changing the master; the site test checks pixel content, centering, and backgrounds so the prior asymmetric paper-colored crop cannot return.
 
+## Branding and visual quality
+
+- `assets/social-card.png`: 1200 x 630 branded share preview used by the Open Graph and Twitter metadata on every public page; the page titles and descriptions remain specific to each URL. `assets/social-card.svg` is the editable layout source.
+- `assets/icon-16.png`, `icon-32.png`, `icon-48.png`, `icon-192.png`, and `icon-512.png`: browser and platform icons generated from the approved centered MB mark. `favicon.ico` is the legacy fallback. `site.webmanifest` provides a standalone installation name, scope, colors and maskable icons, without a service worker or offline caching.
+- `scripts/generate-visual-assets.cjs`: regenerate the brand artwork from `favicon.svg` with **development-only** Sharp. This does not add a browser-side dependency. The smaller icons preserve the rounded icon framing, and large install icons remain safe for platform masks.
+- `scripts/check-contrast.mjs`: reviewed WCAG 2.2 AA contrast pairs for homepage, light folios, and light/dark inner pages; loaded by the site checker.
+- `scripts/visual-qa.mjs`: twelve deterministic screenshot and axe-core tests at phone, tablet, and desktop widths, with keyboard and reduced-motion assertions. Run `node scripts/visual-qa.mjs` using agent-browser 0.41.0 and Chromium. Only rerun with `--update` after inspecting and approving changed visual baselines. GitHub Actions runs this test on PRs.
+- [Detailed website audit and screenshot matrix](docs/SITE_QUALITY_AUDIT_2026-11-04.md) documents the inspected live Safari site, the mobile/desktop baseline captures, defects repaired, accessibility evidence, and testing limitations.
+
 ## Hosting
 
 GitHub Pages branch `main` from root, custom domain `macbrainslabs.org`.

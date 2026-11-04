@@ -1,0 +1,6 @@
+# Visual regression baselines are versioned; current captures and diffs are ephemeral.
+tests/visual/current/
+tests/visual/diffs/
+tests/visual/last-run.json
+.DS_Store
+node_modules/

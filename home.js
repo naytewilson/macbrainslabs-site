@@ -13,7 +13,7 @@
   if (!frame || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const intro = frame.querySelector('.notch-video');
   const loop = document.createElement('video');
-  for (const [k, v] of [['class', 'notch-loop'], ['muted', ''], ['playsinline', ''], ['loop', ''], ['preload', 'auto'], ['aria-hidden', 'true'], ['disablepictureinpicture', ''], ['disableremoteplayback', '']]) loop.setAttribute(k, v);
+  for (const [k, v] of [['class', 'notch-loop'], ['muted', ''], ['playsinline', ''], ['loop', ''], ['preload', 'none'], ['aria-hidden', 'true'], ['disablepictureinpicture', ''], ['disableremoteplayback', '']]) loop.setAttribute(k, v);
   loop.muted = loop.defaultMuted = true;
   loop.src = '/assets/notch-loop.mp4';
   frame.append(loop);
