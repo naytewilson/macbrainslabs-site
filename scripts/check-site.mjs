@@ -371,6 +371,7 @@ const pubs = (() => {
   const legacy = (d.records ?? []).filter(r => r.kind === undefined);
   const ane = (d.records ?? []).filter(r => r.kind === 'ane-record');
   const diag = (d.records ?? []).filter(r => r.kind === 'ane-diagnostic');
+  const pkg = (d.records ?? []).filter(r => r.kind === 'ane-package');
   check('publications feed schema and policy', () => {
     assert.equal(d.schema, 'macbrainslabs.publications.v1');
     assert.match(d.generated_at, /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/u);
@@ -386,8 +387,8 @@ const pubs = (() => {
     for (const rec of d.records) {
       assert.ok(!tags.has(rec.tag), `duplicate tag ${rec.tag}`);
       tags.add(rec.tag);
-      assert.ok(rec.kind === undefined || rec.kind === 'ane-record' || rec.kind === 'ane-diagnostic', `${rec.tag}: unknown record kind`);
-      if (rec.kind === 'ane-record' || rec.kind === 'ane-diagnostic') {
+      assert.ok(rec.kind === undefined || rec.kind === 'ane-record' || rec.kind === 'ane-diagnostic' || rec.kind === 'ane-package', `${rec.tag}: unknown record kind`);
+      if (rec.kind === 'ane-record' || rec.kind === 'ane-diagnostic' || rec.kind === 'ane-package') {
         assert.match(rec.tag, /^ane-record-[0-9a-f]{24}$/u, `bad tag ${rec.tag}`);
         pubClean(rec.release_name, `${rec.tag} release_name`, 300);
         pubClean(rec.title, `${rec.tag} title`, 300);
@@ -598,6 +599,59 @@ const pubs = (() => {
       }
     }
   });
+  check('publications feed package research records are bound, labelled and verified', () => {
+    const SHA = /^[a-f0-9]{64}$/u;
+    for (const rec of pkg) {
+      assert.equal(rec.release_url, `https://github.com/macbrainslabs/ane-research-records/releases/tag/${rec.tag}`, `${rec.tag}: release_url`);
+      assert.equal(rec.record_url, `${base}/research/records/${rec.tag}/`, `${rec.tag}: record_url is not this record's page`);
+      pubUrl(rec.record_url, `${rec.tag} record_url`);
+      assert.ok(fs.existsSync(fileFor(`/research/records/${rec.tag}/`)), `${rec.tag}: record page missing`);
+      assert.match(rec.released_on, /^\d{4}-\d\d-\d\d$/u, `${rec.tag}: released_on`);
+      for (const k of ['attestation_sha256', 'record_sha256', 'files_list_sha256']) assert.match(rec[k], SHA, `${rec.tag}: ${k}`);
+      const r = rec.replication;
+      assert.ok(['same-chip', 'cross-device'].includes(r.scope), `${rec.tag}: replication scope`);
+      assert.equal(r.cross_device_replication, r.scope === 'cross-device', `${rec.tag}: a same-chip rerun must never count as cross-device replication`);
+      pubClean(r.claim, `${rec.tag} replication claim`, 300);
+      if (r.scope === 'same-chip') assert.ok(r.claim.startsWith('same-chip'), `${rec.tag}: a same-chip record's scope must say same-chip first`);
+      assert.ok(Array.isArray(r.profile_hashes) && r.profile_hashes.length >= 1 && r.profile_hashes.every(h => SHA.test(h)), `${rec.tag}: setup profile hashes`);
+      for (const k of ['counted', 'passed', 'failed']) assert.ok(Number.isSafeInteger(r[k]) && r[k] >= 0, `${rec.tag}: ${k}`);
+      assert.ok(r.counted >= 1 && r.passed + r.failed === r.counted, `${rec.tag}: run counts do not add up`);
+      assert.ok(Array.isArray(r.arms), `${rec.tag}: arms`);
+      for (const a of r.arms) { pubClean(a.arm, `${rec.tag} arm`, 40); assert.ok(r.profile_hashes.includes(a.profile_hash) && Number.isSafeInteger(a.counted) && Number.isSafeInteger(a.passed), `${rec.tag}: arm entry`); }
+      assert.match(rec.review.reviewed_package_sha256, SHA, `${rec.tag}: reviewed package hash`);
+      assert.equal(rec.review.reviewer, 'macbrains-labs-reviewer', `${rec.tag}: reviewer`);
+      assert.ok(['INCLUDE', 'HOLD', 'unknown'].includes(rec.review.decision), `${rec.tag}: decision`);
+      assert.ok(rec.review.verdict_receipt_sha256 === null || SHA.test(rec.review.verdict_receipt_sha256), `${rec.tag}: verdict receipt`);
+      assert.equal(rec.assets.length, 5, `${rec.tag}: asset count`);
+      assert.deepEqual([rec.assets[0].name, rec.assets[1].name, rec.assets[4].name], ['attestation.json', 'preview.md', 'SHA256SUMS'], `${rec.tag}: asset set`);
+      for (const a of rec.assets) {
+        assert.ok(Number.isInteger(a.size) && a.size > 0, `${rec.tag}: asset size`);
+        assert.match(a.digest, /^sha256:[a-f0-9]{64}$/u, `${rec.tag}: asset registered digest`);
+        pubUrl(a.url, `${rec.tag} asset url`);
+        assert.ok(a.sha256 === null || SHA.test(a.sha256), `${rec.tag}: asset verified digest`);
+      }
+      const doi = rec.doi;
+      assert.equal(doi.concept_doi, '10.5281/zenodo.23798036', `${rec.tag}: all-versions DOI`);
+      const st = doi.crosscheck.state;
+      assert.ok(['pass', 'mismatch', 'unreachable', 'not_minted'].includes(st), `${rec.tag}: crosscheck state`);
+      assert.equal(doi.registered_state, { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now', not_minted: 'not_minted' }[st], `${rec.tag}: registered_state must follow the crosscheck`);
+      assert.ok(['verified', 'degraded'].includes(rec.verification.state), `${rec.tag}: verification state`);
+      for (const g of rec.verification.guards) { pubClean(g.name, `${rec.tag} guard name`, 200); assert.ok(['pass', 'degraded'].includes(g.state), `${rec.tag}: guard state`); }
+      const guardDegraded = rec.verification.guards.some(g => g.state !== 'pass');
+      if (rec.verification.state === 'verified') {
+        assert.ok(!guardDegraded, `${rec.tag}: shown verified while a guard is degraded`);
+        assert.equal(rec.review.decision, 'INCLUDE', `${rec.tag}: shown verified without an INCLUDE verdict`);
+        assert.equal(r.arms.length, r.profile_hashes.length, `${rec.tag}: shown verified without every arm recounted`);
+        assert.equal(st, 'pass', `${rec.tag}: shown verified without a passing Zenodo binding`);
+        assert.match(doi.version_doi, /^10\.5281\/zenodo\.\d+$/u, `${rec.tag}: version_doi`);
+        assert.notEqual(doi.version_doi, doi.concept_doi, `${rec.tag}: version DOI equals the all-versions DOI`);
+        assert.equal(doi.zenodo_record_url, `https://zenodo.org/records/${doi.version_doi.split('.').at(-1)}`, `${rec.tag}: record URL does not match the version DOI`);
+        for (const a of rec.assets) assert.equal(a.sha256, a.digest.slice('sha256:'.length), `${rec.tag}: verified record with unverified asset digest`);
+      } else {
+        assert.ok(guardDegraded, `${rec.tag}: degraded with no degraded guard`);
+      }
+    }
+  });
   const feedHtml = read('/publications/');
   check('publications page renders exactly the feed records', () => {
     for (const rec of d.records) assert.ok(feedHtml.includes(`data-tag="${rec.tag}"`), `${rec.tag} not rendered on the publications page`);
@@ -642,11 +696,27 @@ const pubs = (() => {
       if (rec.verification.state === 'verified') assert.ok(art.includes(`href="https://doi.org/${rec.doi.version_doi}"`), `${rec.tag}: verified version DOI not shown`);
     }
   });
+  check('publications page shows each package research record with its bindings, run accounting and scope label', () => {
+    for (const rec of pkg) {
+      const at = feedHtml.indexOf(`data-tag="${rec.tag}"`);
+      assert.ok(at !== -1, `${rec.tag} not rendered`);
+      const art = feedHtml.slice(at, feedHtml.indexOf('</article>', at));
+      const r = rec.replication;
+      for (const s of [pubEsc(rec.version), pubEsc(rec.title), pubEsc(r.claim), ...r.profile_hashes, rec.review.reviewed_package_sha256, rec.record_sha256, rec.attestation_sha256, `href="${rec.record_url}"`]) {
+        assert.ok(art.includes(s), `${rec.tag}: ${s.slice(0, 32)} not shown`);
+      }
+      assert.ok(art.includes(`${r.counted} counted runs kept across ${r.profile_hashes.length} clean-room arm`), `${rec.tag}: run accounting not shown`);
+      if (r.scope === 'same-chip') assert.ok(art.includes('not cross-device replication'), `${rec.tag}: same-chip record lacks its scope label`);
+      for (const a of rec.assets) if (a.sha256) assert.ok(art.includes(a.sha256), `${rec.tag}: asset digest not shown`);
+      if (rec.verification.state === 'verified') assert.ok(art.includes(`href="https://doi.org/${rec.doi.version_doi}"`), `${rec.tag}: verified version DOI not shown`);
+    }
+  });
   check('research record pages state their scope and bind to the feed', () => {
     for (const route of recordRoutes) {
       const tag = route.split('/')[3];
       const html = read(route);
-      for (const s of ['not cross-device replication', 'ANE execution INFERRED', 'no novelty claim', `data-tag="${tag}"`, `href="https://github.com/macbrainslabs/ane-research-records/releases/tag/${tag}"`]) {
+      const pkgPage = html.includes('data-record-kind="package"');
+      for (const s of ['not cross-device replication', pkgPage ? 'ANE execution NOT CLAIMED' : 'ANE execution INFERRED', 'no novelty claim', `data-tag="${tag}"`, `href="https://github.com/macbrainslabs/ane-research-records/releases/tag/${tag}"`]) {
         assert.ok(html.includes(s), `${route}: missing ${s}`);
       }
       assert.ok(read('/sitemap.xml').includes(`<loc>${base}${route}</loc>`), `${route}: not in the sitemap`);
@@ -654,7 +724,8 @@ const pubs = (() => {
       if (!rec) continue;
       assert.equal(rec.record_url, `${base}${route}`, `${route}: feed record_url is not this page`);
       const r = rec.replication;
-      const must = [pubEsc(rec.title), pubEsc(r.claim), r.profile_hash];
+      const must = rec.kind === 'ane-package' ? [pubEsc(rec.title), pubEsc(r.claim), ...r.profile_hashes, rec.attestation_sha256, rec.record_sha256, rec.review.reviewed_package_sha256, `${r.counted} counted runs`] : [pubEsc(rec.title), pubEsc(r.claim), r.profile_hash];
+      assert.equal(pkgPage, rec.kind === 'ane-package', `${route}: page kind does not match the feed record kind`);
       if (rec.kind === 'ane-diagnostic') must.push(rec.bundle_sha256, rec.attestation_sha256, rec.review.reviewed_package_sha256, `${r.logged} logged executions`);
       for (const s of must) assert.ok(html.includes(s), `${route}: ${s.slice(0, 32)} from the feed not shown on the record page`);
       if (rec.verification.state === 'verified') assert.ok(html.includes(`href="https://doi.org/${rec.doi.version_doi}"`), `${route}: verified version DOI not shown on the record page`);
@@ -665,7 +736,7 @@ const pubs = (() => {
     const m = home.match(/publications-latest:start([\s\S]*?)publications-latest:end/u);
     assert.ok(m, 'home lacks the publications marker block');
     for (const rec of legacy) assert.ok(m[1].includes(rec.tag) && m[1].includes(rec.zenodo_title), `home block missing ${rec.tag}`);
-    for (const rec of [...ane, ...diag]) {
+    for (const rec of [...ane, ...diag, ...pkg]) {
       assert.ok(m[1].includes(`href="${rec.record_url}"`) && m[1].includes(pubEsc(rec.version)) && m[1].includes(pubEsc(rec.title)), `home block missing ${rec.tag}`);
       if (rec.replication.scope === 'same-chip') assert.ok(m[1].includes('not cross-device replication'), `home block: ${rec.tag} same-chip rerun lacks its scope label`);
     }

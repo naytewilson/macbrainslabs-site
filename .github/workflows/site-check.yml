@@ -21,6 +21,7 @@ jobs:
           node scripts/test-publications-lkg.mjs
           node scripts/test-publications-ane-records.mjs
           node scripts/test-publications-diagnostic-records.mjs
+          node scripts/test-publications-package-records.mjs
           node scripts/test-publications-legacy-doi.mjs
       - name: Verify production-release gate against real HTTP bytes and a corrupted-image control
         run: node scripts/test-live-site-verifier.mjs
