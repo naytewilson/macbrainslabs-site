@@ -61,7 +61,7 @@ function archives() {
       value: r.version || r.tag,
       limitation: r.replication?.claim || (r.record_class ? r.record_class + '; archive integrity is not independent replication or peer review' : 'Published source-bound record. Archive integrity is not independent replication or peer review.'),
       url: link, source: 'Published release and DOI ' + r.doi.version_doi,
-      tag: r.kind === 'ane-diagnostic' ? 'LFM3' : 'Archive'
+      tag: r.kind === 'ane-diagnostic' ? 'LFM3' : r.kind === 'ane-package' ? 'ANERECore' : 'Archive'
     };
   });
 }

@@ -269,11 +269,12 @@ await t('diagnostic core ignores re-derived verification state', async () => {
   assert.equal(lastKnownGoodDecision([ok, legacy], [flaky, legacy]).decision, 'hold');
 });
 
-// The site's one real record page, moved in a scratch copy to the fixture's tag
-// and given the fixture's bound values, so check-site's page binding is
-// exercised without touching the real page.
+// The site's real diagnostic record page (package record pages are skipped),
+// moved in a scratch copy to the fixture's tag and given the fixture's bound
+// values, so check-site's page binding is exercised without touching the real page.
 const pageDir = path.join(siteRoot, 'research/records');
-const realTag = (fs.existsSync(pageDir) ? fs.readdirSync(pageDir) : []).find(n => /^ane-record-[0-9a-f]{24}$/.test(n));
+const realTag = (fs.existsSync(pageDir) ? fs.readdirSync(pageDir).sort() : []).find(n => /^ane-record-[0-9a-f]{24}$/.test(n)
+  && !fs.readFileSync(path.join(pageDir, n, 'index.html'), 'utf8').includes('data-record-kind="package"'));
 
 function siteCopyWith(data, { pageFor = null, doiOnPage = true } = {}) {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pubfeed-diag-'));

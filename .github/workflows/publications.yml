@@ -20,6 +20,8 @@ jobs:
         run: node scripts/test-publications-ane-records.mjs
       - name: Verify diagnostic research record guards and rendering
         run: node scripts/test-publications-diagnostic-records.mjs
+      - name: Verify package research record guards and rendering
+        run: node scripts/test-publications-package-records.mjs
       - name: Verify the baseline DOI binding once a later record is cited
         run: node scripts/test-publications-legacy-doi.mjs
       - name: Re-derive upstream records and rebuild the feed

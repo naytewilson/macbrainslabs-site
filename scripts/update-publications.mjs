@@ -586,7 +586,7 @@ const QUALIFIES_WITH_RECORDS = 'a published GitHub release of the configured arc
 // The policy text describes exactly the record kinds the feed carries, so a
 // feed of vX.Y.Z records alone keeps its previous bytes.
 export function qualifiesPolicy(records) {
-  if (records.some(r => r.kind === DIAG_KIND)) return QUALIFIES_WITH_DIAGNOSTIC;
+  if (records.some(r => r.kind === DIAG_KIND || r.kind === PKG_KIND)) return QUALIFIES_WITH_DIAGNOSTIC;
   return records.some(r => r.kind === ANE_KIND) ? QUALIFIES_WITH_RECORDS : QUALIFIES_LEGACY;
 }
 
@@ -796,7 +796,9 @@ export async function buildAneRecord(rel) {
   validateReleaseShell(rel, ANE_TAG_RX);
   const tag = rel.tag_name;
   const indexBuf = await loadRepoFileAtTag('records/index.json', tag);
-  if (aneIndexKind(indexBuf, tag) === DIAG_INDEX_KIND) return buildDiagnosticRecord(rel, indexBuf);
+  const indexKind = aneIndexKind(indexBuf, tag);
+  if (indexKind === DIAG_INDEX_KIND) return buildDiagnosticRecord(rel, indexBuf);
+  if (indexKind === PKG_INDEX_KIND) return buildPackageRecord(rel, indexBuf);
   const entry = aneIndexEntry(indexBuf, tag);
   const guards = [
     { name: 'published release tag ane-record- plus 24 hex; release shell valid', state: 'pass', detail: null },
@@ -903,7 +905,7 @@ function aneIndexKind(buf, tag) {
   const hits = index && Array.isArray(index.records) ? index.records.filter(r => r && typeof r === 'object' && r.tag === tag) : [];
   if (hits.length !== 1) return undefined;
   const k = hits[0].kind;
-  assert.ok(k === undefined || k === DIAG_INDEX_KIND, `${tag}: records index entry kind is unsupported`);
+  assert.ok(k === undefined || k === DIAG_INDEX_KIND || k === PKG_INDEX_KIND, `${tag}: records index entry kind is unsupported`);
   return k;
 }
 
@@ -1213,6 +1215,356 @@ function renderDiagIndexItem(rec) {
   return `<li><a href="${esc(href)}"><span class="id">${esc(rec.version)}</span><div><h3>${esc(rec.title)}</h3><p>${esc(aneScopeLabel(r))}. Scope: ${esc(r.claim)}</p><p>Setup profile <code>${short(r.profile_hash)}</code> · ${esc(diagRunsLine(r))} · reviewed package <code>${short(rec.review.reviewed_package_sha256)}</code> · ${esc(rec.review.decision)}${doi}</p></div><span class="tags">${ok ? 'Diagnostic record · DOI registered' : 'Diagnostic record · degraded verification'}</span></a></li>`;
 }
 
+// -- package research records (ane-record-*, records index kind "package") ---
+//
+// A package record republishes, byte for byte, a reviewed experiment package:
+// its FILES.sha256 and every file it lists, under records/<tag>/package/. Its
+// release carries exactly five assets: attestation.json, preview.md, the
+// reviewed record, the reviewed package archive and SHA256SUMS. At the tag,
+// the attestation must hash to its records index entry and bind those
+// digests, the package file list and the reviewed record to the reviewed
+// package hash the final reviewer returned INCLUDE on. Counted runs are
+// recounted for each clean-room arm from its device-wide execution log at the
+// tag, never read from a summary. Every guard must pass for "verified"; a
+// Zenodo version not minted yet is degraded, so last-known-good holds.
+
+const PKG_KIND = 'ane-package';
+const PKG_INDEX_KIND = 'package';
+const PKG_ATTESTATION_SCHEMA = 'macbrains.dataset.package-attestation.v1';
+const PKG_ASSET_COUNT = 5;
+const PKG_ASSET_NAME_RX = /^[A-Za-z0-9][A-Za-z0-9._-]{0,120}$/u;
+const PKG_LOG_RX = /^package\/execution-log\/([0-9a-f]{64})\.jsonl$/u;
+const PKG_ARM_RX = /^[a-z0-9][a-z0-9-]{0,39}$/u;
+const COMMIT_RX = /^[0-9a-f]{40}$/u;
+const PKG_MAX_ARMS = 8;
+// One pass criterion for every arm: some tool builds log no separate
+// "passed" field, only the exit code and the byte comparison.
+const pkgRunPassed = x => x.exitCode === 0 && x.byteIdentical === true && (x.passed === undefined || x.passed === true);
+
+function pkgIndexEntry(buf, tag) {
+  let index;
+  try { index = JSON.parse(buf.toString('utf8')); } catch { throw new Error(`${tag}: records/index.json at the tag is not valid JSON`); }
+  assert.ok(index && typeof index === 'object' && !Array.isArray(index), `${tag}: records index is not an object`);
+  assert.equal(index.schema, ANE_INDEX_SCHEMA, `${tag}: records index schema unsupported`);
+  assert.equal(index.conceptDoi, CONCEPT_DOI, `${tag}: records index all-versions DOI`);
+  assert.ok(index.baseline && typeof index.baseline === 'object' && index.baseline.version === ANE_BASELINE_VERSION, `${tag}: records index baseline is not ${ANE_BASELINE_VERSION}`);
+  assert.ok(Array.isArray(index.records), `${tag}: records index has no records list`);
+  const hits = index.records.filter(r => r && typeof r === 'object' && r.tag === tag);
+  assert.equal(hits.length, 1, `${tag}: records index entries for this tag`);
+  const e = hits[0];
+  assert.equal(e.kind, PKG_INDEX_KIND, `${tag}: index kind`);
+  assert.ok(typeof e.version === 'string' && TAG_RX.test(e.version), `${tag}: index version is not vX.Y.Z`);
+  cleanText(e.title, `${tag} index title`, 300);
+  for (const k of ['reviewedPackageSha256', 'recordSha256', 'filesListSha256', 'attestationSha256']) assert.ok(SHA_RX.test(e[k]), `${tag}: index ${k} is not lowercase sha256 hex`);
+  assert.equal(e.path, `records/${tag}/`, `${tag}: index path`);
+  assert.ok(typeof e.releasedOn === 'string' && /^\d{4}-\d\d-\d\d$/u.test(e.releasedOn) && !isNaN(Date.parse(e.releasedOn)), `${tag}: index releasedOn is not a date`);
+  const r = e.replication;
+  assert.ok(r && typeof r === 'object' && !Array.isArray(r), `${tag}: index replication missing`);
+  assert.ok(['same-chip', 'cross-device'].includes(r.scope), `${tag}: replication scope unsupported`);
+  cleanText(r.claim, `${tag} replication claim`, 300);
+  if (r.scope === 'same-chip') assert.ok(r.claim.startsWith('same-chip'), `${tag}: a same-chip record's claim must say same-chip first`);
+  assert.ok(Array.isArray(r.profileHashes) && r.profileHashes.length >= 1 && r.profileHashes.length <= PKG_MAX_ARMS &&
+    r.profileHashes.every(h => SHA_RX.test(h)) && new Set(r.profileHashes).size === r.profileHashes.length, `${tag}: replication profileHashes malformed`);
+  for (const k of ['counted', 'passed', 'failed']) assert.ok(Number.isSafeInteger(r[k]) && r[k] >= 0, `${tag}: replication ${k} malformed`);
+  assert.ok(r.counted >= 1 && r.passed + r.failed === r.counted, `${tag}: run counts do not add up`);
+  assert.equal(e.siteUrl, `${BASE}/research/records/${tag}/`, `${tag}: index siteUrl is not this record's page`);
+  checkHost(e.siteUrl, ['macbrainslabs.org'], `${tag} siteUrl`);
+  if (e.versionDoi !== undefined) doiId(e.versionDoi, `${tag} index versionDoi`);
+  return e;
+}
+
+// Fixed names first, then the two record-specific assets by name, SHA256SUMS last.
+function pkgAssetOrder(names) {
+  const free = names.filter(n => !['attestation.json', 'preview.md', 'SHA256SUMS'].includes(n)).sort();
+  return ['attestation.json', 'preview.md', ...free, 'SHA256SUMS'];
+}
+
+async function verifyPkgAssets(rel) {
+  const tag = rel.tag_name;
+  const list = rel.assets ?? [];
+  assert.ok(Array.isArray(list) && list.length === PKG_ASSET_COUNT, `${tag}: expected exactly five assets (attestation.json, preview.md, the reviewed record, the reviewed package archive, SHA256SUMS), got ${Array.isArray(list) ? list.length : 'none'}`);
+  const names = list.map(a => a && a.name);
+  assert.ok(names.every(n => typeof n === 'string' && PKG_ASSET_NAME_RX.test(n)) && new Set(names).size === names.length, `${tag}: asset names malformed or repeated`);
+  for (const n of ['attestation.json', 'preview.md', 'SHA256SUMS']) assert.ok(names.includes(n), `${tag}: asset ${n} missing`);
+  const out = [];
+  for (const name of pkgAssetOrder(names)) {
+    const a = list.find(x => x.name === name);
+    assert.ok(Number.isInteger(a.size) && a.size > 0 && a.size <= 64 * 1024 * 1024, `${tag}: asset ${name} size out of bounds`);
+    assert.ok(typeof a.digest === 'string' && /^sha256:[a-f0-9]{64}$/.test(a.digest), `${tag}: asset ${name} lacks a registered sha256 digest`);
+    const url = checkHost(a.browser_download_url, ASSET_HOSTS, `${tag} asset ${name} url`);
+    assert.equal(url.href, `https://github.com/${RELEASES_REPO}/releases/download/${tag}/${name}`, `${tag}: asset ${name} url is not this release's download URL`);
+    out.push({ name, url: url.href, size: a.size, digest: a.digest });
+  }
+  const reasons = [];
+  const bytesBy = new Map();
+  for (const a of out) {
+    let bytes;
+    try { bytes = await fetchBuf(a.url, 'asset'); } catch (e) {
+      if (e.http) throw new Error(`${tag}: asset ${a.name} acted missing (${e.message}); refusing to publish`);
+      reasons.push(`asset ${a.name} could not be downloaded at rebuild`);
+      continue;
+    }
+    if (sha256(bytes) !== a.digest.slice('sha256:'.length)) reasons.push(`asset ${a.name}: downloaded bytes do not hash to the registered digest`);
+    else if (bytes.length !== a.size) reasons.push(`asset ${a.name}: downloaded size differs from the registered size`);
+    else bytesBy.set(a.name, bytes);
+  }
+  const sums = bytesBy.get('SHA256SUMS');
+  if (sums) {
+    const map = new Map();
+    let malformed = false;
+    for (const line of sums.toString('utf8').trim().split('\n')) {
+      const m = line.match(/^([a-f0-9]{64})  ([^/\s]+)$/u);
+      if (!m || map.has(m[2])) { malformed = true; break; }
+      map.set(m[2], m[1]);
+    }
+    const listed = out.filter(a => a.name !== 'SHA256SUMS');
+    if (malformed) reasons.push('SHA256SUMS is malformed');
+    else if (map.size !== listed.length || !listed.every(a => map.get(a.name) === a.digest.slice('sha256:'.length))) reasons.push('SHA256SUMS entries do not equal the four registered asset digests');
+  }
+  return {
+    assets: out.map(a => ({ ...a, sha256: bytesBy.has(a.name) ? a.digest.slice('sha256:'.length) : null })),
+    verified: reasons.length === 0,
+    reasons,
+    bytesBy
+  };
+}
+
+// Fetches a file at the tag; an HTTP refusal is structural, a network failure
+// is reported as a problem string.
+async function pkgFileAtTag(tag, rel, problems) {
+  try { return await loadRepoFileAtTag(`records/${tag}/${rel}`, tag); } catch (e) {
+    if (e.http) throw new Error(`${tag}: ${rel} missing at the tag (${e.message})`);
+    problems.push(`${rel} could not be fetched at rebuild`);
+    return null;
+  }
+}
+
+async function checkPkgAttestation(tag, entry, relAssets) {
+  const binding = [], review = [], scope = [];
+  const unavailable = detail => ({ binding: [detail], review: [detail], scope: [detail], decision: 'unknown', verdictReceipt: null, arms: [] });
+  let buf;
+  try { buf = await loadRepoFileAtTag(`records/${tag}/attestation.json`, tag); } catch (e) {
+    if (e.http) throw new Error(`${tag}: attestation.json missing at the tag (${e.message})`);
+    return unavailable('the attestation could not be fetched at rebuild');
+  }
+  const text = buf.toString('utf8');
+  if (!text.endsWith('\n') || text.endsWith('\n\n')) binding.push('file is not canonical text plus exactly one newline');
+  const body = text.endsWith('\n') ? text.slice(0, -1) : text;
+  let a = null;
+  try { a = JSON.parse(body); } catch { binding.push('not valid JSON'); }
+  if (sha256(buf) !== entry.attestationSha256) binding.push('sha256 differs from the records index entry');
+  const attAsset = relAssets.assets.find(x => x.name === 'attestation.json');
+  if (attAsset.digest.slice('sha256:'.length) !== entry.attestationSha256) binding.push('the attestation release asset is not the attestation at the tag');
+  const o = a && typeof a === 'object' && !Array.isArray(a) ? a : {};
+  if (a !== null) {
+    let canonical = null;
+    try { canonical = canonicalJSON(a); } catch { /* reported below */ }
+    if (canonical !== body) binding.push('not canonical JSON');
+  }
+  if (o.schema !== PKG_ATTESTATION_SCHEMA) binding.push('attestation schema unsupported');
+  if (o.tag !== tag || o.version !== entry.version || o.title !== entry.title || o.siteUrl !== entry.siteUrl || o.conceptDoi !== CONCEPT_DOI) binding.push('identity fields differ from the records index entry');
+  const others = relAssets.assets.filter(x => x.name !== 'attestation.json' && x.name !== 'SHA256SUMS');
+  const ra = Array.isArray(o.releaseAssets) ? o.releaseAssets : [];
+  const assetsOk = ra.length === others.length && new Set(ra.map(x => x && x.name)).size === ra.length &&
+    others.every(x => ra.some(f => f && f.name === x.name && f.sha256 === x.digest.slice('sha256:'.length) && f.bytes === x.size));
+  if (!assetsOk) binding.push('attested release assets do not equal the registered asset digests and sizes');
+  const pk = o.package && typeof o.package === 'object' ? o.package : {};
+  const recordFile = typeof pk.recordFile === 'string' && PKG_ASSET_NAME_RX.test(pk.recordFile) ? pk.recordFile : null;
+  const tar = pk.tar && typeof pk.tar === 'object' ? pk.tar : {};
+  if (pk.recordSha256 !== entry.recordSha256 || pk.filesListSha256 !== entry.filesListSha256) binding.push('package hashes differ from the records index entry');
+  if (!recordFile || !others.some(x => x.name === recordFile && x.digest === `sha256:${entry.recordSha256}`)) binding.push('the reviewed record release asset is not the attested record');
+  if (typeof tar.name !== 'string' || !others.some(x => x.name === tar.name && x.digest === `sha256:${tar.sha256}` && x.size === tar.bytes)) binding.push('the package archive release asset is not the attested archive');
+  const rp = o.reviewedPackage && typeof o.reviewedPackage === 'object' ? o.reviewedPackage : {};
+  if (rp.sha256 !== entry.reviewedPackageSha256) binding.push('reviewed package hash differs from the records index entry');
+  const list = await pkgFileAtTag(tag, 'package/FILES.sha256', binding);
+  if (list && sha256(list) !== entry.filesListSha256) binding.push('package/FILES.sha256 at the tag differs from the records index entry');
+  if (recordFile) {
+    const rec = await pkgFileAtTag(tag, `package/${recordFile}`, binding);
+    if (rec && sha256(rec) !== entry.recordSha256) binding.push('the reviewed record at the tag differs from the records index entry');
+  }
+
+  const fr = o.finalReview && typeof o.finalReview === 'object' ? o.finalReview : {};
+  const decision = fr.decision === 'INCLUDE' || fr.decision === 'HOLD' ? fr.decision : 'unknown';
+  if (fr.reviewer !== ANE_FINAL_REVIEWER) review.push(`final reviewer is not ${ANE_FINAL_REVIEWER}`);
+  if (decision !== 'INCLUDE') review.push(`decision is ${decision}, not INCLUDE`);
+  if (fr.reviewedPackageSha256 !== entry.reviewedPackageSha256) review.push('final review is for a different package hash');
+  if (!SHA_RX.test(fr.verdictReceiptSha256 ?? '')) review.push('final review lacks a verdict receipt hash');
+
+  const rr = o.replication && typeof o.replication === 'object' ? o.replication : {};
+  const er = entry.replication;
+  if (rr.scope !== er.scope) scope.push('attested replication scope differs from the index entry');
+  if (rr.crossDeviceReplication !== (er.scope === 'cross-device')) scope.push('attested cross-device flag disagrees with the replication scope');
+  if (o.claimScope !== er.claim) scope.push('attested claim scope differs from the index entry');
+  if (o.noveltyClaim !== 'UNCLAIMED') scope.push('novelty claim is not UNCLAIMED');
+  const armsIn = Array.isArray(rr.arms) ? rr.arms : [];
+  const arms = [];
+  let counted = 0, passed = 0;
+  if (armsIn.map(x => x && x.profileHash).join(',') !== er.profileHashes.join(',')) scope.push('attested arms differ from the index entry setup profiles');
+  for (const x of armsIn.slice(0, PKG_MAX_ARMS)) {
+    const m = x && typeof x.executionLog === 'string' ? x.executionLog.match(PKG_LOG_RX) : null;
+    if (!x || typeof x !== 'object' || !PKG_ARM_RX.test(x.arm ?? '') || !SHA_RX.test(x.profileHash ?? '') || !m || m[1] !== x.profileHash ||
+      !SHA_RX.test(x.executionLogSha256 ?? '') || !COMMIT_RX.test(x.profileCommit ?? '') || !COMMIT_RX.test(x.toolCommit ?? '')) {
+      scope.push('an attested arm is malformed');
+      continue;
+    }
+    const log = await pkgFileAtTag(tag, x.executionLog, scope);
+    if (!log) continue;
+    if (sha256(log) !== x.executionLogSha256) { scope.push(`arm ${x.arm}: execution log at the tag differs from its attested hash`); continue; }
+    let lines;
+    try { lines = log.toString('utf8').trim().split('\n').map(l => JSON.parse(l)); } catch { scope.push(`arm ${x.arm}: execution log is not JSON lines`); continue; }
+    const st = lines.filter(l => l && l.kind === 'run_started'), done = lines.filter(l => l && l.kind === 'run_completed');
+    if (st.length + done.length !== lines.length) scope.push(`arm ${x.arm}: execution log has entries that are neither a run start nor a completion`);
+    if (!lines.every(l => l && l.profileHash === x.profileHash && l.counted === true)) scope.push(`arm ${x.arm}: a logged run names another setup profile or is not counted`);
+    if (!st.every(l => l.profileCommit === x.profileCommit && l.toolCommit === x.toolCommit)) scope.push(`arm ${x.arm}: a run start names another profile or tool commit`);
+    const c = { started: st.length, completed: done.length, passed: done.filter(pkgRunPassed).length };
+    const diff = Object.keys(c).filter(k => c[k] !== x[k]);
+    if (diff.length) scope.push(`arm ${x.arm}: runs recounted from the log differ on: ${diff.join(', ')}`);
+    counted += c.completed; passed += c.passed;
+    arms.push({ arm: x.arm, profile_hash: x.profileHash, profile_commit: x.profileCommit, tool_commit: x.toolCommit, counted: c.completed, passed: c.passed });
+  }
+  if (arms.length === armsIn.length && (counted !== er.counted || passed !== er.passed)) scope.push('runs recounted from the logs differ from the index entry');
+  if (rr.runsTotal !== er.counted || rr.runsPass !== er.passed || rr.runsFail !== er.failed) scope.push('attested run totals differ from the index entry');
+  return { binding, review, scope, decision, verdictReceipt: SHA_RX.test(fr.verdictReceiptSha256 ?? '') ? fr.verdictReceiptSha256 : null, arms };
+}
+
+export async function buildPackageRecord(rel, indexBuf) {
+  validateReleaseShell(rel, ANE_TAG_RX);
+  const tag = rel.tag_name;
+  const entry = pkgIndexEntry(indexBuf, tag);
+  const guard = (name, problems) => ({ name, state: problems.length ? 'degraded' : 'pass', detail: problems.length ? problems.join('; ') : null });
+  const guards = [
+    { name: 'published release tag ane-record- plus 24 hex; release shell valid', state: 'pass', detail: null },
+    { name: 'records index at the tag lists this package record once (schema, all-versions DOI, v0.1.0 baseline)', state: 'pass', detail: null }
+  ];
+  const relAssets = await verifyPkgAssets(rel);
+  guards.push(guard('exactly five release assets re-downloaded; bytes equal their registered digests and SHA256SUMS', relAssets.reasons));
+  const at = await checkPkgAttestation(tag, entry, relAssets);
+  guards.push(guard('attestation at the tag is canonical, hashes to the index entry and binds the assets, file list and reviewed record to the reviewed package', at.binding));
+  guards.push(guard(`final review is INCLUDE from ${ANE_FINAL_REVIEWER} for the reviewed package hash`, at.review));
+  guards.push(guard('scope and every counted run recounted per arm from the device-wide execution logs at the tag; no novelty claim', at.scope));
+  const z = await crosscheckAneZenodo(tag, entry);
+  guards.push({
+    name: 'Zenodo version under the all-versions DOI bound to this tag (DOI, ORCID, license, version)',
+    state: z.state === 'pass' ? 'pass' : 'degraded',
+    detail: z.state === 'pass' ? null : z.detail
+  });
+  const state = guards.every(g => g.state === 'pass') ? 'verified' : 'degraded';
+  const r = entry.replication;
+  return {
+    kind: PKG_KIND,
+    tag,
+    version: entry.version,
+    title: entry.title,
+    release_name: rel.name,
+    published_at: rel.published_at,
+    release_url: rel.html_url,
+    released_on: entry.releasedOn,
+    record_url: entry.siteUrl,
+    record_repository: `https://github.com/${RELEASES_REPO}`,
+    attestation_sha256: entry.attestationSha256,
+    record_sha256: entry.recordSha256,
+    files_list_sha256: entry.filesListSha256,
+    replication: {
+      scope: r.scope,
+      claim: r.claim,
+      cross_device_replication: r.scope === 'cross-device',
+      profile_hashes: r.profileHashes,
+      counted: r.counted,
+      passed: r.passed,
+      failed: r.failed,
+      arms: at.arms
+    },
+    review: {
+      reviewed_package_sha256: entry.reviewedPackageSha256,
+      reviewer: ANE_FINAL_REVIEWER,
+      decision: at.decision,
+      verdict_receipt_sha256: at.verdictReceipt
+    },
+    doi: {
+      version_doi: z.version_doi,
+      concept_doi: CONCEPT_DOI,
+      zenodo_record_url: z.version_doi ? `https://zenodo.org/records/${doiId(z.version_doi, 'zenodo version doi')}` : null,
+      binding_source: 'Zenodo version search under the all-versions DOI (tag tree URL, or the archive Zenodo named for the tag)',
+      registered_state: { pass: 'registered_verified', mismatch: 'mismatch_detected', unreachable: 'unverifiable_now', not_minted: 'not_minted' }[z.state],
+      crosscheck: { state: z.state, comparisons: z.comparisons, detail: z.detail }
+    },
+    assets: relAssets.assets,
+    verification: { state, guards }
+  };
+}
+
+function pkgCoreKey(rec) {
+  return JSON.stringify({
+    kind: rec.kind, tag: rec.tag, version: rec.version, title: rec.title, release_name: rec.release_name,
+    published_at: rec.published_at, release_url: rec.release_url, released_on: rec.released_on, record_url: rec.record_url,
+    record_repository: rec.record_repository, attestation_sha256: rec.attestation_sha256, record_sha256: rec.record_sha256,
+    files_list_sha256: rec.files_list_sha256, replication: rec.replication,
+    review: { reviewed_package_sha256: rec.review.reviewed_package_sha256, reviewer: rec.review.reviewer },
+    doi: { version_doi: rec.doi.version_doi, concept_doi: rec.doi.concept_doi, zenodo_record_url: rec.doi.zenodo_record_url },
+    assets: rec.assets.map(a => ({ name: a.name, url: a.url, size: a.size, digest: a.digest }))
+  });
+}
+
+function pkgRunsLine(r) {
+  const n = r.profile_hashes.length;
+  return `${r.counted} counted runs kept across ${n} clean-room arm${n === 1 ? '' : 's'}: ${r.passed} pass, ${r.failed} fail`;
+}
+
+export function renderPkgRecord(rec) {
+  const ok = rec.verification.state === 'verified';
+  const pill = `<span class="pub-status ${ok ? 'pub-status-verified' : 'pub-status-degraded'}">${ok ? 'Re-verified at rebuild' : 'Degraded — treat unverified'}</span>`;
+  const r = rec.replication;
+  const doiShown = ok && rec.doi.registered_state === 'registered_verified' && rec.doi.version_doi;
+  const doiLines = doiShown
+    ? `<li>${attrsLink(`https://doi.org/${rec.doi.version_doi}`, `Version DOI ${rec.doi.version_doi}`)}</li><li>${attrsLink(`https://doi.org/${rec.doi.concept_doi}`, `All-versions DOI ${rec.doi.concept_doi}`)}</li><li><span class="pub-fp-match">registration state: registered_verified — the Zenodo version bound to this tag was found under the all-versions DOI at rebuild, not taken from release text</span></li>`
+    : `<li><span class="pub-fp-unreachable">no version DOI shown: registration state ${esc(rec.doi.registered_state)}${rec.doi.crosscheck.detail ? ` — ${esc(rec.doi.crosscheck.detail)}` : ''}</span></li>`;
+  const assets = rec.assets.map(a =>
+    `<li><code>${esc(a.name)}</code> <span class="num">(${a.size.toLocaleString('en-US')} bytes)</span><br><span class="pub-digest">SHA-256 <code>${esc(a.sha256 ?? 'byte verification pending')}</code></span> · ${attrsLink(a.url, 'download at release')}</li>`
+  ).join('');
+  const profiles = r.profile_hashes.map(h => `<li>Setup profile <code>${esc(h)}</code></li>`).join('');
+  const arms = r.arms.map(x => `<li>${esc(x.arm)} arm: ${esc(x.passed)} of ${esc(x.counted)} counted runs pass, tool commit <code>${esc(x.tool_commit.slice(0, 8))}</code></li>`).join('');
+  return `
+<article class="pub-record" data-tag="${esc(rec.tag)}" data-kind="${esc(rec.kind)}">
+<h3>${esc(rec.version)} · ${esc(rec.title)}</h3>
+<p class="pub-statusline">${pill}</p>
+<p><time datetime="${esc(rec.published_at)}">${esc(humanDate(rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · reviewed package record</p>
+<p>${attrsLink(rec.record_url, 'Read the record page')}. ${attrsLink(rec.release_url, 'View this release in the archive repository')}. A reviewed record and an archived DOI are not peer review.</p>
+<div class="pub-dl">
+<div><span class="label">Scope</span><ul>
+<li><strong>${esc(aneScopeLabel(r))}</strong></li>
+<li>Scope as recorded: <q>${esc(r.claim)}</q></li>
+${profiles}
+<li>${esc(pkgRunsLine(r))}</li>
+${arms}
+</ul></div>
+<div><span class="label">Final review</span><ul>
+<li>Reviewed package <code>${esc(rec.review.reviewed_package_sha256)}</code></li>
+<li>${esc(rec.review.decision)} from <code>${esc(rec.review.reviewer)}</code>${rec.review.verdict_receipt_sha256 ? `, receipt <code>${esc(rec.review.verdict_receipt_sha256)}</code>` : ''}</li>
+<li>Reviewed record <code>${esc(rec.record_sha256)}</code> · file list <code>${esc(rec.files_list_sha256)}</code> · attestation <code>${esc(rec.attestation_sha256)}</code></li>
+</ul></div>
+<div><span class="label">Registered identifiers</span><ul>
+${doiLines}
+</ul></div>
+<div><span class="label">Release assets and integrity</span><ul>
+${assets}
+</ul></div>
+<div><span class="label">Verification guards</span><ul>
+${renderGuards(rec)}
+</ul></div>
+</div>
+</article>`;
+}
+
+function renderPkgIndexItem(rec) {
+  const ok = rec.verification.state === 'verified';
+  const r = rec.replication;
+  let href = '/publications/';
+  try { checkHost(rec.record_url, ['macbrainslabs.org'], 'record page'); href = rec.record_url; } catch { /* keep the feed link */ }
+  const short = h => `${esc(String(h).slice(0, 12))}…`;
+  const doi = ok && rec.doi.registered_state === 'registered_verified' && rec.doi.version_doi ? ` · DOI ${esc(rec.doi.version_doi)}` : '';
+  return `<li><a href="${esc(href)}"><span class="id">${esc(rec.version)}</span><div><h3>${esc(rec.title)}</h3><p>${esc(aneScopeLabel(r))}. Scope: ${esc(r.claim)}</p><p>${esc(pkgRunsLine(r))} · reviewed package <code>${short(rec.review.reviewed_package_sha256)}</code> · ${esc(rec.review.decision)}${doi}</p></div><span class="tags">${ok ? 'Package record · DOI registered' : 'Package record · degraded verification'}</span></a></li>`;
+}
+
 function aneCoreKey(rec) {
   return JSON.stringify({
     kind: rec.kind,
@@ -1346,10 +1698,11 @@ function renderAneIndexItem(rec) {
 }
 
 export function renderFeedPage(data) {
-  const records = data.records.map(rec => rec.kind === ANE_KIND ? renderAneRecord(rec) : rec.kind === DIAG_KIND ? renderDiagRecord(rec) : renderRecord(rec)).join('\n');
+  const records = data.records.map(rec => rec.kind === ANE_KIND ? renderAneRecord(rec) : rec.kind === DIAG_KIND ? renderDiagRecord(rec) : rec.kind === PKG_KIND ? renderPkgRecord(rec) : renderRecord(rec)).join('\n');
   const hasAne = data.records.some(rec => rec.kind === ANE_KIND);
   const hasDiag = data.records.some(rec => rec.kind === DIAG_KIND);
-  const checkCount = ['Six', 'Seven', 'Eight'][Number(hasAne) + Number(hasDiag)];
+  const hasPkg = data.records.some(rec => rec.kind === PKG_KIND);
+  const checkCount = ['Six', 'Seven', 'Eight', 'Nine'][Number(hasAne) + Number(hasDiag) + Number(hasPkg)];
   const generated = data.generated_at;
   const newest = data.records[0];
   return `<!DOCTYPE html>
@@ -1445,14 +1798,15 @@ export function renderFeedPage(data) {
 </div>
 </div>
 <ol class="principles">
-<li><span class="n">01</span><div><h3>Published tag only</h3><p>Records enter as published GitHub release tags <code>vX.Y.Z</code>${hasAne || hasDiag ? ' or <code>ane-record-</code> plus 24 hex digits' : ''} of the archive repository. Draft and prerelease releases are structurally excluded.</p></div></li>
+<li><span class="n">01</span><div><h3>Published tag only</h3><p>Records enter as published GitHub release tags <code>vX.Y.Z</code>${hasAne || hasDiag || hasPkg ? ' or <code>ane-record-</code> plus 24 hex digits' : ''} of the archive repository. Draft and prerelease releases are structurally excluded.</p></div></li>
 <li><span class="n">02</span><div><h3>Manifest at the tag</h3><p>Each release must carry <code>manifest.json</code> (schema 1.0) with source document fingerprints, explicit evidence limits and a DOI binding. A missing field stops the whole rebuild before anything is published.</p></div></li>
 <li><span class="n">03</span><div><h3>Bytes re-checked</h3><p>Release assets are downloaded at rebuild and hashed. Digests must equal those the release API registers, and <code>SHA256SUMS</code> must be internally consistent and agree.</p></div></li>
 <li><span class="n">04</span><div><h3>Provenance re-derived</h3><p>Every listed source document is fetched from the pinned site commit and its SHA-256 must equal the manifest fingerprint. A mismatch marks the record degraded, it is never deleted quietly.</p></div></li>
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
 <li><span class="n">06</span><div><h3>Last-known-good</h3><p>This feed publishes only independently verified records. If upstream is unreachable, rate-limited, if a previously verified record re-derives degraded (even over changed upstream data), if a new record is not fully verified, or if a record is removed, the whole update is held: this page keeps its previous snapshot and the failure stays visible in the repository's public workflow history.</p></div></li>${hasAne ? `
 <li><span class="n">07</span><div><h3>Reviewed research records</h3><p>An <code>ane-record-</code> release must carry exactly four assets whose re-downloaded bytes equal their registered digests. At the tag, its canonical review package must hash to its records index entry and list those digests, and the final reviewer's verdict for that hash must be INCLUDE. Zenodo must hold one version under the all-versions DOI bound to the tag, with matching ORCID, license and version; a version not minted yet holds the update. Same-chip reruns are labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}${hasDiag ? `
-<li><span class="n">${hasAne ? '08' : '07'}</span><div><h3>Diagnostic research records</h3><p>A diagnostic <code>ane-record-</code> release must carry exactly six assets (the reviewed bundle, its attestation, the execution log, the deletion disclosure, a preview and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry, bind those digests to the reviewed package hash, and carry the final reviewer's INCLUDE plus an evidence and a skeptical INCLUDE review. Executions are recounted from the released log, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}
+<li><span class="n">${hasAne ? '08' : '07'}</span><div><h3>Diagnostic research records</h3><p>A diagnostic <code>ane-record-</code> release must carry exactly six assets (the reviewed bundle, its attestation, the execution log, the deletion disclosure, a preview and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry, bind those digests to the reviewed package hash, and carry the final reviewer's INCLUDE plus an evidence and a skeptical INCLUDE review. Executions are recounted from the released log, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}${hasPkg ? `
+<li><span class="n">${String(7 + Number(hasAne) + Number(hasDiag)).padStart(2, '0')}</span><div><h3>Package research records</h3><p>A package <code>ane-record-</code> release must carry exactly five assets (the attestation, a preview, the reviewed record, the reviewed package archive and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry and bind those digests, the package file list and the reviewed record to the reviewed package hash, with the final reviewer's INCLUDE. Counted runs are recounted for each clean-room arm from its device-wide execution log at the tag, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>` : ''}
 </ol>
 </section>
 
@@ -1510,7 +1864,7 @@ ${records}
 }
 
 export function renderIndexBlock(data) {
-  const items = data.records.map(rec => rec.kind === ANE_KIND ? renderAneIndexItem(rec) : rec.kind === DIAG_KIND ? renderDiagIndexItem(rec) : `<li><a href="/publications/"><span class="id">${esc(rec.tag)}</span><div><h3>${esc(rec.zenodo_title)}</h3><p>${esc(rec.record_class)}</p></div><span class="tags">${rec.verification.state === 'verified' ? 'Archive record · DOI registered' : 'Archive record · degraded verification'}</span></a></li>`).join('\n');
+  const items = data.records.map(rec => rec.kind === ANE_KIND ? renderAneIndexItem(rec) : rec.kind === DIAG_KIND ? renderDiagIndexItem(rec) : rec.kind === PKG_KIND ? renderPkgIndexItem(rec) : `<li><a href="/publications/"><span class="id">${esc(rec.tag)}</span><div><h3>${esc(rec.zenodo_title)}</h3><p>${esc(rec.record_class)}</p></div><span class="tags">${rec.verification.state === 'verified' ? 'Archive record · DOI registered' : 'Archive record · degraded verification'}</span></a></li>`).join('\n');
   return `<ul class="notes">\n${items}\n</ul>`;
 }
 
@@ -1618,6 +1972,7 @@ async function main() {
 export function coreKey(rec) {
   if (rec.kind === ANE_KIND) return aneCoreKey(rec);
   if (rec.kind === DIAG_KIND) return diagCoreKey(rec);
+  if (rec.kind === PKG_KIND) return pkgCoreKey(rec);
   return JSON.stringify({
     tag: rec.tag,
     release_name: rec.release_name,
