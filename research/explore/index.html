@@ -75,8 +75,8 @@
 <div class="experience-hero-grid"><div><h1>Find the claim.<br><em>Follow the evidence.</em></h1>
 <p class="experience-lede">Search the measurements, field notes, and verified archive releases already published by MacBrains Labs. Every entry links back to its public source.</p>
 <div class="experience-actions"><a href="/start/">New to ANE research? Start here ↗</a><a href="/methods/">Read the method ↗</a></div></div>
-<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">WHAT IS INDEXED</span><strong>13 <span>public entries</span></strong>
-<dl><div><dt>Measured</dt><dd>3</dd></div><div><dt>Planner reported</dt><dd>3</dd></div><div><dt>Field notes</dt><dd>5</dd></div><div><dt>Verified archives</dt><dd>2</dd></div></dl>
+<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">WHAT IS INDEXED</span><strong>14 <span>public entries</span></strong>
+<dl><div><dt>Measured</dt><dd>3</dd></div><div><dt>Planner reported</dt><dd>3</dd></div><div><dt>Field notes</dt><dd>5</dd></div><div><dt>Verified archives</dt><dd>3</dd></div></dl>
 <p>Index derived from the published research summary, note index, and last-known-good archive feed. It does not create or validate experiments.</p></aside></div>
 </div></header>
 <section class="wrap evidence-section" aria-labelledby="index-h"><div class="experience-section-head"><span class="kicker">PUBLIC EVIDENCE INDEX / 02</span><div><h2 id="index-h">What is actually on record.</h2><p>Measurement, compiler assignment, interpretation, and archive integrity are different kinds of evidence.</p></div></div>
@@ -85,7 +85,7 @@
 <label for="evidence-filter">Evidence kind</label><select id="evidence-filter" aria-controls="evidence-list">
 <option value="all">All public entries</option><option value="measured">Measured</option><option value="planner">Planner reported</option><option value="note">Field notes</option><option value="archive">Verified archives</option>
 </select><button type="reset">Clear</button></form>
-<p class="evidence-count" id="evidence-count" aria-live="polite">13 entries from published sources</p>
+<p class="evidence-count" id="evidence-count" aria-live="polite">14 entries from published sources</p>
 <div class="evidence-grid" id="evidence-list"><article class="evidence-card" data-kind="planner" data-search="qwen2.5-1.5b instruct / 28l lut4, production anemll core ml conversion mlcomputeplan / infer 2,090 ane / 79 cpu cpu residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops. evidence public research summary qwen2.5">
 <div class="evidence-meta"><span class="evidence-type evidence-type-planner">Planner reported</span><span>Qwen2.5</span></div>
 <h3>Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion</h3>
@@ -162,6 +162,13 @@
 <p class="evidence-observation">Research field note<span class="evidence-value">Placement · Dispatch · Grafts</span></p>
 <p class="evidence-limit">A ring-buffer attention graft placed nothing on the ANE; an EAGLE draft head made every call slower and has to earn it back.</p>
 <a class="evidence-link" href="/notes/graft-costs/">Public field note N/005 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="archive" data-search="anerecore cross-repo mil parity: tap, steer and functionwide (same chip, single device) published archive integrity: verified v0.3.0 same-chip, single device (mac17,5, macos build 26c5035r); mil text byte equality only, one qwen fixture, operations tap, steer and functionwide; functionwide pin is fugu-referenced; no core ml compile, ane execution or numerics; no novelty claim published release and doi 10.5281/zenodo.24034510 anerecore">
+<div class="evidence-meta"><span class="evidence-type evidence-type-archive">Verified archive</span><span>ANERECore</span></div>
+<h3>ANERECore cross-repo MIL parity: tap, steer and functionWide (same chip, single device)</h3>
+<p class="evidence-observation">Published archive integrity: verified<span class="evidence-value">v0.3.0</span></p>
+<p class="evidence-limit">same-chip, single device (Mac17,5, macOS build 26C5035r); MIL text byte equality only, one Qwen fixture, operations tap, steer and functionWide; functionWide pin is Fugu-referenced; no Core ML compile, ANE execution or numerics; no novelty claim</p>
+<a class="evidence-link" href="https://macbrainslabs.org/research/records/ane-record-b8f78a146608021d974dcdec/">Published release and DOI 10.5281/zenodo.24034510 <span aria-hidden="true">↗</span></a>
 </article>
 <article class="evidence-card" data-kind="archive" data-search="lfm3-1.7b layer-14 diagnostic under core ml cpuandneuralengine (same chip, single device) published archive integrity: verified v0.2.0 same-chip, byte-reproducible on apple a18 pro (mac17,5), macos 27.2 (build 26b123), coreml 3600.25.2; ane execution inferred from core ml compute-plan placement; no novelty claim published release and doi 10.5281/zenodo.23905811 lfm3">
 <div class="evidence-meta"><span class="evidence-type evidence-type-archive">Verified archive</span><span>LFM3</span></div>

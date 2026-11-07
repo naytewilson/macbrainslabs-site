@@ -134,6 +134,17 @@
       "tag": "Placement · Dispatch · Grafts"
     },
     {
+      "id": "archive-ane-record-b8f78a146608021d974dcdec",
+      "kind": "archive",
+      "title": "ANERECore cross-repo MIL parity: tap, steer and functionWide (same chip, single device)",
+      "observation": "Published archive integrity: verified",
+      "value": "v0.3.0",
+      "limitation": "same-chip, single device (Mac17,5, macOS build 26C5035r); MIL text byte equality only, one Qwen fixture, operations tap, steer and functionWide; functionWide pin is Fugu-referenced; no Core ML compile, ANE execution or numerics; no novelty claim",
+      "url": "https://macbrainslabs.org/research/records/ane-record-b8f78a146608021d974dcdec/",
+      "source": "Published release and DOI 10.5281/zenodo.24034510",
+      "tag": "ANERECore"
+    },
+    {
       "id": "archive-ane-record-c188def1e88a0d94018dfe99",
       "kind": "archive",
       "title": "LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)",

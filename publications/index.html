@@ -75,7 +75,7 @@
 <p class="lede">The archive release feed for the public research record. Every entry is a published GitHub release tag whose provenance chain was re-derived from upstream at rebuild time — not a new result, not a promotion, not a claim of peer review.</p>
 <dl class="facts">
 <div><dt>Record repository</dt><dd><a href="https://github.com/macbrainslabs/ane-research-records">macbrainslabs/ane-research-records</a></dd></div>
-<div><dt>Last rebuilt</dt><dd><time datetime="2026-11-03T04:40:16Z">3 Nov 2026</time></dd></div>
+<div><dt>Last rebuilt</dt><dd><time datetime="2026-11-07T11:41:04Z">7 Nov 2026</time></dd></div>
 <div><dt>Rebuild sources</dt><dd>release API · manifest at tag · pinned-commit bytes · Zenodo registration</dd></div>
 <div><dt>Cite all versions</dt><dd><a href="https://doi.org/10.5281/zenodo.23798036">DOI 10.5281/zenodo.23798036</a></dd></div>
 </dl>
@@ -86,7 +86,7 @@
 <div class="section-head">
 <span class="label">How a record qualifies</span>
 <div>
-<h2 id="qualify-h">Seven checks stand between upstream and this page.</h2>
+<h2 id="qualify-h">Eight checks stand between upstream and this page.</h2>
 <p>This feed does not transcribe release text. It renders only structured fields that survived validation, and anything that could not be re-checked is surfaced as a degraded state, never silently smoothed. Draft and prerelease releases cannot enter.</p>
 </div>
 </div>
@@ -98,16 +98,47 @@
 <li><span class="n">05</span><div><h3>Registration cross-checked</h3><p>The manifest DOIs must point at a Zenodo record whose version DOI, concept DOI, title, publication date, creator ORCID and license match the manifest. Disagreement is shown, never averaged away.</p></div></li>
 <li><span class="n">06</span><div><h3>Last-known-good</h3><p>This feed publishes only independently verified records. If upstream is unreachable, rate-limited, if a previously verified record re-derives degraded (even over changed upstream data), if a new record is not fully verified, or if a record is removed, the whole update is held: this page keeps its previous snapshot and the failure stays visible in the repository's public workflow history.</p></div></li>
 <li><span class="n">07</span><div><h3>Diagnostic research records</h3><p>A diagnostic <code>ane-record-</code> release must carry exactly six assets (the reviewed bundle, its attestation, the execution log, the deletion disclosure, a preview and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry, bind those digests to the reviewed package hash, and carry the final reviewer's INCLUDE plus an evidence and a skeptical INCLUDE review. Executions are recounted from the released log, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>
+<li><span class="n">08</span><div><h3>Package research records</h3><p>A package <code>ane-record-</code> release must carry exactly five assets (the attestation, a preview, the reviewed record, the reviewed package archive and <code>SHA256SUMS</code>) whose re-downloaded bytes equal their registered digests. At the tag, the attestation must hash to its records index entry and bind those digests, the package file list and the reviewed record to the reviewed package hash, with the final reviewer's INCLUDE. Counted runs are recounted for each clean-room arm from its device-wide execution log at the tag, and Zenodo must hold one version bound to the tag. Same-chip scope is labelled as repeatability, never as cross-device replication.</p></div></li>
 </ol>
 </section>
 
-<section class="section" id="records" aria-labelledby="records-h" data-generated="2026-11-03T04:40:16Z" data-state="ok">
+<section class="section" id="records" aria-labelledby="records-h" data-generated="2026-11-07T11:41:04Z" data-state="ok">
 <div class="wrap">
 <div class="section-head">
 <span class="label">Current records</span>
 <div><h2 id="records-h">Published archive releases.</h2>
 <p>Newest first. The pill reflects the latest successful rebuild; expand each record's guards to see exactly what was and was not re-checked. Feeds are regenerated only from validated upstream data and are refreshed from a scheduled workflow whenever the records change.</p></div>
 </div>
+
+<article class="pub-record" data-tag="ane-record-b8f78a146608021d974dcdec" data-kind="ane-package">
+<h3>v0.3.0 · ANERECore cross-repo MIL parity: tap, steer and functionWide (same chip, single device)</h3>
+<p class="pub-statusline"><span class="pub-status pub-status-verified">Re-verified at rebuild</span></p>
+<p><time datetime="2026-11-07T11:36:56Z">7 Nov 2026</time> · tag <code>ane-record-b8f78a146608021d974dcdec</code> · reviewed package record</p>
+<p><a href="https://macbrainslabs.org/research/records/ane-record-b8f78a146608021d974dcdec/">Read the record page</a>. <a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/ane-record-b8f78a146608021d974dcdec">View this release in the archive repository</a>. A reviewed record and an archived DOI are not peer review.</p>
+<div class="pub-dl">
+<div><span class="label">Scope</span><ul>
+<li><strong>Same-chip rerun: repeatability only, not cross-device replication</strong></li>
+<li>Scope as recorded: <q>same-chip, single device (Mac17,5, macOS build 26C5035r); MIL text byte equality only, one Qwen fixture, operations tap, steer and functionWide; functionWide pin is Fugu-referenced; no Core ML compile, ANE execution or numerics; no novelty claim</q></li>
+<li>Setup profile <code>0959e19f8b1830426af347355b403f775cdac15c8f343f8d31778aa0cef7577c</code></li><li>Setup profile <code>84c276441ec23b090bc5db708d952ff70dc16dcfb77bfdd8c1d01e8a5305df97</code></li>
+<li>10 counted runs kept across 2 clean-room arms: 10 pass, 0 fail</li>
+<li>fugu arm: 5 of 5 counted runs pass, tool commit <code>d485ad2e</code></li><li>ane-re arm: 5 of 5 counted runs pass, tool commit <code>0ae0b6d7</code></li>
+</ul></div>
+<div><span class="label">Final review</span><ul>
+<li>Reviewed package <code>b8f78a146608021d974dcdec34ced0407a2c8449d23eab3e416649dec221cc2e</code></li>
+<li>INCLUDE from <code>macbrains-labs-reviewer</code>, receipt <code>f80745c7f3344a5fa9022dc94381d7e18f5212bca184837705e33ce85edd6e54</code></li>
+<li>Reviewed record <code>dbd33eb410dfb624158f1bcb8ff0458b72a6c8601a6dd6ad93fb349ff73081e0</code> · file list <code>f81ff1837688ac91c656dd6a0bbf45a2d5f7e594909830760458831be2337043</code> · attestation <code>374ac82186331b3e1e4384abb9fdd64e4e76034a3bed4bad4453b7a40d6d35ef</code></li>
+</ul></div>
+<div><span class="label">Registered identifiers</span><ul>
+<li><a href="https://doi.org/10.5281/zenodo.24034510">Version DOI 10.5281/zenodo.24034510</a></li><li><a href="https://doi.org/10.5281/zenodo.23798036">All-versions DOI 10.5281/zenodo.23798036</a></li><li><span class="pub-fp-match">registration state: registered_verified — the Zenodo version bound to this tag was found under the all-versions DOI at rebuild, not taken from release text</span></li>
+</ul></div>
+<div><span class="label">Release assets and integrity</span><ul>
+<li><code>attestation.json</code> <span class="num">(7,349 bytes)</span><br><span class="pub-digest">SHA-256 <code>374ac82186331b3e1e4384abb9fdd64e4e76034a3bed4bad4453b7a40d6d35ef</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-b8f78a146608021d974dcdec/attestation.json">download at release</a></li><li><code>preview.md</code> <span class="num">(5,816 bytes)</span><br><span class="pub-digest">SHA-256 <code>ef3a2df20412f90a7428d748c89ea2025cb3e5ec36bfde89d4684188834a687e</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-b8f78a146608021d974dcdec/preview.md">download at release</a></li><li><code>ANERECore_v0.3.0_record.md</code> <span class="num">(12,265 bytes)</span><br><span class="pub-digest">SHA-256 <code>dbd33eb410dfb624158f1bcb8ff0458b72a6c8601a6dd6ad93fb349ff73081e0</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-b8f78a146608021d974dcdec/ANERECore_v0.3.0_record.md">download at release</a></li><li><code>package-r2-20261107-corrected.tar</code> <span class="num">(867,840 bytes)</span><br><span class="pub-digest">SHA-256 <code>b248505187be8e9862e2f2048ffca8c15b54039df3542182fddeb59125a07b0a</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-b8f78a146608021d974dcdec/package-r2-20261107-corrected.tar">download at release</a></li><li><code>SHA256SUMS</code> <span class="num">(353 bytes)</span><br><span class="pub-digest">SHA-256 <code>75d4a334e3cac6578916e66d41b16b523de8911be63dce3bc9d9f1a2bb8cdb83</code></span> · <a href="https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-b8f78a146608021d974dcdec/SHA256SUMS">download at release</a></li>
+</ul></div>
+<div><span class="label">Verification guards</span><ul>
+<li><span class="pub-fp-match">✓</span> published release tag ane-record- plus 24 hex; release shell valid</li><li><span class="pub-fp-match">✓</span> records index at the tag lists this package record once (schema, all-versions DOI, v0.1.0 baseline)</li><li><span class="pub-fp-match">✓</span> exactly five release assets re-downloaded; bytes equal their registered digests and SHA256SUMS</li><li><span class="pub-fp-match">✓</span> attestation at the tag is canonical, hashes to the index entry and binds the assets, file list and reviewed record to the reviewed package</li><li><span class="pub-fp-match">✓</span> final review is INCLUDE from macbrains-labs-reviewer for the reviewed package hash</li><li><span class="pub-fp-match">✓</span> scope and every counted run recounted per arm from the device-wide execution logs at the tag; no novelty claim</li><li><span class="pub-fp-match">✓</span> Zenodo version under the all-versions DOI bound to this tag (DOI, ORCID, license, version)</li>
+</ul></div>
+</div>
+</article>
 
 <article class="pub-record" data-tag="ane-record-c188def1e88a0d94018dfe99" data-kind="ane-diagnostic">
 <h3>v0.2.0 · LFM3-1.7B layer-14 diagnostic under Core ML cpuAndNeuralEngine (same chip, single device)</h3>
