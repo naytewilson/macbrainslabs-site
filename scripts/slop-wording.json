@@ -1,0 +1,3064 @@
+{
+ "schema": "macbrainslabs.slop-wording/1",
+ "generated": "2026-11-08",
+ "purpose": "Wording that makes prose read as machine-generated. scripts/check-copy.mjs fails CI on block entries in visible site copy and reports warn entries.",
+ "method": "Five independent source sweeps (quantitative excess-vocabulary studies, open-source slop lists, Wikipedia:Signs of AI writing, editorial and practitioner guides for web copy, curated local style registries), merged and deduplicated, then adversarially verified: sources reopened, regexes compiled and probed against technical prose, false-positive risks for an Apple Neural Engine measurement site downgraded or narrowed. Every entry cites at least one source: a published source opened during the sweeps (the verify pass reopened a sample of 31 and found 26 supporting), a curated local style registry (local:), or the owner's direct instruction (owner:).",
+ "counts": {
+  "entries": 159,
+  "block": 98,
+  "warn": 61,
+  "sources": 33
+ },
+ "categories": [
+  {
+   "slug": "academic-excess-vocab",
+   "description": "Words measured as over-represented in LLM-era academic prose."
+  },
+  {
+   "slug": "puffery",
+   "description": "Praise or significance language that asserts importance without evidence."
+  },
+  {
+   "slug": "hype-verb",
+   "description": "Marketing or promotional verbs that replace a measured change."
+  },
+  {
+   "slug": "hype-adjective",
+   "description": "Adjectives that assert quality or novelty without a test or number."
+  },
+  {
+   "slug": "marketing-cliche",
+   "description": "Stock marketing phrases and claims."
+  },
+  {
+   "slug": "filler-transition",
+   "description": "Connectors and openers that add words without content."
+  },
+  {
+   "slug": "hedge-stack",
+   "description": "Hedges and signposts that announce uncertainty or considerations instead of stating them."
+  },
+  {
+   "slug": "closing-summary",
+   "description": "Recap labels that close text with a restatement."
+  },
+  {
+   "slug": "faux-depth",
+   "description": "Scene-setting phrases that sound broad but name nothing."
+  },
+  {
+   "slug": "copula-avoidance",
+   "description": "Replacing plain 'is' with fancier verbs such as serves as or stands as."
+  },
+  {
+   "slug": "significance-inflation",
+   "description": "Formulas that inflate a result into symbolic importance."
+  },
+  {
+   "slug": "superficial-analysis",
+   "description": "Tacked-on interpretation clauses and vague praise for insights."
+  },
+  {
+   "slug": "negative-parallelism",
+   "description": "Denying a claim nobody made, then supplying a replacement."
+  },
+  {
+   "slug": "em-dash",
+   "description": "Em dash and dash-substitute punctuation, measured as density."
+  },
+  {
+   "slug": "chatbot-residue",
+   "description": "Assistant self-reference, acknowledgements and sign-offs pasted into copy."
+  },
+  {
+   "slug": "vague-attribution",
+   "description": "Unnamed authorities used to borrow weight."
+  },
+  {
+   "slug": "challenge-formula",
+   "description": "Template that lists challenges and ends on vague positivity."
+  },
+  {
+   "slug": "boilerplate-header",
+   "description": "Template section titles typical of generated outlines."
+  },
+  {
+   "slug": "markdown-residue",
+   "description": "Markdown formatting that leaks into rendered prose."
+  },
+  {
+   "slug": "placeholder",
+   "description": "Unfilled template placeholders, dates and URLs."
+  },
+  {
+   "slug": "chatbot-referral-tag",
+   "description": "Assistant-origin tracking parameters on links."
+  },
+  {
+   "slug": "emoji-icon",
+   "description": "Emoji used as icons, bullets or heading markers."
+  },
+  {
+   "slug": "fabricated-precision",
+   "description": "Unsourced precision, rankings or magnitudes."
+  },
+  {
+   "slug": "invented-proof",
+   "description": "Round user counts and social proof with no named source."
+  },
+  {
+   "slug": "site-rejected-slogan",
+   "description": "Slogans the owner rejected; sourced to the owner statement, not to a fetched URL."
+  },
+  {
+   "slug": "generic-cta-label",
+   "description": "Link and button labels that name no destination."
+  },
+  {
+   "slug": "performative-label",
+   "description": "Editorial or intimacy labels that decorate a section."
+  },
+  {
+   "slug": "furniture-text",
+   "description": "Decorative page chrome that adds no content."
+  }
+ ],
+ "verification_log": [
+  "regex fixed: spoiler-label",
+  "regex fixed: uncomfortable-truth",
+  "regex fixed: unlock-stock",
+  "regex fixed: walk-you-through",
+  "regex fixed: explainer-caption",
+  "regex fixed: marks-shift",
+  "regex fixed: not-widely-available",
+  "regex fixed: negation-chain-owner",
+  "regex fixed: closing-summary-label",
+  "regex fixed: aligns-with",
+  "regex fixed: business-jargon",
+  "regex fixed: horizontal-rule",
+  "regex fixed: heading-hype",
+  "regex fixed: bold-lead-bullets",
+  "regex fixed: ready-to-question",
+  "regex fixed: arrow-cta-label",
+  "regex fixed: furniture-text-block",
+  "regex fixed: emoji-pictograph",
+  "dropped for false positives: such-as-these",
+  "dropped for false positives: curly-quotes",
+  "narrowed: bold-in-prose",
+  "dropped for false positives: contributing-to-the",
+  "narrowed: significance-formula",
+  "downgraded to warn: reflects-broader",
+  "downgraded to warn: profound-word",
+  "downgraded to warn: conclusion-heading",
+  "downgraded to warn: outline-headers",
+  "downgraded to warn: fabricated-99-9",
+  "downgraded to warn: cutting-edge",
+  "downgraded to warn: often-said-that",
+  "kept, owner instruction: negation-chain-owner",
+  "kept, owner instruction: owner-rejected-slogans",
+  "dropped, no opened source: at-the-intersection",
+  "kept, source re-checked by integrator: holistic-word",
+  "kept, source re-checked by integrator: synergy-word",
+  "kept, source re-checked by integrator: built-for-the-modern",
+  "kept, source re-checked by integrator: say-goodbye-to",
+  "kept, source re-checked by integrator: click-here",
+  "integrator: field-notes-label widened to the singular after a manual read found \"field note\" labels the plural pattern missed"
+ ],
+ "dropped_during_merge": [
+  "NOTE: Source lists are trimmed to 1-5 URLs per entry for output size; source_count matches the listed URLs, not the full raw union. I did not re-open the sources in this merge step; sourcing is as reported by the five sweeps. Entries whose only source is the owner statement are kept and labelled owner:2026-11-08 rather than a fetched URL.",
+  "Dropped 'findings' (warn-level, common in research prose, no per-word evidence) and 'potential' (too generic; legitimate everywhere).",
+  "Dropped 'significant' (legitimate statistical term; Geng & Trotta measured no magnitude).",
+  "Dropped 'finally,' (vendor count with no rate; legitimate sequencing word).",
+  "Dropped 'in connection with' and 'in association with' (ordinary English, low precision).",
+  "Dropped 'a X rather than a Y' (too broad; correct technical contrast is common).",
+  "Dropped the ALL-CAPS passage rule: the checker adds the i flag, so the case-sensitive test cannot be enforced.",
+  "Dropped bare 'in today's' and 'overall,' closers (folded into the in-today's opener or too generic).",
+  "Dropped separate 'should not be confused with' variant as low precision; contributing-to kept at warn.",
+  "Merged duplicate entries from the raw sweeps (delve variants, crucial, meticulous, showcase, em dash, emoji, and similar), so the same meaning appears once.",
+  "Kind values normalised to the schema enum (word, phrase, structure, punctuation); the raw category slugs were moved into category."
+ ],
+ "sources": [
+  "https://aclanthology.org/2025.coling-main.426",
+  "https://aclanthology.org/2025.findings-acl.657",
+  "https://aisdr.com/?p=3844",
+  "https://ar5iv.labs.arxiv.org/html/2404.01268",
+  "https://arxiv.org/abs/2412.11385",
+  "https://arxiv.org/abs/2603.27006",
+  "https://arxiv.org/html/2406.07016v5",
+  "https://arxiv.org/html/2608.10715",
+  "https://carly.substack.com/p/spotting-machine-made-prose",
+  "https://cdn.jsdelivr.net/gh/realrossmanngroup/no_ai_slop_writing_rules@main/README.md",
+  "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+  "https://eqbench.com/slop-score.html",
+  "https://howmanywords.app/blog/chatgpt-writing-style-tells",
+  "https://languagelog.ldc.upenn.edu/nll/?p=64877",
+  "https://microcopyexamples.substack.com/p/avoid-landing-page-words",
+  "https://microcopyexamples.substack.com/p/stop-sounding-like-ai",
+  "https://originality.ai/blog/obvious-chatgpt-sayings",
+  "https://raw.githubusercontent.com/AlpinDale/gptslop/main/gptslop.yaml",
+  "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+  "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+  "https://ruben.substack.com/p/delve",
+  "https://theconversation.com/chatgpt-is-changing-the-way-we-write-heres-how-and-why-its-a-problem-239601",
+  "https://www.blakestockton.com/p/red-flag-words",
+  "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/",
+  "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/",
+  "https://www.claudemarketers.com/skills/no-slop",
+  "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2",
+  "https://yourtango.com/node/382797",
+  "local:anti-slop/references/rules.md",
+  "local:tasteskill-v2/references/copy.md",
+  "local:tasteskill-v2/references/tells.md",
+  "local:tasteskill-v2/scripts/lint.mjs",
+  "owner:2026-11-08 (Nayte Wilson, direct instruction)"
+ ],
+ "entries": [
+  {
+   "id": "delve-inflections",
+   "pattern": "\\bdelv(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "block",
+   "why": "Most-measured excess word in LLM-era academic prose, so it reads as model vocabulary.",
+   "evidence": "Kobak et al.: 'delves' excess ratio r=28.0 in 2024 PubMed abstracts; Juzek & Ward name it as a focal word.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://aclanthology.org/2025.coling-main.426",
+    "https://aclanthology.org/2025.findings-acl.657",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 4,
+   "example": "Let's delve into how the ANE schedules each layer.",
+   "replacement_hint": "Say 'look at' or name the thing examined.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "underscores-importance",
+   "pattern": "\\bunderscor(?:e|es|ed|ing) (?:the|its|their) (?:importance|significance)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "significance-inflation",
+   "severity": "block",
+   "why": "Stock significance formula that asserts importance instead of showing it.",
+   "evidence": "Wikipedia lists 'underscores its importance/significance' as a watch phrase.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "These results underscore the importance of batch size.",
+   "replacement_hint": "Show the batch-size curve.",
+   "technical_false_positive_risk": "low"
+  },
+  {
+   "id": "underscore-word",
+   "pattern": "\\bunderscor(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Measured excess verb in 2024 abstracts and a listed AI-vocabulary item.",
+   "evidence": "Kobak et al.: 'underscores' r=13.8; Language Log cites a nine-fold rise.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://languagelog.ldc.upenn.edu/nll/?p=64877",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 3,
+   "example": "These results underscore the cache effect.",
+   "replacement_hint": "Use 'show' or 'mean'.",
+   "technical_false_positive_risk": "Identifier or character named underscore; skip code spans."
+  },
+  {
+   "id": "showcase-verb",
+   "pattern": "\\bshowcas(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "promotional-verb",
+   "severity": "block",
+   "why": "Promotional verb that replaces plain 'shows' in LLM text.",
+   "evidence": "Kobak et al.: 'showcasing' r=10.7; Liang et al. list it among the four most LLM-skewed words.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://ar5iv.labs.arxiv.org/html/2404.01268",
+    "https://languagelog.ldc.upenn.edu/nll/?p=64877",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 4,
+   "example": "The benchmark showcases a 2x speedup on the Neural Engine.",
+   "replacement_hint": "Use 'shows' and give the figure.",
+   "technical_false_positive_risk": "low"
+  },
+  {
+   "id": "realm-word",
+   "pattern": "\\brealm\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Grandiose noun for ordinary domains; top LLM-preferred word in one measurement.",
+   "evidence": "Liang et al. Fig 2 caption: among four words most skewed toward LLMs (log odds).",
+   "sources": [
+    "https://ar5iv.labs.arxiv.org/html/2404.01268",
+    "https://arxiv.org/html/2406.07016v5",
+    "https://theconversation.com/chatgpt-is-changing-the-way-we-write-heres-how-and-why-its-a-problem-239601"
+   ],
+   "source_count": 3,
+   "example": "This sits in the realm of low-latency inference.",
+   "replacement_hint": "Name the area: 'This is a low-latency inference question.'",
+   "technical_false_positive_risk": "Occasionally literal in physics or CS prose."
+  },
+  {
+   "id": "intricate-word",
+   "pattern": "\\bintricac(?:y|ies)\\b|\\bintricate\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Stock complexity intensifier that LLMs favour.",
+   "evidence": "Juzek & Ward name it as focal word; Liang et al. top-four LLM word.",
+   "sources": [
+    "https://arxiv.org/abs/2412.11385",
+    "https://aclanthology.org/2025.coling-main.426",
+    "https://ar5iv.labs.arxiv.org/html/2404.01268",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 4,
+   "example": "The scheduler has an intricate interplay between queues.",
+   "replacement_hint": "Describe the interaction: 'The queue depth and thermal limit interact.'",
+   "technical_false_positive_risk": "Sometimes the correct technical word for a layout."
+  },
+  {
+   "id": "pivotal-word",
+   "pattern": "\\bpivotal\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "significance-inflation",
+   "severity": "warn",
+   "why": "Vague importance adjective with high LLM preference.",
+   "evidence": "Liang et al. top-four LLM word; Wikipedia lists 'pivotal' in puffery.",
+   "sources": [
+    "https://ar5iv.labs.arxiv.org/html/2404.01268",
+    "https://arxiv.org/html/2406.07016v5",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 3,
+   "example": "Quantization is a pivotal step in the pipeline.",
+   "replacement_hint": "State the effect: 'Quantization cut latency 2x.'",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "meticulous-word",
+   "pattern": "\\bmeticulous(?:ly)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Self-praise for care that readers discount; describes nothing about the method.",
+   "evidence": "Kobak Fig S6 excess set; antislop-sampler list has 'meticulous' and 'meticulously'.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 3,
+   "example": "I ran each case with meticulous care.",
+   "replacement_hint": "Describe the procedure: 'I ran each case three times and kept the median.'",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "commendable-word",
+   "pattern": "\\bcommendable\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Praise adjective that signals empty evaluation.",
+   "evidence": "Kobak Fig S6 rare excess set (membership only, no ratio).",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5"
+   ],
+   "source_count": 1,
+   "example": "The team's commendable effort made the release possible.",
+   "replacement_hint": "Cut it, or name the work.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "crucial-word",
+   "pattern": "\\bcrucial\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "significance-inflation",
+   "severity": "warn",
+   "why": "Stock importance marker in the common excess-word set.",
+   "evidence": "Kobak v5 Fig 2b delta=0.037; Wikipedia crucial/pivotal/vital puffery.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/p/red-flag-words"
+   ],
+   "source_count": 3,
+   "example": "Thermal headroom is crucial for sustained throughput.",
+   "replacement_hint": "Say what happens without it, with the number.",
+   "technical_false_positive_risk": "Ordinary in technical prose."
+  },
+  {
+   "id": "notably-opener",
+   "pattern": "(?:^|[.!?]\\s+)notably,",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "warn",
+   "why": "Sentence-opening emphasis that LLMs insert to signal importance.",
+   "evidence": "Kobak v5 Sec 2.2 common excess-word set includes 'notably'.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5"
+   ],
+   "source_count": 1,
+   "example": "Notably, the fp16 path had no regressions.",
+   "replacement_hint": "State the surprising fact directly.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "additionally-opener",
+   "pattern": "(?:^|[.!?]\\s+)additionally,",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "warn",
+   "why": "Padding connector at sentence start, frequent in LLM output.",
+   "evidence": "Wikipedia 2023-mid 2024 list ('Additionally'); Originality.ai raw count (no rate).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://originality.ai/blog/obvious-chatgpt-sayings",
+    "https://arxiv.org/html/2406.07016v5"
+   ],
+   "source_count": 3,
+   "example": "Additionally, the run used 4 GB of memory.",
+   "replacement_hint": "Start with the fact, or write 'Also'.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "comprehensive-word",
+   "pattern": "\\bcomprehensive\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "puffery",
+   "severity": "warn",
+   "why": "Claims completeness without listing what was covered.",
+   "evidence": "Kobak v5 Sec 2.2 common excess set; listed in Stockton and Brafton stock-vocabulary lists.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/"
+   ],
+   "source_count": 3,
+   "example": "This is a comprehensive benchmark suite.",
+   "replacement_hint": "List the models, devices and cases covered.",
+   "technical_false_positive_risk": "Legitimate for a test suite that is actually broad."
+  },
+  {
+   "id": "particularly-word",
+   "pattern": "\\bparticularly\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "filler-transition",
+   "severity": "warn",
+   "why": "Emphasis filler LLMs insert in a steady rhythm.",
+   "evidence": "Kobak v5 Sec 2.2 common excess-word set.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5"
+   ],
+   "source_count": 1,
+   "example": "The cache is particularly sensitive to stride changes.",
+   "replacement_hint": "Delete, or give the number.",
+   "technical_false_positive_risk": "Common English word; review hits."
+  },
+  {
+   "id": "enhancing-verb",
+   "pattern": "\\benhanc(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "warn",
+   "why": "Vague improvement verb with no stated magnitude.",
+   "evidence": "Kobak v5 excess set; Wikipedia AI vocabulary and promotional list.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://carly.substack.com/p/spotting-machine-made-prose"
+   ],
+   "source_count": 3,
+   "example": "Fusing the norm layer enhances throughput on the ANE.",
+   "replacement_hint": "Give the measured change: 'raised throughput from 210 to 290 tokens/s'.",
+   "technical_false_positive_risk": "Literal technical use is common."
+  },
+  {
+   "id": "exhibited-verb",
+   "pattern": "\\bexhibited\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Formal substitute for 'showed', typical of LLM academic register.",
+   "evidence": "Kobak v5 Sec 2.2 common excess set.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5"
+   ],
+   "source_count": 1,
+   "example": "The model exhibited a 12% drop in accuracy.",
+   "replacement_hint": "'showed' or 'had'.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "insights-noun",
+   "pattern": "\\binsights\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "marketing-cliche",
+   "severity": "warn",
+   "why": "Abstract noun for findings common in LLM summary voice.",
+   "evidence": "Kobak v5 Sec 2.2 common excess set.",
+   "sources": [
+    "https://arxiv.org/html/2406.07016v5"
+   ],
+   "source_count": 1,
+   "example": "These insights point to a scheduler bottleneck.",
+   "replacement_hint": "Name the result.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "exacerbating-verb",
+   "pattern": "\\bexacerbating\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Formal verb named as an LLM-associated word.",
+   "evidence": "Holzwarth et al. (2026 preprint) name it; no frequency given.",
+   "sources": [
+    "https://arxiv.org/html/2608.10715"
+   ],
+   "source_count": 1,
+   "example": "Memory pressure is exacerbating the thermal throttle.",
+   "replacement_hint": "Say what increases: 'Memory pressure lowers the throttle point.'",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "invaluable-word",
+   "pattern": "\\binvaluable\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Superlative praise that LLMs favour.",
+   "evidence": "Holzwarth et al. name it as uncommon LLM vocabulary; no frequency given.",
+   "sources": [
+    "https://arxiv.org/html/2608.10715"
+   ],
+   "source_count": 1,
+   "example": "The trace log was invaluable for finding the stall.",
+   "replacement_hint": "Say what it showed: 'The trace showed the stall at dispatch 14.'",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "em-dash",
+   "pattern": "—",
+   "is_regex": false,
+   "kind": "punctuation",
+   "category": "em-dash",
+   "severity": "warn",
+   "why": "Em dashes are the most cited LLM punctuation tell, used where humans use commas or parentheses.",
+   "evidence": "Freeburg (arXiv 2603.27006): 0.0 to 9.1 per 1,000 words across models (LLM only, no human baseline). Wikipedia: used more than typical human prose.",
+   "sources": [
+    "https://arxiv.org/abs/2603.27006",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/",
+    "https://ruben.substack.com/p/delve",
+    "https://cdn.jsdelivr.net/gh/realrossmanngroup/no_ai_slop_writing_rules@main/README.md"
+   ],
+   "source_count": 5,
+   "example": "The result was fast—about 3 ms—but the variance was high.",
+   "replacement_hint": "Gate on density per 1,000 words, not presence. Use a comma, colon or parentheses.",
+   "technical_false_positive_risk": "Density signal only; a single em dash is normal writing."
+  },
+  {
+   "id": "spaced-en-dash",
+   "pattern": "\\s–\\s",
+   "is_regex": true,
+   "kind": "punctuation",
+   "category": "em-dash",
+   "severity": "warn",
+   "why": "Spaced en dash used as an em-dash substitute.",
+   "evidence": "Local anti-slop rules flag this form; unspaced ranges are legitimate.",
+   "sources": [
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 1,
+   "example": "The loader is fast – but the decoder is the limit.",
+   "replacement_hint": "Use a full stop, comma or colon.",
+   "technical_false_positive_risk": "Unspaced ranges are excluded by the pattern."
+  },
+  {
+   "id": "closing-summary-label",
+   "pattern": "(?:^|[.!?]\\s+)(?:in conclusion|to summarize|to put it simply|in essence)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "closing-summary",
+   "severity": "block",
+   "why": "Sentence-initial summary label announcing a recap the text does not need.",
+   "evidence": "antislop-sampler: 'in conclusion', 'in summary', 'to summarize' each 0.03125; Wikipedia words-to-watch list.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://aisdr.com/?p=3844"
+   ],
+   "source_count": 3,
+   "example": "In summary, the ANE path wins above batch size 8.",
+   "replacement_hint": "Put the result in the last sentence and drop the label.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "moreover-furthermore",
+   "pattern": "(?:^|[.!?]\\s+)(?:moreover|furthermore),",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "warn",
+   "why": "Formal connective LLM text reuses heavily.",
+   "evidence": "antislop-sampler: 'moreover' and 'furthermore' each 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "Moreover, the cache hit rate dropped after the update.",
+   "replacement_hint": "Start with the next fact, or write 'Also'.",
+   "technical_false_positive_risk": "Occasionally right in formal prose."
+  },
+  {
+   "id": "important-to-note",
+   "pattern": "\\bit(?:'|’)?s (?:important|worth|essential|crucial) to (?:note|noting|remember|consider)\\b|\\bit(?:'|’)?s worth noting\\b|\\bit is worth noting\\b|\\bimportant to note\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hedge-stack",
+   "severity": "block",
+   "why": "Didactic signpost that flags a point without making it.",
+   "evidence": "antislop-sampler: 'it's important to note', 'it's worth noting that' each 0.03125; Wikipedia 'important to note' disclaimers.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://raw.githubusercontent.com/AlpinDale/gptslop/main/gptslop.yaml",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.claudemarketers.com/skills/no-slop"
+   ],
+   "source_count": 4,
+   "example": "It's worth noting that the warm-up run is excluded.",
+   "replacement_hint": "Put the fact in the sentence.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "when-it-comes-to",
+   "pattern": "\\bwhen it comes to\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "warn",
+   "why": "Stock opener that delays the claim.",
+   "evidence": "antislop-sampler list: 'when it comes to' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "When it comes to latency, the ANE wins.",
+   "replacement_hint": "'For latency, the ANE wins.'",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "in-todays-age",
+   "pattern": "\\bin today['’]s (?:[a-z-]+ ){0,3}(?:world|landscape|age|era)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-opener",
+   "severity": "block",
+   "why": "Generic framing opener that fits any topic.",
+   "evidence": "antislop-sampler: 'in today's digital age/era' each 0.03125; Brafton and Stop-slop list variants.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/",
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+    "https://aisdr.com/?p=3844"
+   ],
+   "source_count": 4,
+   "example": "In today's digital age, on-device inference matters.",
+   "replacement_hint": "Start with the specific claim.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "in-the-realm-of",
+   "pattern": "\\bin the realm of\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "faux-depth",
+   "severity": "block",
+   "why": "Grand scope phrase that adds no information.",
+   "evidence": "antislop-sampler: 'in the realm of' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "In the realm of on-device ML, latency is the constraint.",
+   "replacement_hint": "'For on-device ML, latency is the constraint.'",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "in-the-world-of",
+   "pattern": "\\bin the world of\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "faux-depth",
+   "severity": "block",
+   "why": "Generic scope phrase typical of LLM openers.",
+   "evidence": "antislop-sampler: 'in the world of' 0.03125; YourTango lists it as filler.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://yourtango.com/node/382797"
+   ],
+   "source_count": 2,
+   "example": "In the world of Core ML, conversion is the hard part.",
+   "replacement_hint": "Name the domain directly.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "stock-landscape-phrase",
+   "pattern": "\\b(?:digital|evolving|changing|shifting|competitive|modern|rapidly[- ]evolving) landscape\\b|\\bnavigat\\w* the landscape\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "faux-depth",
+   "severity": "block",
+   "why": "Scene-setting metaphor for a field, used to sound broad.",
+   "evidence": "antislop-sampler 'landscape'; Wikipedia 'evolving landscape' puffery; Carly and Stockton list 'digital landscape'.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+    "https://carly.substack.com/p/spotting-machine-made-prose"
+   ],
+   "source_count": 3,
+   "example": "In today's evolving landscape of edge AI...",
+   "replacement_hint": "Name the specific tool or change.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "landscape-word",
+   "pattern": "\\blandscape\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "faux-depth",
+   "severity": "warn",
+   "why": "Vague field metaphor listed in AI vocabulary.",
+   "evidence": "Wikipedia AI vocabulary list (excerpt).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The Core ML landscape changed with the new compiler.",
+   "replacement_hint": "Name the tool or vendor.",
+   "technical_false_positive_risk": "Literal uses such as a 'performance landscape' are fine."
+  },
+  {
+   "id": "serves-as-copula",
+   "pattern": "\\b(?:serves|stands|functions|operates) as (?:a|an|the)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "copula-avoidance",
+   "severity": "warn",
+   "why": "Swaps plain 'is' for fancier verbs, a documented LLM pattern.",
+   "evidence": "Wikipedia copulative avoidance: 'serves as', 'stands as', 'functions as' in place of 'is'.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "The cache serves as a buffer between stages.",
+   "replacement_hint": "'is a buffer'.",
+   "technical_false_positive_risk": "'serves as' is sometimes correct; check each hit."
+  },
+  {
+   "id": "boasts-verb",
+   "pattern": "\\bboasts (?:a|an|the)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "promotional-verb",
+   "severity": "block",
+   "why": "Brochure verb for features.",
+   "evidence": "Wikipedia promotional and copula lists ('boasts a').",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "The board boasts a 16-core Neural Engine.",
+   "replacement_hint": "'has'.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "testament-phrase",
+   "pattern": "\\b(?:is a|a|stands as a|serves as a) testament (?:to|of)\\b|\\bis a (?:testament|reminder) (?:to|of)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "significance-inflation",
+   "severity": "block",
+   "why": "Inflated significance formula that adds weight without a fact.",
+   "evidence": "antislop-sampler 'testament to' 0.03125; Wikipedia 'is a testament/reminder'.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://yourtango.com/node/382797"
+   ],
+   "source_count": 3,
+   "example": "The 2x gain is a testament to the new kernel.",
+   "replacement_hint": "Say what the number shows.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "tapestry-metaphor",
+   "pattern": "\\btapestr(?:y|ies)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "metaphor-cliche",
+   "severity": "block",
+   "why": "Textbook AI metaphor for connected elements.",
+   "evidence": "antislop-sampler 'tapestry'/'tapestries' 0.03125; Wikipedia AI vocabulary; The Conversation.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://theconversation.com/chatgpt-is-changing-the-way-we-write-heres-how-and-why-its-a-problem-239601"
+   ],
+   "source_count": 3,
+   "example": "The stack is a tapestry of kernels and copies.",
+   "replacement_hint": "List the parts.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "embark-on",
+   "pattern": "\\bembark (?:on|upon)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Inflates a plain start into a journey.",
+   "evidence": "antislop-sampler 'embark' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "We embark on a benchmark of the new compiler.",
+   "replacement_hint": "'start' or 'ran'.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "seamless-word",
+   "pattern": "\\bseamless(?:ly)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Stock adjective for integration claims the text never demonstrates.",
+   "evidence": "Stockton and claudemarketers lists; local copy and lint rules flag it.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 3,
+   "example": "The handoff between the two models is seamless.",
+   "replacement_hint": "Say what crosses the boundary and what it costs.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "transformative-word",
+   "pattern": "\\btransformative\\b|\\btransform (?:the way|your)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Overstated change claim with no measured change.",
+   "evidence": "antislop-sampler 'transformative' 0.1017; Stockton and Microcopy lists.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai"
+   ],
+   "source_count": 3,
+   "example": "Batching was a transformative change for throughput.",
+   "replacement_hint": "Give the number: 'Batching raised throughput 3.1x.'",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "underpins-verb",
+   "pattern": "\\bunderpins\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Abstract verb LLM text uses for 'is the basis of'.",
+   "evidence": "antislop-sampler 'underpins' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "The scheduler underpins the whole pipeline.",
+   "replacement_hint": "'the pipeline depends on the scheduler'.",
+   "technical_false_positive_risk": "Legitimate technical verb."
+  },
+  {
+   "id": "unleash-verb",
+   "pattern": "\\bunleash(?:es|ed|ing)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Hype verb promising hidden power without naming a change.",
+   "evidence": "antislop-sampler 'unleash' 0.03125; Stockton and Microcopy lists; local lint rules.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/avoid-landing-page-words",
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 4,
+   "example": "The update unleashes the full Neural Engine.",
+   "replacement_hint": "Say what runs where.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "unlock-stock",
+   "pattern": "\\bunlock (?:your|the) (?:full |true )?(?:potential|power)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Stock promise verb of product copy.",
+   "evidence": "Local anti-slop rules list 'unlock the/your/a/new' as benefit-speak; Stockton flags 'unlock'.",
+   "sources": [
+    "local:anti-slop/references/rules.md",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai"
+   ],
+   "source_count": 3,
+   "example": "Unlock the full potential of your measurements.",
+   "replacement_hint": "Name what the reader can now see or do.",
+   "technical_false_positive_risk": "Functional 'unlock with Face ID' is spared by the pattern."
+  },
+  {
+   "id": "supercharge-verb",
+   "pattern": "\\bsupercharg(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Marketing intensifier without a number.",
+   "evidence": "Stockton, Microcopy, claudemarketers and local copy rules list it.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/avoid-landing-page-words",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 4,
+   "example": "Supercharge your Core ML pipeline.",
+   "replacement_hint": "Give the measured speedup and its condition.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "turbocharge-verb",
+   "pattern": "\\bturbocharg(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Speed metaphor with no measurement.",
+   "evidence": "Local lint and rules lists.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 2,
+   "example": "This turbocharges decode on the M-series GPU.",
+   "replacement_hint": "Give before and after times with the workload named.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "elevate-stock",
+   "pattern": "\\belevate (?:your|the|their|our)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Generic uplift verb of landing copy.",
+   "evidence": "Local copy and rules lists; narrowed to avoid technical 'elevate privilege' use.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 2,
+   "example": "Our tooling elevates your workflow.",
+   "replacement_hint": "Name the improvement.",
+   "technical_false_positive_risk": "Narrowed pattern; low."
+  },
+  {
+   "id": "empower-verb",
+   "pattern": "\\bempower(?:s|ed|ing)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "warn",
+   "why": "Abstract uplift verb naming no capability.",
+   "evidence": "Stockton, Microcopy, claudemarketers and local copy lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/avoid-landing-page-words",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 4,
+   "example": "This API empowers teams to ship faster.",
+   "replacement_hint": "Say what the user can now do.",
+   "technical_false_positive_risk": "Can be literal."
+  },
+  {
+   "id": "harness-power",
+   "pattern": "\\bharness(?:es|ing)? the (?:power|potential)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-verb",
+   "severity": "block",
+   "why": "Stock hype phrase.",
+   "evidence": "antislop-sampler 'harness' entry.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "We harness the power of the Neural Engine.",
+   "replacement_hint": "'run on the Neural Engine'.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "cutting-edge",
+   "pattern": "\\bcutting[- ]edge\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "warn",
+   "why": "Modernity claim that names no version or number.",
+   "evidence": "Five opened sources list it (Stockton, Microcopy, PR News, claudemarketers, aisdr).",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai",
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "https://aisdr.com/?p=3844"
+   ],
+   "source_count": 5,
+   "example": "A cutting-edge chip for on-device inference.",
+   "replacement_hint": "Give the chip, generation and measured number.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "game-changer",
+   "pattern": "\\bgame[- ]chang(?:er|ers|ing)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Generic hype noun asserting importance.",
+   "evidence": "antislop-sampler 'game changer' 0.03125; Stockton, Microcopy and Stop-slop lists.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai",
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 4,
+   "example": "Quantization is a game changer for this model.",
+   "replacement_hint": "Give the measured effect.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "vibrant-word",
+   "pattern": "\\bvibrant\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Stock adjective for communities and ecosystems in LLM text.",
+   "evidence": "antislop-sampler 'vibrant' 0.03125; Wikipedia promotional list.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 2,
+   "example": "The vibrant open-source ecosystem supports Core ML.",
+   "replacement_hint": "Name the project and its activity.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "profound-word",
+   "pattern": "\\bprofound\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "puffery",
+   "severity": "warn",
+   "why": "Promotional intensifier in AI puffery lists.",
+   "evidence": "Wikipedia promotional list ('profound'); quoted list, no rate.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The result has profound implications for on-device ML.",
+   "replacement_hint": "State the implication.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "exemplifies-verb",
+   "pattern": "\\bexemplif(?:y|ies|ied)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "promotional-verb",
+   "severity": "block",
+   "why": "Inflated 'shows' in promotional text.",
+   "evidence": "Wikipedia promotional list ('exemplifies').",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The fused kernel exemplifies the new scheduling model.",
+   "replacement_hint": "'shows'.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "daunting-word",
+   "pattern": "\\bdaunting\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-adjective",
+   "severity": "block",
+   "why": "Intensifier for a problem that is not described.",
+   "evidence": "antislop-sampler 'daunting' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "Converting the graph is a daunting task.",
+   "replacement_hint": "Name the blocker.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "ever-evolving",
+   "pattern": "\\bever-?(?:evolving|changing)\\b|\\beverchanging\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "block",
+   "why": "Scene-setting adjective with no claim attached.",
+   "evidence": "antislop-sampler 'ever-evolving', 'everchanging' 0.03125; Stockton and aisdr.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://aisdr.com/?p=3844"
+   ],
+   "source_count": 3,
+   "example": "In this ever-evolving field, benchmarks age quickly.",
+   "replacement_hint": "Name the change or delete.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "designed-to-enhance",
+   "pattern": "\\bdesigned to enhance\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Describes intent instead of the result.",
+   "evidence": "antislop-sampler 'designed to enhance' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "The patch is designed to enhance cache reuse.",
+   "replacement_hint": "Say what changed and what it measured.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "dive-into",
+   "pattern": "\\bdive into\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-verb",
+   "severity": "warn",
+   "why": "Stock signpost verb close to 'delve'.",
+   "evidence": "antislop-sampler 'dive into' 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "Let's dive into the scheduler.",
+   "replacement_hint": "'Here is the scheduler'.",
+   "technical_false_positive_risk": "Common idiom in technical prose."
+  },
+  {
+   "id": "previously-mentioned",
+   "pattern": "\\bas previously mentioned\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "block",
+   "why": "Stock back-reference a plain writer would not use.",
+   "evidence": "antislop-sampler 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "As previously mentioned, the warm-up run is excluded.",
+   "replacement_hint": "Restate the fact in one clause.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "few-considerations",
+   "pattern": "\\bthere are a few considerations\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hedge-stack",
+   "severity": "block",
+   "why": "Announces considerations without listing them.",
+   "evidence": "antislop-sampler 0.03125.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "There are a few considerations when converting to Core ML.",
+   "replacement_hint": "List them, or skip the announcement.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "as-an-ai-residue",
+   "pattern": "\\bas an? (?:ai )?(?:language model|assistant)\\b|\\bas an ai,|\\bas a large language model\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Chatbot self-reference that a human author never writes.",
+   "evidence": "AlpinDale gptslop lists 'As an AI'; Originality.ai quotes 'As a large language model'; Wikipedia.",
+   "sources": [
+    "https://raw.githubusercontent.com/AlpinDale/gptslop/main/gptslop.yaml",
+    "https://originality.ai/blog/obvious-chatgpt-sayings",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 3,
+   "example": "As an AI language model, I can't run the benchmark.",
+   "replacement_hint": "Delete; state the actual limitation.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "my-training-data",
+   "pattern": "\\bmy training data\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Chatbot self-description.",
+   "evidence": "Originality.ai quotes a ChatGPT reply using the phrase.",
+   "sources": [
+    "https://originality.ai/blog/obvious-chatgpt-sayings"
+   ],
+   "source_count": 1,
+   "example": "My training data includes few examples of this op.",
+   "replacement_hint": "Delete; name the actual dataset.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "im-sorry-but",
+   "pattern": "\\bi(?:'|’)?m sorry,? but\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Chatbot refusal opener.",
+   "evidence": "AlpinDale gptslop lists it.",
+   "sources": [
+    "https://raw.githubusercontent.com/AlpinDale/gptslop/main/gptslop.yaml"
+   ],
+   "source_count": 1,
+   "example": "I'm sorry, but I couldn't reproduce the timing.",
+   "replacement_hint": "State the result.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "chat-acknowledgement",
+   "pattern": "\\b(?:absolutely|certainly|of course)!|\\byou(?:'|’)re absolutely right\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Assistant acknowledgement opener.",
+   "evidence": "Originality.ai: every reply to three test questions opened with 'Absolutely!' (n=3); Wikipedia lists 'Certainly!', 'Of course!'.",
+   "sources": [
+    "https://originality.ai/blog/obvious-chatgpt-sayings",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://aisdr.com/?p=3844"
+   ],
+   "source_count": 3,
+   "example": "Certainly! Here is the revised benchmark table.",
+   "replacement_hint": "Start with the content.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "hope-this-helps",
+   "pattern": "\\bi hope this (?:helps|message finds you well)\\b|\\bi (?:hope|trust) this message finds you well\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Assistant sign-off that does not belong in a research post.",
+   "evidence": "Wikipedia lists the phrases verbatim.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "I hope this helps clarify the numbers.",
+   "replacement_hint": "Delete.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "offer-closer",
+   "pattern": "\\bwould you like (?:me to|to)\\b|\\bis there anything else\\b|\\blet me know if (?:you|there)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Offer-to-help closer typical of chat assistants.",
+   "evidence": "Wikipedia lists 'Would you like...', 'is there anything else', 'let me know'.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "Let me know if you want the raw traces.",
+   "replacement_hint": "Link the raw data instead.",
+   "technical_false_positive_risk": "Human email uses it, not research prose."
+  },
+  {
+   "id": "refusal-boilerplate",
+   "pattern": "\\bi (?:can(?:'|’)?t|cannot) (?:offer|provide) (?:medical|legal|financial) advice\\b|\\b(?:up to|as of) my last (?:training|knowledge) update\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "chatbot-residue",
+   "severity": "block",
+   "why": "Refusal and cutoff boilerplate from chat assistants.",
+   "evidence": "Wikipedia lists both verbatim.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "As of my last knowledge update, the API was in beta.",
+   "replacement_hint": "Give the date you checked the source.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "vague-attribution",
+   "pattern": "\\b(?:experts argue|some experts believe|some critics argue|industry reports (?:show|suggest|indicate)|observers have (?:cited|noted)|it could be argued that|one might say)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "vague-attribution",
+   "severity": "block",
+   "why": "Unnamed authority borrowed to add weight.",
+   "evidence": "Wikipedia vague-attribution list (verbatim); HowManyWords hedging list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://howmanywords.app/blog/chatgpt-writing-style-tells"
+   ],
+   "source_count": 2,
+   "example": "Experts argue that on-device inference will dominate.",
+   "replacement_hint": "Name the source or drop the claim.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "challenges-formula",
+   "pattern": "\\bdespite (?:these|its|the) challenges\\b|\\bfaces? (?:several|numerous|significant) challenges\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "challenge-formula",
+   "severity": "block",
+   "why": "Challenges template that ends in vague positivity.",
+   "evidence": "Wikipedia challenge formula: 'Despite its... faces several challenges'.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "Despite these challenges, the port is promising.",
+   "replacement_hint": "List the two or three concrete limits.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "outline-headers",
+   "pattern": "\\b(?:challenges and legacy|future (?:outlook|prospects))\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "boilerplate-header",
+   "severity": "warn",
+   "why": "Section-title template typical of generated outlines.",
+   "evidence": "Wikipedia lists 'Challenges and Legacy' and 'Future Outlook' as headers.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "## Future Outlook",
+   "replacement_hint": "Name the next concrete experiment.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "conclusion-heading",
+   "pattern": "\\n#{1,6}\\s*conclusions?\\s*\\n",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "outline-conclusion",
+   "severity": "warn",
+   "why": "Markdown Conclusion section is a legacy LLM template.",
+   "evidence": "Wikipedia: older LLMs added sections titled 'Conclusion'.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "## Conclusion",
+   "replacement_hint": "End on the result or the open question.",
+   "technical_false_positive_risk": "A real research report may keep one."
+  },
+  {
+   "id": "trailing-participle",
+   "pattern": ",\\s+(?:highlighting|underscoring|emphasizing|reflecting|symbolizing|showcasing|solidifying|cultivating|fostering|encompassing|enhancing)\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "superficial-analysis",
+   "severity": "block",
+   "why": "Tacked-on -ing clause that adds interpretation without evidence.",
+   "evidence": "Wikipedia superficial analyses list; Stockton takeaways.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "The benchmark ran on 8 cores, highlighting the scaling limits.",
+   "replacement_hint": "End at the measured limit, or make it its own sentence.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "symbolizing-clause",
+   "pattern": "\\bsymboliz(?:es|ing) (?:its|the) (?:ongoing|enduring|lasting)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "significance-inflation",
+   "severity": "block",
+   "why": "Symbolism formula with no content.",
+   "evidence": "Wikipedia verbatim list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The project opened a repo, symbolizing its ongoing commitment.",
+   "replacement_hint": "Delete the clause.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "valuable-insights",
+   "pattern": "\\bvaluable insights\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "superficial-analysis",
+   "severity": "block",
+   "why": "Empty praise for the reader's takeaway.",
+   "evidence": "Wikipedia superficial-analysis list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The run yields valuable insights into thermal limits.",
+   "replacement_hint": "State the specific finding.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "aligns-with",
+   "pattern": "\\b(?:aligns|aligned) with (?:the )?(?:narrative|theme|goals?|vision)\\b|\\bresonates? with\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "superficial-analysis",
+   "severity": "warn",
+   "why": "Vague fit claim in place of a comparison.",
+   "evidence": "Wikipedia superficial-analysis list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The latency curve aligns with the theoretical model.",
+   "replacement_hint": "Give the measured gap from the model.",
+   "technical_false_positive_risk": "Legitimate in comparisons."
+  },
+  {
+   "id": "significance-formula",
+   "pattern": "\\b(?:setting the stage for|indelible mark|deeply rooted|evolving landscape|key turning point|watershed moment|pivotal moment|lasting (?:legacy|impact))\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Broad-significance language that inflates importance.",
+   "evidence": "Wikipedia puffery list; Stockton takeaways.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "This release marks a watershed moment for on-device AI.",
+   "replacement_hint": "State the change in plain words.",
+   "technical_false_positive_risk": "'focal point' has optics senses."
+  },
+  {
+   "id": "plays-role",
+   "pattern": "\\bplays? (?:a|an) (?:vital|pivotal|crucial|key|significant|important) role\\b|\\ba (?:crucial|pivotal|vital|significant|key) (?:role|moment)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "significance-inflation",
+   "severity": "block",
+   "why": "Canned role statement with no mechanism.",
+   "evidence": "Wikipedia significance list (verbatim); Stockton takeaways.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "The scheduler plays a vital role in throughput.",
+   "replacement_hint": "Say what it does and the effect.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "marks-shift",
+   "pattern": "\\b(?:marks|represents) (?:a|an) (?:key |significant |major |important )?turning point\\b|\\bmarks a (?:key |significant |major )?shift\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "significance-inflation",
+   "severity": "block",
+   "why": "Overstated framing of a change.",
+   "evidence": "Wikipedia significance list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The release marks a key turning point for on-device inference.",
+   "replacement_hint": "Describe what changed on the device.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "reflects-broader",
+   "pattern": "\\breflects? broader\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "significance-inflation",
+   "severity": "warn",
+   "why": "Ties a narrow finding to a vague trend.",
+   "evidence": "Wikipedia significance list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The regression reflects broader trends in model design.",
+   "replacement_hint": "Name the trend with a source, or cut.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "the-complexities",
+   "pattern": "\\b(?:the|these|its|their) (?:complexities|intricacies|nuances)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "academic-excess-vocab",
+   "severity": "block",
+   "why": "Abstract noun that replaces naming the specific problem.",
+   "evidence": "antislop-sampler: 'complexities' 0.03125, 'intricacies' 0.1032, 'nuances' 0.1120.",
+   "sources": [
+    "https://raw.githubusercontent.com/sam-paech/antislop-sampler/main/slop_phrase_prob_adjustments.json"
+   ],
+   "source_count": 1,
+   "example": "Given the complexities of ANE scheduling, we measured each layer.",
+   "replacement_hint": "Name the scheduler, cache or dtype issue.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "navigate-complexities",
+   "pattern": "\\bnavigat(?:e|es|ed|ing) (?:the |these |various |its )?(?:complexit(?:y|ies)|challenges|nuances|intricacies)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hedge-stack",
+   "severity": "block",
+   "why": "Claims difficulty without naming it.",
+   "evidence": "YourTango, HowManyWords and Stop-slop lists.",
+   "sources": [
+    "https://yourtango.com/node/382797",
+    "https://howmanywords.app/blog/chatgpt-writing-style-tells",
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 3,
+   "example": "While navigating the complexities of memory layout, we found a bug.",
+   "replacement_hint": "Name the specific difficulty.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "not-widely-available",
+   "pattern": "\\bnot (?:widely|publicly) (?:available|documented|disclosed)\\b|\\bbased on available information\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hedge-stack",
+   "severity": "warn",
+   "why": "Source-availability hedge in place of a stated limitation.",
+   "evidence": "Wikipedia verbatim list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "Based on available information, the driver is not publicly documented.",
+   "replacement_hint": "Say which source you checked and what it does not show.",
+   "technical_false_positive_risk": "Real documentation gaps are often true; check each."
+  },
+  {
+   "id": "specific-details-limited",
+   "pattern": "\\bwhile specific details are (?:limited|scarce)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hedge-stack",
+   "severity": "block",
+   "why": "Announces missing information instead of stating it.",
+   "evidence": "Wikipedia words-to-watch list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "While specific details are limited, the chip is believed to use 16 cores.",
+   "replacement_hint": "State what is known, with its source, and mark the gap once.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "low-profile",
+   "pattern": "\\bmaintains a low profile\\b|\\bkeeps personal details private\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hedge-stack",
+   "severity": "block",
+   "why": "Biographical filler from LLM output.",
+   "evidence": "Wikipedia verbatim list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The engineer maintains a low profile.",
+   "replacement_hint": "Cut, or state a citable fact.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "three-known-patterns",
+   "pattern": "\\bthere are (?:at least )?(?:three|two|four|five) (?:known |key |main )?(?:patterns|ways|reasons|factors)\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "rule-of-three-announcement",
+   "severity": "warn",
+   "why": "Announces a fixed list count that LLMs fill in.",
+   "evidence": "Wikipedia mid-2026 section (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "There are three main factors behind the slowdown:",
+   "replacement_hint": "Write the factors that matter, in prose.",
+   "technical_false_positive_risk": "Real lists exist; review."
+  },
+  {
+   "id": "not-only-but-also",
+   "pattern": "\\bnot only\\b[^.!?]{1,100}\\bbut also\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "negative-parallelism",
+   "severity": "warn",
+   "why": "Parallel construction listed under LLM language patterns.",
+   "evidence": "Wikipedia negative parallelisms list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The tool not only compiles the model but also profiles it.",
+   "replacement_hint": "Two plain sentences.",
+   "technical_false_positive_risk": "Ordinary English; review hits."
+  },
+  {
+   "id": "not-just-but",
+   "pattern": "\\bnot (?:just|only|merely|simply) [^,.;:!?]{1,60}, but\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "negative-parallelism",
+   "severity": "warn",
+   "why": "Contrast against a supposed misconception, overused by LLMs.",
+   "evidence": "EQ-Bench Slop Score weights not-X-but-Y at 25%; Wikipedia 3.3.",
+   "sources": [
+    "https://eqbench.com/slop-score.html",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 2,
+   "example": "This is not just a faster kernel, but a different scheduler.",
+   "replacement_hint": "State the one claim.",
+   "technical_false_positive_risk": "Legitimate corrections exist."
+  },
+  {
+   "id": "its-not-x-its-y",
+   "pattern": "\\bit(?:'|’)?s not (?:just |only |merely |simply )?[^.!?;:]{1,60}[,;.]\\s+it(?:'|’)?s\\b|\\bit is not (?:just |only |merely |simply )?[^.!?;:]{1,60}[,;.]\\s+it is\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "negative-parallelism",
+   "severity": "block",
+   "why": "Named LLM construction that denies a claim nobody made, then supplies a replacement.",
+   "evidence": "Wikipedia 3.3 negative parallelisms; Stockton calls it the most prominent tell; EQ-Bench.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/",
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+    "https://ruben.substack.com/p/delve",
+    "https://www.claudemarketers.com/skills/no-slop"
+   ],
+   "source_count": 5,
+   "example": "It's not a faster chip. It's a different memory model.",
+   "replacement_hint": "State the positive claim alone.",
+   "technical_false_positive_risk": "Legitimate contrast in corrections exists; review."
+  },
+  {
+   "id": "no-x-no-y-just",
+   "pattern": "\\bno [a-z-]+, no [a-z-]+,? just\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "negative-parallelism",
+   "severity": "warn",
+   "why": "Parallel negation stack named as an LLM pattern.",
+   "evidence": "Wikipedia verbatim pattern.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "No setup, no tuning, just run it.",
+   "replacement_hint": "One plain sentence.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "negation-chain-owner",
+   "pattern": "\\b(?:the |a |an )?(\\w+) is not [^.!?]{1,60}[.!?]\\s+(?:the |a |an )?\\1 is not [^.!?]{1,60}[.!?]\\s+(?:the |a |an )?\\1 is not\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "negative-parallelism-chain",
+   "severity": "block",
+   "why": "Repeated subject negation drumbeat that stands in for a claim.",
+   "evidence": "Owner rejected this chain on 2026-11-08 (owner statement, not a fetched source).",
+   "sources": [
+    "owner:2026-11-08 (Nayte Wilson, direct instruction)"
+   ],
+   "source_count": 1,
+   "example": "Speed is not the point. Speed is not the goal. Speed is not the metric.",
+   "replacement_hint": "Keep one negation only if it corrects a real misreading.",
+   "technical_false_positive_risk": "Backreference is case-insensitive under the i flag."
+  },
+  {
+   "id": "more-than-a-product",
+   "pattern": "\\bmore than (?:just )?a (?:tool|platform|product|service|solution|framework|workflow)\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "negative-parallelism",
+   "severity": "block",
+   "why": "Stock correction opener that asserts a bigger identity.",
+   "evidence": "Local copy guide lists 'More than a ...' as a shape to avoid.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 2,
+   "example": "More than a tool, it is a workflow.",
+   "replacement_hint": "Say what the tool does in one sentence.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "emoji-pictograph",
+   "pattern": "\\p{Emoji_Presentation}",
+   "is_regex": true,
+   "kind": "punctuation",
+   "category": "emoji-icon",
+   "severity": "block",
+   "why": "Emoji as icon or bullet is a generated-text sign and renders differently per platform.",
+   "evidence": "Local lint and rules flag emoji as UI; Wikipedia lists emoji on headings and list items.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:anti-slop/references/rules.md",
+    "local:tasteskill-v2/references/tells.md",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 4,
+   "example": "🚀 Faster compile times",
+   "replacement_hint": "Use words. Strip emoji from prose and list markers.",
+   "technical_false_positive_risk": "Requires the u flag. Emoji_Presentation excludes the copyright sign."
+  },
+  {
+   "id": "heading-hype",
+   "pattern": "^#{1,6}\\s+the (?:[a-z-]+ )?(?:trap|hidden cost of [a-z -]+|[a-z-]+ (?:secret|catch))\\s*$",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "heading-hype",
+   "severity": "block",
+   "why": "Dramatic noun-phrase heading that teases a section instead of naming it.",
+   "evidence": "realross README bans 'The Pricing Trap' and 'The Hidden Cost of Convenience'.",
+   "sources": [
+    "https://cdn.jsdelivr.net/gh/realrossmanngroup/no_ai_slop_writing_rules@main/README.md"
+   ],
+   "source_count": 1,
+   "example": "## The Hidden Cost of Speed",
+   "replacement_hint": "Name the section: '## Energy cost per inference'.",
+   "technical_false_positive_risk": "Requires the m flag."
+  },
+  {
+   "id": "bold-lead-bullets",
+   "pattern": "^\\s*(?:[-*]|\\d+\\.)\\s+\\*\\*[^*\\n]{1,80}\\*\\*",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "markdown-structure",
+   "severity": "warn",
+   "why": "Bulleted list with bold lead-in labels is a named generated-text habit.",
+   "evidence": "Wikipedia bolded bullet lists; Stockton excessive boldface.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/"
+   ],
+   "source_count": 2,
+   "example": "- **Latency:** 12 ms",
+   "replacement_hint": "Plain bullets, or put the number first.",
+   "technical_false_positive_risk": "Requires the m flag."
+  },
+  {
+   "id": "bold-in-prose",
+   "pattern": "(?<!`)\\*\\*[^*\\n`]{2,80}\\*\\*",
+   "is_regex": true,
+   "kind": "punctuation",
+   "category": "markdown-residue",
+   "severity": "warn",
+   "why": "Markdown bold residue in running prose.",
+   "evidence": "Wikipedia: asterisks used for bold in prose flagged as a sign.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The **key result** is a 2x speedup.",
+   "replacement_hint": "Remove the asterisks.",
+   "technical_false_positive_risk": "Fine in a markdown renderer that uses it for emphasis; check the site."
+  },
+  {
+   "id": "horizontal-rule",
+   "pattern": "^\\s*(?:-{3,}|\\*{3,})\\s*$",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "markdown-divider",
+   "severity": "warn",
+   "why": "Markdown section dividers in prose are an AI-output artifact.",
+   "evidence": "Wikipedia markup list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "---",
+   "replacement_hint": "Use a real heading or nothing.",
+   "technical_false_positive_risk": "Requires the m flag."
+  },
+  {
+   "id": "placeholder-date-url",
+   "pattern": "\\b20\\d\\d-xx-xx\\b|\\binsert_(?:source|website)_url\\w*",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "placeholder",
+   "severity": "block",
+   "why": "Unfilled template placeholder.",
+   "evidence": "Wikipedia lists '2026-xx-xx' and INSERT_SOURCE_URL placeholders verbatim.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "Measured on 2026-xx-xx.",
+   "replacement_hint": "Fill in the real date or URL.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "chatbot-referral-tag",
+   "pattern": "utm_source=(?:openai|chatgpt\\.com|copilot\\.com)|referrer=grok\\.com",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "chatbot-referral-tag",
+   "severity": "block",
+   "why": "Assistant-origin tracking tag pasted with a link.",
+   "evidence": "Wikipedia lists the tags verbatim.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "See https://example.com/post?utm_source=chatgpt.com",
+   "replacement_hint": "Strip the tag.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "brochure-register",
+   "pattern": "\\b(?:nestled|breathtaking|renowned|must-(?:see|visit)|in the heart of|rich (?:cultural )?(?:heritage|history)|natural beauty|diverse array|groundbreaking|ground-breaking)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Promotional brochure vocabulary that Wikipedia ties to AI text.",
+   "evidence": "Wikipedia promotional list (verbatim); Stockton takeaways; PR News list for groundbreaking.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/takeaways-from-wikipedias-signs-of-ai-writing-2/",
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2"
+   ],
+   "source_count": 3,
+   "example": "The lab is nestled in the hills.",
+   "replacement_hint": "Give the location plainly.",
+   "technical_false_positive_risk": "Low. 'groundbreaking' can describe a real result, so check it."
+  },
+  {
+   "id": "commitment-to-excellence",
+   "pattern": "\\bcommitment to (?:excellence|quality|innovation)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Brochure phrase with no content.",
+   "evidence": "Wikipedia promotional list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The lab shows a commitment to excellence.",
+   "replacement_hint": "Cut it.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "independent-coverage",
+   "pattern": "\\bindependent coverage\\b|\\bwritten by a leading expert\\b|\\bactive social media presence\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Notability boilerplate that asserts credibility without a source.",
+   "evidence": "Wikipedia verbatim list.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The author is a leading expert with an active social media presence.",
+   "replacement_hint": "Name the credential and link it, or cut.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "ai-powered-label",
+   "pattern": "\\bai-powered (?:platform|tool|solution|assistant)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "headline-cliche",
+   "severity": "block",
+   "why": "Product label that carries no technical content.",
+   "evidence": "Microcopy Examples and local copy guide quote the mad-lib shape.",
+   "sources": [
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 2,
+   "example": "An AI-powered platform for research teams.",
+   "replacement_hint": "Name the model, the task and what it runs on.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "superlative-category",
+   "pattern": "\\b(?:next[- ]generation|next[- ]gen(?:eration)?|best[- ]in[- ]class|unprecedented|world[- ]class|all[- ]in[- ]one)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-adjective",
+   "severity": "block",
+   "why": "Superlative category labels common in product and press copy.",
+   "evidence": "Stockton, PR News, local lint and copy lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2",
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 4,
+   "example": "A best-in-class, next-generation accelerator.",
+   "replacement_hint": "Give the spec and the measured efficiency.",
+   "technical_false_positive_risk": "'next-generation' can name a real chip generation; check it."
+  },
+  {
+   "id": "revolutionary-word",
+   "pattern": "\\brevolutioni[sz](?:e|es|ed|ing)\\b|\\brevolutionary\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-adjective",
+   "severity": "block",
+   "why": "Overstated change language used in press releases and AI copy.",
+   "evidence": "Stockton, Microcopy, PR News and aisdr lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai",
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2",
+    "https://aisdr.com/?p=3844"
+   ],
+   "source_count": 4,
+   "example": "A revolutionary approach to on-device ML.",
+   "replacement_hint": "Say what changed and by how much.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "innovative-word",
+   "pattern": "\\binnovative\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-adjective",
+   "severity": "block",
+   "why": "Self-praise adjective with no content of its own.",
+   "evidence": "Stockton, Microcopy and PR News lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai",
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2"
+   ],
+   "source_count": 3,
+   "example": "Our innovative method beats the baseline.",
+   "replacement_hint": "Name the method and the baseline number.",
+   "technical_false_positive_risk": "Some papers use it; this site should not."
+  },
+  {
+   "id": "powerful-word",
+   "pattern": "\\bpowerful\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-adjective",
+   "severity": "warn",
+   "why": "Vague praise adjective on AI vocabulary lists.",
+   "evidence": "Stockton and Brafton stock-vocabulary lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/"
+   ],
+   "source_count": 2,
+   "example": "The ANE is a powerful accelerator for this model.",
+   "replacement_hint": "Give the throughput or energy number.",
+   "technical_false_positive_risk": "Weak signal in technical prose."
+  },
+  {
+   "id": "essential-word",
+   "pattern": "\\bessential\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-adjective",
+   "severity": "warn",
+   "why": "Generic importance adjective that often stands in for a reason.",
+   "evidence": "Stockton, Brafton and YourTango lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/",
+    "https://yourtango.com/node/382797"
+   ],
+   "source_count": 3,
+   "example": "Warm-up is essential for stable timing.",
+   "replacement_hint": "State the consequence: 'Without warm-up the first run is 2x slower.'",
+   "technical_false_positive_risk": "Ordinary in technical prose."
+  },
+  {
+   "id": "foster-verb",
+   "pattern": "\\bfoster(?:s|ed|ing)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "warn",
+   "why": "Abstract growth verb LLMs use for generic benefits.",
+   "evidence": "Wikipedia AI vocabulary; Stockton; claudemarketers.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.claudemarketers.com/skills/no-slop"
+   ],
+   "source_count": 3,
+   "example": "The design fosters collaboration between teams.",
+   "replacement_hint": "Say what the design makes possible.",
+   "technical_false_positive_risk": "Legitimate in some contexts."
+  },
+  {
+   "id": "garner-verb",
+   "pattern": "\\bgarner(?:s|ed|ing)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "ai-vocabulary",
+   "severity": "warn",
+   "why": "Formal 'attract' verb listed in 2023-24 AI vocabulary.",
+   "evidence": "Wikipedia 2023 to mid-2024 list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The post garnered wide attention.",
+   "replacement_hint": "'got', or state the count.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "enduring-word",
+   "pattern": "\\benduring\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "ai-vocabulary",
+   "severity": "warn",
+   "why": "Adjective used to imply lasting significance.",
+   "evidence": "Wikipedia 2023 to mid-2024 list (verbatim).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The method has enduring value for researchers.",
+   "replacement_hint": "Cut it, or state the time span.",
+   "technical_false_positive_risk": "Ordinary English."
+  },
+  {
+   "id": "interplay-noun",
+   "pattern": "\\binterplay\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "ai-vocabulary",
+   "severity": "warn",
+   "why": "Abstract noun that hand-waves at relationships.",
+   "evidence": "Wikipedia AI vocabulary list (excerpt).",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 1,
+   "example": "The interplay between cache and bandwidth matters.",
+   "replacement_hint": "Say how one changes the other, with a number.",
+   "technical_false_positive_risk": "Physics usage is legitimate."
+  },
+  {
+   "id": "multifaceted-word",
+   "pattern": "\\bmultifaceted\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Inflates apparent complexity and leads into padded explanation.",
+   "evidence": "aisdr names it; claudemarketers preview; Wikipedia later-era list.",
+   "sources": [
+    "https://aisdr.com/?p=3844",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 3,
+   "example": "Power management is a multifaceted problem.",
+   "replacement_hint": "Name the facets, or say 'complex' if it is.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "leverage-verb",
+   "pattern": "\\bleverag(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "marketing-cliche",
+   "severity": "warn",
+   "why": "Corporate verb on AI vocabulary and press-release cliche lists.",
+   "evidence": "PR News list; Stockton; Wikipedia later-era list; local lint list.",
+   "sources": [
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.claudemarketers.com/skills/no-slop"
+   ],
+   "source_count": 4,
+   "example": "We leverage the NPU for the attention block.",
+   "replacement_hint": "Write 'use', and name the mechanism.",
+   "technical_false_positive_risk": "The physics or literal technical sense is legitimate."
+  },
+  {
+   "id": "robust-word",
+   "pattern": "\\brobust(?:ly|ness)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-adjective",
+   "severity": "warn",
+   "why": "Generic quality adjective that stands in for the test that showed it.",
+   "evidence": "Wikipedia, Stockton, claudemarketers and local copy lists.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing",
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 4,
+   "example": "The harness gives robust results across seeds.",
+   "replacement_hint": "State the variance or the seed count.",
+   "technical_false_positive_risk": "Statistical 'robust' is legitimate."
+  },
+  {
+   "id": "holistic-word",
+   "pattern": "\\bholistic\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "warn",
+   "why": "Abstraction that signals a summary rather than a claim.",
+   "evidence": "Local lint list.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 1,
+   "example": "We take a holistic view of latency.",
+   "replacement_hint": "Name the components measured together.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "synergy-word",
+   "pattern": "\\bsynerg(?:y|ies|istic)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "academic-excess-vocab",
+   "severity": "block",
+   "why": "Stock abstraction that names no mechanism.",
+   "evidence": "Local lint list.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 1,
+   "example": "The two kernels show synergy.",
+   "replacement_hint": "Name the mechanism and the measured combined effect.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "streamline-verb",
+   "pattern": "\\bstreamlin(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "warn",
+   "why": "Efficiency verb that claims improvement without a metric.",
+   "evidence": "Stockton, claudemarketers and local copy and lint lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 4,
+   "example": "This script streamlines the benchmark workflow.",
+   "replacement_hint": "Name the removed step and the time saved.",
+   "technical_false_positive_risk": "Common in engineering prose."
+  },
+  {
+   "id": "reimagine-verb",
+   "pattern": "\\breimagin(?:e|es|ed|ing)\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "hype-verb",
+   "severity": "warn",
+   "why": "Reframing verb that promises novelty without naming a change.",
+   "evidence": "Local lint list; copy guide 'X, reimagined' headline shape.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 2,
+   "example": "We reimagine the attention kernel.",
+   "replacement_hint": "Say what the kernel does now that it did not before.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "effortless-word",
+   "pattern": "\\beffortless(?:ly)?\\b",
+   "is_regex": true,
+   "kind": "word",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Ease claim that replaces the actual steps.",
+   "evidence": "Local copy, lint and rules lists.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 3,
+   "example": "Converting a model is effortless.",
+   "replacement_hint": "Count the steps or commands the conversion takes.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "blazing-fast",
+   "pattern": "\\b(?:blazing(?:ly)?|lightning)[- ]fast\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-adjective",
+   "severity": "block",
+   "why": "Speed adjective that replaces a measured time.",
+   "evidence": "Local lint and copy lists.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 2,
+   "example": "The loader is blazing fast.",
+   "replacement_hint": "Write the load time in ms on a named device.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "state-of-the-art",
+   "pattern": "\\bstate[- ]of[- ]the[- ]art\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "research-puffery",
+   "severity": "warn",
+   "why": "Superiority claim with no comparison attached.",
+   "evidence": "PR News list of overused press-release phrases.",
+   "sources": [
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2"
+   ],
+   "source_count": 1,
+   "example": "Our model reaches state-of-the-art accuracy on the test set.",
+   "replacement_hint": "Give the number and the baseline.",
+   "technical_false_positive_risk": "Legitimate when a benchmark and baseline follow."
+  },
+  {
+   "id": "paradigm-shift",
+   "pattern": "\\bparadigm shift\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "puffery",
+   "severity": "block",
+   "why": "Big-change phrase rarely supported in its own sentence.",
+   "evidence": "Ruben Hassid list; claudemarketers.",
+   "sources": [
+    "https://ruben.substack.com/p/delve",
+    "https://www.claudemarketers.com/skills/no-slop"
+   ],
+   "source_count": 2,
+   "example": "This is a paradigm shift for edge inference.",
+   "replacement_hint": "State the change in one concrete sentence.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "take-to-next-level",
+   "pattern": "\\btake (?:your|the) [a-z-]+ to the next level\\b|\\bnext[- ]level\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Upgrade phrase from landing copy.",
+   "evidence": "Local lint and rules lists.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 2,
+   "example": "Take your benchmarks to the next level.",
+   "replacement_hint": "Name the new capability and its measured limit.",
+   "technical_false_positive_risk": "'next-level' rarely technical; check."
+  },
+  {
+   "id": "say-goodbye-to",
+   "pattern": "\\bsay goodbye to\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Staged before-and-after with no content.",
+   "evidence": "Local lint list.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 1,
+   "example": "Say goodbye to slow exports.",
+   "replacement_hint": "Start with the measured export time.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "built-for-the-modern",
+   "pattern": "\\bbuilt for the modern\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Catalogue audience phrase.",
+   "evidence": "Local lint list.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 1,
+   "example": "A notebook built for the modern researcher.",
+   "replacement_hint": "Name the person and the task.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "for-modern-teams",
+   "pattern": "\\bfor (?:modern|forward-thinking|growing) (?:teams|businesses)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Stock audience phrase that fits any product.",
+   "evidence": "Local copy guide mad-lib example.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 1,
+   "example": "Built for modern teams.",
+   "replacement_hint": "Name the team or role.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "welcome-to",
+   "pattern": "\\bwelcome to\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "headline-cliche",
+   "severity": "warn",
+   "why": "Greeting used as a headline in place of a claim.",
+   "evidence": "Local copy guide lists 'Welcome to ...'.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 1,
+   "example": "Welcome to the ANE lab.",
+   "replacement_hint": "Open with what the lab measured.",
+   "technical_false_positive_risk": "Legitimate greeting in some pages."
+  },
+  {
+   "id": "reimagined-headline",
+   "pattern": ",\\s*(?:reimagined|redefined|made simple)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "headline-cliche",
+   "severity": "block",
+   "why": "Mad-lib headline with no content.",
+   "evidence": "Local copy guide: 'X, reimagined / redefined / made simple'.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 1,
+   "example": "Inference, reimagined.",
+   "replacement_hint": "Name the thing and its one specific difference.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "thrilled-announce",
+   "pattern": "\\bthrilled\\b|\\b(?:excited|proud) to (?:announce|share)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "marketing-cliche",
+   "severity": "block",
+   "why": "Announcement emotion from press or social copy.",
+   "evidence": "Stockton and PR News lists.",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words",
+    "https://www.prnewsonline.com/25-most-overused-words-and-phrases-in-press-releases-2"
+   ],
+   "source_count": 2,
+   "example": "We are thrilled to share our latest benchmark.",
+   "replacement_hint": "Lead with the result.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "look-no-further",
+   "pattern": "\\blook no further(?: than)?\\b|\\bwhether you(?:'|’)?re (?:a|an|one of|in|looking)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hook-opener",
+   "severity": "block",
+   "why": "Audience-address formula that reads as ad copy.",
+   "evidence": "YourTango lists both forms.",
+   "sources": [
+    "https://yourtango.com/node/382797"
+   ],
+   "source_count": 1,
+   "example": "Whether you're a researcher or a student, look no further.",
+   "replacement_hint": "Address the reader's task directly.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "plethora-treasure",
+   "pattern": "\\b(?:a plethora of|treasure trove)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "block",
+   "why": "Padding that adds word count without meaning.",
+   "evidence": "YourTango filler list.",
+   "sources": [
+    "https://yourtango.com/node/382797"
+   ],
+   "source_count": 1,
+   "example": "There is a plethora of Core ML tools.",
+   "replacement_hint": "Give the count or name the tools.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "ready-to-question",
+   "pattern": "^\\s*ready to [^?\\n]{1,60}\\?\\s*$",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "hook-opener",
+   "severity": "block",
+   "why": "Sales-style question closer.",
+   "evidence": "Microcopy Examples lists 'Ready to...?'.",
+   "sources": [
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai"
+   ],
+   "source_count": 1,
+   "example": "Ready to speed up your models?",
+   "replacement_hint": "Delete, or state the benefit as a fact.",
+   "technical_false_positive_risk": "Requires the m flag."
+  },
+  {
+   "id": "oh-so-intensifier",
+   "pattern": "\\boh-so-[a-z]+",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hype-adjective",
+   "severity": "block",
+   "why": "Chatty intensifier from generated product copy.",
+   "evidence": "Microcopy Examples template.",
+   "sources": [
+    "https://microcopyexamples.substack.com/p/stop-sounding-like-ai"
+   ],
+   "source_count": 1,
+   "example": "Oh-so-fast inference.",
+   "replacement_hint": "Give the latency.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "continues-to-evolve",
+   "pattern": "\\bas [a-z ]{0,30}continues? to (?:evolve|grow|change)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "filler-transition",
+   "severity": "block",
+   "why": "Background sentence that delays the point.",
+   "evidence": "Brafton lists it as formulaic introduction.",
+   "sources": [
+    "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/"
+   ],
+   "source_count": 1,
+   "example": "As technology continues to evolve, edge AI matters more.",
+   "replacement_hint": "Start with the measurement.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "often-said-that",
+   "pattern": "\\bit (?:is|can be|has been) (?:often |widely |commonly )?(?:said|seen|argued|noted) that\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "vague-attribution",
+   "severity": "warn",
+   "why": "Passive hedge that avoids naming who showed something.",
+   "evidence": "Brafton lists 'It is often said that' as passive filler.",
+   "sources": [
+    "https://www.brafton.co.uk/blog/ai/the-proof-is-the-pudding-how-to-polish-ai-generated-copy-youre-happy-to-publish/"
+   ],
+   "source_count": 1,
+   "example": "It is often said that ANE kernels are faster.",
+   "replacement_hint": "Name the source or state the measurement.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "at-its-core",
+   "pattern": "\\bat its core\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "throat-clearing",
+   "severity": "warn",
+   "why": "Scene-setting phrase that delays the claim.",
+   "evidence": "Stop-slop phrase list.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 1,
+   "example": "At its core, the problem is memory bandwidth.",
+   "replacement_hint": "Name the bottleneck directly.",
+   "technical_false_positive_risk": "Common idiom."
+  },
+  {
+   "id": "in-a-world-where",
+   "pattern": "\\bin a world where\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "throat-clearing",
+   "severity": "block",
+   "why": "Scene-setting opener that delays the claim.",
+   "evidence": "Stop-slop and Ruben Hassid lists.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+    "https://ruben.substack.com/p/delve"
+   ],
+   "source_count": 2,
+   "example": "In a world where chips are fast, memory matters.",
+   "replacement_hint": "Start with the bottleneck.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "here-is-the-thing",
+   "pattern": "\\bhere['’]s the (?:thing|truth|kicker|problem|catch)\\b|\\bthe (?:reality|truth) is\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "colon-reveal",
+   "severity": "block",
+   "why": "Build-up line that performs a reveal.",
+   "evidence": "Stop-slop, claudemarketers and Ruben Hassid lists.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+    "https://www.claudemarketers.com/skills/no-slop",
+    "https://ruben.substack.com/p/delve"
+   ],
+   "source_count": 3,
+   "example": "Here's the thing: the ANE is faster only above batch 4.",
+   "replacement_hint": "Put the claim first.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "self-posed-answer",
+   "pattern": "\\bthe (?:goal|result|bottom line)\\?",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "colon-reveal",
+   "severity": "block",
+   "why": "Poses and answers its own question.",
+   "evidence": "Stockton list ('the goal?', 'the result?').",
+   "sources": [
+    "https://www.blakestockton.com/p/red-flag-words"
+   ],
+   "source_count": 1,
+   "example": "The result? The ANE finished the batch in 4 ms.",
+   "replacement_hint": "Write the result without the question.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "uncomfortable-truth",
+   "pattern": "\\b(?:let me be clear|the uncomfortable truth is|i['’]ll say it again|i['’]m going to be honest)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "throat-clearing",
+   "severity": "block",
+   "why": "Credibility signpost that adds no information.",
+   "evidence": "Stop-slop phrase list.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 1,
+   "example": "The uncomfortable truth is that the benchmark was wrong.",
+   "replacement_hint": "State the correction directly.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "emphasis-crutch",
+   "pattern": "\\b(?:let that sink in|make no mistake|this matters because)\\b|\\bfull stop\\.",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "emphasis-crutch",
+   "severity": "block",
+   "why": "Emphasis performed in words instead of earned.",
+   "evidence": "Stop-slop emphasis list.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 1,
+   "example": "Make no mistake: the cache is the bottleneck.",
+   "replacement_hint": "Show the measurement that makes the point.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "spoiler-label",
+   "pattern": "\\b(?:spoiler|plot twist):",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "colon-reveal",
+   "severity": "block",
+   "why": "Reveal label that mimics a narrative hook.",
+   "evidence": "Stop-slop meta-commentary list.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 1,
+   "example": "Spoiler: the ANE wins on energy.",
+   "replacement_hint": "State the result without a label.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "walk-you-through",
+   "pattern": "\\blet me walk you through\\b|\\bin this (?:article|section|post),? we['’]ll\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "meta-commentary",
+   "severity": "block",
+   "why": "Signposts the document instead of writing its content.",
+   "evidence": "Stop-slop and Wikipedia editorializing lists.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md",
+    "https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing"
+   ],
+   "source_count": 2,
+   "example": "In this article, we'll walk through the conversion.",
+   "replacement_hint": "Start with the conversion step.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "business-jargon",
+   "pattern": "\\b(?:lean into|circle back|on the same page|moving forward|take a step back)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "business-jargon",
+   "severity": "block",
+   "why": "Corporate idiom that reads as workplace filler.",
+   "evidence": "Stop-slop business jargon list.",
+   "sources": [
+    "https://raw.githubusercontent.com/hardikpandya/stop-slop/main/references/phrases.md"
+   ],
+   "source_count": 1,
+   "example": "Let's double down on the scheduler.",
+   "replacement_hint": "Name the action.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "picture-this",
+   "pattern": "\\bpicture this\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "hook-opener",
+   "severity": "block",
+   "why": "Narrative hook from novels and ad copy.",
+   "evidence": "Carly lists 'Picture this:' as a giveaway.",
+   "sources": [
+    "https://carly.substack.com/p/spotting-machine-made-prose"
+   ],
+   "source_count": 1,
+   "example": "Picture this: a model that runs on a phone.",
+   "replacement_hint": "Start with the model and device.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "quietly-trusted",
+   "pattern": "\\bquietly trusted by\\b|\\bon our desks\\b|\\bour philosophy\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "performative-label",
+   "severity": "block",
+   "why": "Staged-intimacy or social-proof labels that assert without naming anyone.",
+   "evidence": "Local copy and tells guides list these labels.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/references/tells.md"
+   ],
+   "source_count": 2,
+   "example": "Quietly trusted by researchers.",
+   "replacement_hint": "Delete, or name a real user with permission.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "field-notes-label",
+   "pattern": "\\bfield notes?\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "performative-label",
+   "severity": "warn",
+   "why": "Editorial label applied to ordinary content to borrow authority.",
+   "evidence": "Local copy and tells guides.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/references/tells.md"
+   ],
+   "source_count": 2,
+   "example": "Field notes: ANE dispatch overhead.",
+   "replacement_hint": "Use 'Notes' or the subject itself.",
+   "technical_false_positive_risk": "Legitimate if the site really keeps a field-notes series."
+  },
+  {
+   "id": "furniture-text-block",
+   "pattern": "^\\s*\\(?scroll(?: to explore)?\\)?\\s*$|\\bavailable for work\\b|^\\s*est\\. \\d{4}\\s*$|©\\s?20\\d{2}\\s*[—–-]\\s*\\w+",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "furniture-text",
+   "severity": "block",
+   "why": "Decorative chrome that adds no content.",
+   "evidence": "Local copy and tells guides list these as furniture text.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/references/tells.md"
+   ],
+   "source_count": 2,
+   "example": "(Scroll to explore)",
+   "replacement_hint": "Delete it.",
+   "technical_false_positive_risk": "Requires the m flag for the line-anchored forms."
+  },
+  {
+   "id": "middle-dot-strings",
+   "pattern": "\\S+ · \\S+ · \\S+",
+   "is_regex": true,
+   "kind": "punctuation",
+   "category": "middle-dot-strip",
+   "severity": "warn",
+   "why": "Words joined by middle dots read as generated chrome.",
+   "evidence": "Local copy and tells guides.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/references/tells.md"
+   ],
+   "source_count": 2,
+   "example": "Research · Benchmarks · Field notes",
+   "replacement_hint": "Write a sentence, or a plain list.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "live-clock-eyebrow",
+   "pattern": "\\blive\\b\\s*[·•|-]?\\s*\\d{1,2}:\\d{2}\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "live-clock-eyebrow",
+   "severity": "warn",
+   "why": "Liveness badge that the page does not have.",
+   "evidence": "Local anti-slop rules.",
+   "sources": [
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 1,
+   "example": "LIVE · 09:41 Benchmark running",
+   "replacement_hint": "Remove, or state the real run start time with date.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "numbered-step-label",
+   "pattern": "\\b(?:step|phase) 0\\d\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "numbered-label",
+   "severity": "warn",
+   "why": "Padded stage labels duplicate the order of the content.",
+   "evidence": "Local copy guide and lint rule.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 2,
+   "example": "Phase 02: decode",
+   "replacement_hint": "Use the stage's own name or an ordered list.",
+   "technical_false_positive_risk": "Unpadded tutorial steps are fine."
+  },
+  {
+   "id": "index-numbering",
+   "pattern": "\\b0[1-9] ?/ ?0[1-9]\\b(?!\\s?/\\s?\\d{2,4})",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "numbered-marker",
+   "severity": "warn",
+   "why": "Paired index numbers are decorative scaffolding when order carries no meaning.",
+   "evidence": "Local tells and rules guides.",
+   "sources": [
+    "local:tasteskill-v2/references/tells.md",
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 2,
+   "example": "01 / Dispatch 02 / Memory",
+   "replacement_hint": "Drop the numbers.",
+   "technical_false_positive_risk": "Negative lookahead spares dates like 01/02/2025."
+  },
+  {
+   "id": "fabricated-99-9",
+   "pattern": "\\b99\\.9{1,2}%",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "fabricated-precision",
+   "severity": "warn",
+   "why": "A 99.9% figure without denominator or source is decorative precision.",
+   "evidence": "Local anti-slop rules list invented-evidence shapes.",
+   "sources": [
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 1,
+   "example": "Our pipeline is 99.9% accurate.",
+   "replacement_hint": "State the measurement, denominator and test set.",
+   "technical_false_positive_risk": "Real measured figures are legitimate; check."
+  },
+  {
+   "id": "tenx-hundredx",
+   "pattern": "\\b(?:10|100)x\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "fabricated-precision",
+   "severity": "warn",
+   "why": "Unsourced magnitude claim.",
+   "evidence": "Local anti-slop rules list 10x and 100x as invented-evidence shapes.",
+   "sources": [
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 1,
+   "example": "It runs 10x faster.",
+   "replacement_hint": "Write the two measured times, workload and device.",
+   "technical_false_positive_risk": "Matches real measured ratios; needs a cited baseline check."
+  },
+  {
+   "id": "number-one-claim",
+   "pattern": "(?:^|\\s)#1 (?:choice|platform|tool|solution)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "fabricated-precision",
+   "severity": "block",
+   "why": "Ranking claim with no ranking source.",
+   "evidence": "Local anti-slop rules list it.",
+   "sources": [
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 1,
+   "example": "The #1 choice for on-device research.",
+   "replacement_hint": "Delete, or cite the ranking.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "invented-social-proof",
+   "pattern": "trusted by (?:thousands|millions|\\d[\\d,]*\\+)|\\b\\d{1,3}(?:,\\d{3})+\\+ (?:teams|users|customers|companies|developers)\\b",
+   "is_regex": true,
+   "kind": "structure",
+   "category": "invented-proof",
+   "severity": "block",
+   "why": "Round user counts with no named users are invented social proof.",
+   "evidence": "Local rules, tells and copy guides.",
+   "sources": [
+    "local:anti-slop/references/rules.md",
+    "local:tasteskill-v2/references/copy.md",
+    "local:tasteskill-v2/references/tells.md"
+   ],
+   "source_count": 3,
+   "example": "Trusted by thousands of researchers.",
+   "replacement_hint": "Delete it. Use only proof that is true and named.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "explainer-caption",
+   "pattern": "\\ba clean, minimal (?:layout|design|interface|look) (?:for|that|with|to)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "explainer-caption",
+   "severity": "block",
+   "why": "Caption that narrates the design look instead of the content.",
+   "evidence": "Local copy guide lists it.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 1,
+   "example": "A clean, minimal layout for comparing benchmarks.",
+   "replacement_hint": "Describe the axes, workload and result.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "owner-rejected-slogans",
+   "pattern": "follow the evidence|look beneath the claim|evidence before inference|research, not a victory lap|build\\. experiment\\. understand|make the question inspectable",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "site-rejected-slogan",
+   "severity": "block",
+   "why": "Slogans the owner rejected for generic exhortation with no work named.",
+   "evidence": "Owner rejected these on 2026-11-08 (owner statement, not a fetched source).",
+   "sources": [
+    "owner:2026-11-08 (Nayte Wilson, direct instruction)"
+   ],
+   "source_count": 1,
+   "example": "Our work tests the decode path. Follow the evidence.",
+   "replacement_hint": "State the specific result or the measurement that supports the claim.",
+   "technical_false_positive_risk": "Low."
+  },
+  {
+   "id": "generic-error-copy",
+   "pattern": "\\b(?:oops|whoops|uh oh)\\b|something went wrong",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "apologetic-error-copy",
+   "severity": "block",
+   "why": "Template error copy that names no failure.",
+   "evidence": "Local anti-slop rules.",
+   "sources": [
+    "local:anti-slop/references/rules.md"
+   ],
+   "source_count": 1,
+   "example": "Oops! Something went wrong.",
+   "replacement_hint": "State the failure and the next step.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "lorem-ipsum",
+   "pattern": "\\blorem ipsum\\b|dolor sit amet",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "placeholder-copy",
+   "severity": "block",
+   "why": "Abandoned filler that makes a page look unfinished.",
+   "evidence": "Local lint, rules and tells guides.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:anti-slop/references/rules.md",
+    "local:tasteskill-v2/references/tells.md"
+   ],
+   "source_count": 3,
+   "example": "Lorem ipsum dolor sit amet.",
+   "replacement_hint": "Write one real sentence.",
+   "technical_false_positive_risk": "none"
+  },
+  {
+   "id": "arrow-cta-label",
+   "pattern": "^[^\\n]{0,40}\\s→\\s*$",
+   "is_regex": true,
+   "kind": "punctuation",
+   "category": "arrow-glyph-cta",
+   "severity": "warn",
+   "why": "Trailing arrow on a short label is the reflex call-to-action glyph.",
+   "evidence": "Local copy guide: at most one arrow, on the primary action.",
+   "sources": [
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 1,
+   "example": "See the per-layer timings →",
+   "replacement_hint": "Drop the arrow.",
+   "technical_false_positive_risk": "Flow diagrams use arrows; requires the m flag."
+  },
+  {
+   "id": "generic-cta-label",
+   "pattern": "\\b(?:learn more|get started|read more|discover more|explore now)\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "generic-cta-label",
+   "severity": "warn",
+   "why": "Link or button label that names no destination.",
+   "evidence": "Local lint and tells lists.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs",
+    "local:tasteskill-v2/references/tells.md",
+    "local:tasteskill-v2/references/copy.md"
+   ],
+   "source_count": 3,
+   "example": "Latency results. Learn more.",
+   "replacement_hint": "Name the destination, e.g. 'See the per-layer timings'.",
+   "technical_false_positive_risk": "Some sites use these labels legitimately."
+  },
+  {
+   "id": "click-here",
+   "pattern": "\\bclick here\\b",
+   "is_regex": true,
+   "kind": "phrase",
+   "category": "generic-cta-label",
+   "severity": "block",
+   "why": "Link label with no information about the destination.",
+   "evidence": "Local lint list.",
+   "sources": [
+    "local:tasteskill-v2/scripts/lint.mjs"
+   ],
+   "source_count": 1,
+   "example": "For the raw logs, click here.",
+   "replacement_hint": "Put the destination in the link text.",
+   "technical_false_positive_risk": "none"
+  }
+ ]
+}

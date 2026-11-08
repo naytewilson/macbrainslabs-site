@@ -134,6 +134,7 @@ const cases = [
 async function run() {
   const base = await listen();
   const results = [];
+  const pixelFailures = [];
   try {
     await browser('set', 'media', 'dark', 'reduced-motion');
     for (const c of cases) {
@@ -182,10 +183,12 @@ async function run() {
         assert.ok(fs.existsSync(baseline), c.id + ' missing baseline: run --update after reviewing visuals');
         const diff = await browser('diff', 'screenshot', '--baseline', baseline, '--threshold', '0.16', '--output', path.join(diffs, c.id + '.png'), ...(c.selector ? ['--selector', c.selector] : []));
         difference = diff.mismatchPercentage;
-        assert.ok(difference <= 8, c.id + ` changed ${difference}% of pixels (limit 8%)`);
       }
-      results.push({ id: c.id, route: c.route, viewport: `${c.w}x${c.h}`, screenshot: path.relative(root, baseline), mismatchPercentage: difference, status: 'PASS' });
-      console.log(`PASS ${c.id} viewport=${c.w}x${c.h} mismatch=${difference}%`);
+      // A pixel change is collected, not thrown, so one run captures every changed screen in tests/visual/current.
+      const pixelsOk = update || difference <= 8;
+      if (!pixelsOk) pixelFailures.push(c.id + ` changed ${difference}% of pixels (limit 8%)`);
+      results.push({ id: c.id, route: c.route, viewport: `${c.w}x${c.h}`, screenshot: path.relative(root, baseline), mismatchPercentage: difference, status: pixelsOk ? 'PASS' : 'PIXEL_CHANGE' });
+      console.log(`${pixelsOk ? 'PASS' : 'FAIL'} ${c.id} viewport=${c.w}x${c.h} mismatch=${difference}%`);
     }
 
     // Filter edge cases: no-results message and accessible reset.
@@ -249,7 +252,11 @@ async function run() {
 
 
     fs.writeFileSync(path.join(root, 'tests/visual/last-run.json'), JSON.stringify({ mode: update ? 'update' : 'verify', results, motion: { mediaRequests: motion.mediaRequests } }, null, 2) + '\n');
+    assert.equal(pixelFailures.length, 0, `${pixelFailures.length} screen(s) changed beyond the threshold; review tests/visual/current and run --update: ` + pixelFailures.join('; '));
     console.log(`Visual QA: ${results.length}/${results.length} responsive screenshots and interaction checks passed`);
+  } catch (e) {
+    if (pixelFailures.length) console.error('Pixel changes recorded before this failure: ' + pixelFailures.join('; '));
+    throw e;
   } finally {
     try { await browser('close'); } catch (e) { console.error('Owned browser cleanup warning:', e.message); }
     await new Promise(resolve => server.close(resolve));

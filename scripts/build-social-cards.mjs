@@ -8,7 +8,7 @@ import {socialPathForRoute} from './social-path.mjs';
 const require=createRequire(import.meta.url);
 let sharp;
 try {sharp=require('sharp');}
-catch {sharp=require('/home/nayte/.npm-global/lib/node_modules/@wonderwhy-er/desktop-commander/node_modules/sharp');}
+catch {console.error('Install dev-only sharp (npm install --no-save sharp@0.35.5) or put it on NODE_PATH.');process.exit(2);}
 const root=path.resolve(import.meta.dirname,'..');
 const verify=process.argv.includes('--check');
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');
@@ -58,16 +58,16 @@ function lineLayout(text){
  return {size,lines};
 }
 function label(route){
- if(route.startsWith('/notes/')&&route!=='/notes/')return 'RESEARCH FIELD NOTE';
- if(route.startsWith('/research/records/'))return 'PUBLISHED DIAGNOSTIC RECORD';
- if(route.startsWith('/research/explore/'))return 'SOURCE-LINKED EVIDENCE';
- if(route.startsWith('/evidence/'))return 'PLANNER EVIDENCE';
- if(route.startsWith('/security/')&&route!=='/security/')return 'DEFENSIVE SECURITY ADVISORY';
- if(route==='/start/')return 'ONE-MINUTE FIELD GUIDE';
- if(route==='/methods/')return 'EXPERIMENTAL METHODOLOGY';
- if(route==='/research/')return 'MEASURED RESEARCH RECORD';
- if(route==='/publications/')return 'PUBLIC ARCHIVE INDEX';
- return 'INDEPENDENT RESEARCH';
+ if(route.startsWith('/notes/')&&route!=='/notes/')return 'Research note';
+ if(route.startsWith('/research/records/'))return 'Published research record';
+ if(route.startsWith('/research/explore/'))return 'Evidence explorer';
+ if(route.startsWith('/evidence/'))return 'Placement evidence';
+ if(route.startsWith('/security/')&&route!=='/security/')return 'Security advisory';
+ if(route==='/start/')return 'One-minute guide';
+ if(route==='/methods/')return 'How I check results';
+ if(route==='/research/')return 'Research record';
+ if(route==='/publications/')return 'Publications';
+ return 'Independent research';
 }
 function cardSVG(route,title){
  const {size,lines}=lineLayout(title);
@@ -81,15 +81,14 @@ function cardSVG(route,title){
  '<path d="M64 150H1138 M64 578H1138" stroke="#384139" stroke-width="1.5"/>',
  '<g transform="translate(58 44) scale(.15)">',brandInside,'</g>',
  '<text x="152" y="99" font-family="Arial,Helvetica,sans-serif" font-size="29" font-weight="650" fill="#efede5">MacBrains<tspan font-weight="400" fill="#b8c3b4"> Labs</tspan></text>',
- '<rect x="64" y="186" width="5" height="5" fill="#ff633a"/>',
- '<text x="80" y="194" font-family="monospace" font-size="14" letter-spacing="1.2" fill="#ff9c7d">',esc(label(route)),'</text>',
+ '<rect x="64" y="168" width="5" height="5" fill="#ff633a"/>',
+ '<text x="80" y="177" font-family="Arial,Helvetica,sans-serif" font-size="19" font-weight="600" fill="#ff9c7d">',esc(label(route)),'</text>',
  titleLines,
  '<path d="M64 '+Math.min(last+38,565).toFixed(1)+' H170" stroke="#ff633a" stroke-width="4"/>',
  '<rect x="824" y="191" width="316" height="306" fill="#182119" rx="11" stroke="#536352" stroke-width="1.5"/>',
  '<g transform="translate(847 210) scale(.595)">',brandInside,'</g>',
- '<text x="842" y="535" font-family="monospace" font-size="12" letter-spacing="1" fill="#c3d0bf">PUBLIC / SOURCE-LINKED / BOUNDED</text>',
- '<text x="65" y="613" font-family="monospace" font-size="12" letter-spacing="1.7" fill="#bcc5b9">macbrainslabs.org</text>',
- '<text x="846" y="612" font-family="monospace" font-size="11" letter-spacing=".4" fill="#cbd5c9">EVIDENCE BEFORE INFERENCE</text>',
+  '<text x="65" y="612" font-family="Arial,Helvetica,sans-serif" font-size="16" fill="#bcc5b9">macbrainslabs.org</text>',
+ '<text x="824" y="612" font-family="Arial,Helvetica,sans-serif" font-size="16" fill="#cbd5c9">Nayte Wilson · independent research</text>',
  '</svg>'
  ].join('');
 }

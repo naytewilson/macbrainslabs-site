@@ -29,7 +29,7 @@ function metrics() {
   const rows = [...body[1].matchAll(/<tr>([\s\S]*?)<\/tr>/g)];
   assert.ok(rows.length >= 6, 'research summary unexpectedly missing measurements');
   return rows.map((m, i) => {
-    const td = [...m[1].matchAll(/<td(?: [^>]+)?>([\s\S]*?)<\/td>/g)].map(x => plain(x[1]));
+    const td = [...m[1].matchAll(/<td(?: [^>]+)?>([\s\S]*?)<\/td>/g)].map(x => plain(x[1].replace(/\s*(?:See\s+)?<a\b[^>]*>(?:(?!<a\b)[\s\S])*?<\/a>\.?\s*$/i, '')));
     assert.equal(td.length, 4, 'unexpected measurement table format row ' + i);
     const [title, observation, value, limitation] = td;
     const type = classes.get(observation);
@@ -41,7 +41,7 @@ function notes() {
   const html = read('notes/index.html');
   const rx = /<li><a href="(\/notes\/[a-z0-9/_-]+\/)"><span class="id">([^<]+)<\/span><div><h2>([\s\S]*?)<\/h2><p>([\s\S]*?)<\/p><\/div><span class="tags">([\s\S]*?)<\/span><\/a><\/li>/gi;
   const out = [...html.matchAll(rx)].map(m => ({
-    id: 'note-' + plain(m[2]), kind: 'note', title: plain(m[3]), observation: 'Research field note', value: plain(m[5]), limitation: plain(m[4]), url: safePath(m[1]), source: 'Public field note ' + plain(m[2]), tag: plain(m[5])
+    id: 'note-' + plain(m[2]), kind: 'note', title: plain(m[3]), observation: 'Research note', value: plain(m[5]), limitation: plain(m[4]), url: safePath(m[1]), source: 'Public note ' + plain(m[2]), tag: plain(m[5])
   }));
   assert.ok(out.length >= 5, 'public notes list unexpectedly incomplete');
   return out;
@@ -76,7 +76,7 @@ function buildCatalog() {
     classification: {
       planner: 'Public planner/API assignment observations; not a physical ANE trace',
       measured: 'Specific experiment measurements, not general benchmark guarantees',
-      note: 'Source-bound field note, possibly a negative result or interpretation',
+      note: 'Source-bound note, possibly a negative result or interpretation',
       archive: 'Published release integrity, not peer review or independent replication'
     },
     items
@@ -105,12 +105,12 @@ function documentShell(route, title, description, contents, script = '') {
   before = before.replace(/<meta name="twitter:image:alt" content="[^"]+">/, '<meta name="twitter:image:alt" content="MacBrains Labs research: ' + escapeHtml(title) + '">');
   sub('<link rel="stylesheet" href="/styles.css">', '<link rel="stylesheet" href="/styles.css">\n<link rel="stylesheet" href="/experience.css">' + (script ? '\n<script src="' + script + '" defer></script>' : ''));
   before = before.replace('aria-current="page">Notes</a>', '>Notes</a>');
-  before = before.replace('"name": "Field notes"', '"name": "' + (route === '/start/' ? 'Start here' : 'Evidence explorer') + '"').replace('"item": "https://macbrainslabs.org/notes/"', '"item": "https://macbrainslabs.org' + route + '"');
+  before = before.replace('"name": "Notes"', '"name": "' + (route === '/start/' ? 'Start here' : 'Evidence explorer') + '"').replace('"item": "https://macbrainslabs.org/notes/"', '"item": "https://macbrainslabs.org' + route + '"');
   return before + '<main id="main">\n' + contents + '\n</main>' + after;
 }
 
 function explorer(catalog) {
-  const types = { planner: 'Planner reported', measured: 'Measured', note: 'Field note', archive: 'Verified archive' };
+  const types = { planner: 'Planner reported', measured: 'Measured', note: 'Note', archive: 'Verified archive' };
   const counts = Object.fromEntries(Object.keys(types).map(x => [x, catalog.items.filter(i => i.kind === x).length]));
   const cards = catalog.items.map(x => {
     const data = escapeHtml([x.title,x.observation,x.value,x.limitation,x.source,x.tag].join(' ').toLocaleLowerCase('en-US'));
@@ -125,51 +125,51 @@ function explorer(catalog) {
 </article>`;
   }).join('\n');
   const content = `<header class="experience-hero">
-<div class="wrap"><p class="kicker">THE PUBLIC RECORD / 01</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Evidence explorer</p>
-<div class="experience-hero-grid"><div><h1>Find the claim.<br><em>Follow the evidence.</em></h1>
-<p class="experience-lede">Search the measurements, field notes, and verified archive releases already published by MacBrains Labs. Every entry links back to its public source.</p>
-<div class="experience-actions"><a href="/start/">New to ANE research? Start here ↗</a><a href="/methods/">Read the method ↗</a></div></div>
-<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">WHAT IS INDEXED</span><strong>${catalog.items.length} <span>public entries</span></strong>
-<dl><div><dt>Measured</dt><dd>${counts.measured}</dd></div><div><dt>Planner reported</dt><dd>${counts.planner}</dd></div><div><dt>Field notes</dt><dd>${counts.note}</dd></div><div><dt>Verified archives</dt><dd>${counts.archive}</dd></div></dl>
-<p>Index derived from the published research summary, note index, and last-known-good archive feed. It does not create or validate experiments.</p></aside></div>
+<div class="wrap"><p class="kicker">The public record</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Evidence explorer</p>
+<div class="experience-hero-grid"><div><h1>Search the evidence.</h1>
+<p class="experience-lede">Search my measurements, notes and verified archive releases. Every entry links back to its public source.</p>
+<div class="experience-actions"><a href="/start/">New to the Neural Engine? Start with the guide ↗</a><a href="/methods/">Read my methods ↗</a></div></div>
+<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">What’s indexed</span><strong>${catalog.items.length} <span>public entries</span></strong>
+<dl><div><dt>Measured</dt><dd>${counts.measured}</dd></div><div><dt>Planner reported</dt><dd>${counts.planner}</dd></div><div><dt>Notes</dt><dd>${counts.note}</dd></div><div><dt>Verified archives</dt><dd>${counts.archive}</dd></div></dl>
+<p>This index comes from the published research summary, the note index and the last known good archive feed. It doesn’t create or validate any experiment.</p></aside></div>
 </div></header>
-<section class="wrap evidence-section" aria-labelledby="index-h"><div class="experience-section-head"><span class="kicker">PUBLIC EVIDENCE INDEX / 02</span><div><h2 id="index-h">What is actually on record.</h2><p>Measurement, compiler assignment, interpretation, and archive integrity are different kinds of evidence.</p></div></div>
+<section class="wrap evidence-section" aria-labelledby="index-h"><div class="experience-section-head"><span class="kicker">Public evidence index</span><div><h2 id="index-h">Browse the entries</h2><p>Measurements, compiler assignments, interpretations and archive integrity are different kinds of evidence.</p></div></div>
 <form class="evidence-controls" role="search" id="evidence-controls" hidden>
 <label for="evidence-query">Search records</label><input id="evidence-query" type="search" autocomplete="off" placeholder="Model, metric, result, source..." aria-controls="evidence-list">
 <label for="evidence-filter">Evidence kind</label><select id="evidence-filter" aria-controls="evidence-list">
-<option value="all">All public entries</option><option value="measured">Measured</option><option value="planner">Planner reported</option><option value="note">Field notes</option><option value="archive">Verified archives</option>
+<option value="all">All public entries</option><option value="measured">Measured</option><option value="planner">Planner reported</option><option value="note">Notes</option><option value="archive">Verified archives</option>
 </select><button type="reset">Clear</button></form>
 <p class="evidence-count" id="evidence-count" aria-live="polite">${catalog.items.length} entries from published sources</p>
 <div class="evidence-grid" id="evidence-list">${cards}</div>
-<p class="evidence-empty" id="evidence-empty" hidden>No published records match these filters. Try a broader search.</p></section>
-<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">HOW TO READ IT / 03</span><h2>Evidence isn't a single badge.</h2></div><div>
-<p><strong>Planner reported:</strong> Core ML's assigned compute unit, not a physical trace of the Neural Engine.</p>
-<p><strong>Measured:</strong> an observed result for a named model, device, compiler and method. It does not generalize automatically.</p>
-<p><strong>Field note:</strong> engineering interpretation, including counterexamples and failed hypotheses.</p>
-<p><strong>Verified archive:</strong> release provenance and file integrity. A DOI does not imply peer review or independent replication.</p>
-<a href="/research/">Read the full research record ↗</a></div></div></section>`;
-  return documentShell('/research/explore/','Research evidence explorer', 'Browse source-linked Apple Neural Engine measurements, Core ML planner observations, field notes, and verified research archives with clear evidence boundaries.', content, '/explore.js');
+<p class="evidence-empty" id="evidence-empty" hidden>Nothing published matches these filters. Try a broader search.</p></section>
+<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">How to read it</span><h2>Each kind means something different.</h2></div><div>
+<p><strong>Planner reported:</strong> the compute unit Core ML assigns. It isn’t a physical trace of the Neural Engine.</p>
+<p><strong>Measured:</strong> an observed result for a named model, device, compiler and method. It doesn’t generalize automatically.</p>
+<p><strong>Note:</strong> my engineering interpretation. It includes counterexamples and failed hypotheses.</p>
+<p><strong>Verified archive:</strong> release provenance and file integrity. A DOI doesn’t imply peer review or independent replication.</p>
+<a href="/research/">See the full research record ↗</a></div></div></section>`;
+  return documentShell('/research/explore/','Research evidence explorer', 'Browse source-linked Apple Neural Engine measurements, Core ML planner observations, notes, and verified research archives with clear evidence boundaries.', content, '/explore.js');
 }
 
 function guide() {
   const content = `<header class="experience-hero">
-<div class="wrap"><p class="kicker">START HERE / RESEARCH FIELD GUIDE</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Start here</p>
-<div class="experience-hero-grid"><div><h1>Before the number,<br><em>know the claim.</em></h1>
-<p class="experience-lede">A one-minute map to MacBrains Labs research. You do not need to know Core ML or the Apple Neural Engine to follow the evidence.</p>
-<div class="experience-actions"><a href="/research/explore/">Explore the findings ↗</a><a href="/research/">Open the detailed research ↗</a></div></div>
-<aside class="experience-index" aria-label="Guide overview"><span class="kicker">THE SHORT VERSION</span><strong>4 <span>questions</span></strong><p>What executed? Where was it assigned? Was it correct? Did it actually run faster?</p><p>Each question has a different test. A result from one does not prove the others.</p></aside></div></div></header>
-<section class="wrap guide-section" aria-labelledby="guide-title"><div class="experience-section-head"><span class="kicker">FIRST PRINCIPLES / 01</span><div><h2 id="guide-title">The four questions.</h2><p>Think of the Neural Engine as one possible destination for computational work, not a guarantee of correctness or speed.</p></div></div>
+<div class="wrap"><p class="kicker">Start here</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Start here</p>
+<div class="experience-hero-grid"><div><h1>How to read this research.</h1>
+<p class="experience-lede">A one-minute map of my research. You don’t need Core ML or the Apple Neural Engine to read the evidence.</p>
+<div class="experience-actions"><a href="/research/explore/">Open the evidence explorer ↗</a><a href="/research/">Read the full research record ↗</a></div></div>
+<aside class="experience-index" aria-label="Guide overview"><span class="kicker">The short version</span><strong>4 <span>questions</span></strong><p>What ran? Where was it assigned? Was it correct? Did it actually get faster?</p><p>Each question needs a different test. A result for one doesn’t prove the others.</p></aside></div></div></header>
+<section class="wrap guide-section" aria-labelledby="guide-title"><div class="experience-section-head"><span class="kicker">The basics</span><div><h2 id="guide-title">The four questions.</h2><p>Think of the Neural Engine as one place a computation can run. It doesn’t guarantee correct results or speed.</p></div></div>
 <div class="guide-grid">
-<article><span class="guide-n">01 / BUILD</span><h3>What actually ran?</h3><p>Core ML compiles a model graph. Small changes in graph structure, shape, or diagnostics can change the compiled result. Name the precise artifact and configuration.</p><a href="/methods/">How the artifacts are documented ↗</a></article>
-<article><span class="guide-n">02 / PLACE</span><h3>Where was it assigned?</h3><p>Apple's Core ML planner may report compute operations assigned to ANE, CPU, or GPU. This is useful placement evidence, but not a low-level trace proving each operation physically ran on ANE.</p><a href="/evidence/qwen-placement/">Inspect a placement receipt ↗</a></article>
-<article><span class="guide-n">03 / COMPARE</span><h3>Was the output correct?</h3><p>A model can compile and receive an ANE assignment yet fail an output-parity test. Compare exact outputs against declared fixtures using defined numerical tolerances.</p><a href="/notes/lfm-parity/">Read a passing and failing comparison ↗</a></article>
-<article><span class="guide-n">04 / MEASURE</span><h3>Did it get faster?</h3><p>Throughput depends on batch shape, dispatch cost, memory, and what was timed. A speed measurement does not validate model quality or the claims made about deployment.</p><a href="/notes/decode-regimes/">See a disproven performance hypothesis ↗</a></article>
+<article><span class="guide-n">Build</span><h3>What actually ran?</h3><p>Core ML compiles a model graph. Small changes to the graph’s structure, its shapes or its diagnostics can change the compiled result. So I name the exact artifact and configuration.</p><a href="/methods/">How I document the artifacts ↗</a></article>
+<article><span class="guide-n">Place</span><h3>Where was it assigned?</h3><p>Apple’s Core ML planner may report which operations are assigned to the ANE, the CPU or the GPU. That’s useful placement evidence. It isn’t a low-level trace that proves each operation physically ran on the ANE.</p><a href="/evidence/qwen-placement/">Look at a placement receipt ↗</a></article>
+<article><span class="guide-n">Compare</span><h3>Was the output correct?</h3><p>A model can compile and get an ANE assignment, then still fail an output parity test. I compare exact outputs against declared fixtures, using defined numerical tolerances.</p><a href="/notes/lfm-parity/">Read a passing and failing comparison ↗</a></article>
+<article><span class="guide-n">Measure</span><h3>Did it get faster?</h3><p>Throughput depends on batch shape, dispatch cost, memory and what was timed. A speed measurement doesn’t validate model quality or the claims made about deployment.</p><a href="/notes/decode-regimes/">See a speed hypothesis I got wrong ↗</a></article>
 </div></section>
-<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">TRUST BOUNDARIES / 02</span><h2>Read the labels, not just the headline.</h2></div><div>
-<p><strong>Measured</strong> means an observation under a named setup. <strong>Planner reported</strong> describes the compiler's view, not an ANE hardware trace.</p>
-<p><strong>Source-bound</strong> means the published claim links to its artifacts or documented receipts. <strong>Verified archive</strong> means published files and identifiers passed stated integrity checks, not peer review.</p>
-<p>Negative results, incomplete chains, and changes to an earlier hypothesis belong in the research record.</p>
-<a href="/research/explore/">Search all public entries ↗</a><p class="guide-final-note">Independent Apple Silicon research. MacBrains Labs is not affiliated with Apple.</p></div></div></section>`;
+<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">Labels</span><h2>What each label means.</h2></div><div>
+<p><strong>Measured</strong> means it was observed under a named setup. <strong>Planner reported</strong> describes what the compiler planned, not an ANE hardware trace.</p>
+<p><strong>Source-bound</strong> means the published claim links to its artifacts or documented receipts. <strong>Verified archive</strong> means the published files and identifiers passed the stated integrity checks. That isn’t peer review.</p>
+<p>Negative results, incomplete chains and changes to an earlier hypothesis belong in the research record.</p>
+<a href="/research/explore/">Search all public entries ↗</a><p class="guide-final-note">Independent Apple Silicon research. I’m not affiliated with Apple.</p></div></div></section>`;
   return documentShell('/start/','Start here: reading ANE research', 'A concise guide to understanding Apple Neural Engine placement, numerical correctness, performance measurements, and research evidence.', content);
 }
 

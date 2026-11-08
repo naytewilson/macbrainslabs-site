@@ -55,7 +55,7 @@
     {
       "@type": "TechArticle",
       "@id": "https://macbrainslabs.org/methods/#article",
-      "headline": "A result needs a falsifier.",
+      "headline": "How I check my results",
       "alternativeHeadline": "Methodology: measurement, review and publication",
       "description": "MacBrains Labs methodology: Core ML placement audits, parity and throughput tests, frozen run profiles, run accounting, review gates and verified publication of research records.",
       "url": "https://macbrainslabs.org/methods/",
@@ -103,25 +103,25 @@
 <header class="page-head">
 <div class="wrap">
 <p class="crumbs"><a href="/">MacBrains Labs</a> / Methodology</p>
-<h1>A result needs a falsifier.</h1>
-<p class="lede">Compiler success does not prove hardware placement. Placement does not prove numerical fidelity. A synthetic token count does not prove throughput. Our measurement pipeline treats each as an independent claim.</p>
+<h1>How I check my results</h1>
+<p class="lede">I treat four things as separate claims: the model compiled, the compiler placed it on the Neural Engine, the numbers match a reference, and real text runs at a measured speed. Passing one never stands in for another. A synthetic token count, for example, doesn’t count as throughput.</p>
 <dl class="facts">
 <div><dt>Method revision</dt><dd>2026.11</dd></div>
-<div><dt>Authoring</dt><dd>SwiftMIL</dd></div>
+<div><dt>Built with</dt><dd>SwiftMIL</dd></div>
 <div><dt>Placement</dt><dd>MLComputePlan</dd></div>
 <div><dt>Release gate</dt><dd>Reviewer INCLUDE</dd></div>
 </dl>
 </div>
 </header>
 <div class="wrap article-layout">
-<nav class="toc" aria-label="Method index">
-<span class="label">Method index</span>
+<nav class="toc" aria-label="On this page">
+<span class="label">On this page</span>
 <ol>
-<li><a href="#stack">Authoring</a></li>
+<li><a href="#stack">Build stack</a></li>
 <li><a href="#placement">Placement</a></li>
 <li><a href="#parity">Parity</a></li>
-<li><a href="#throughput">Throughput</a></li>
-<li><a href="#reversals">Retractions</a></li>
+<li><a href="#throughput">Speed numbers</a></li>
+<li><a href="#reversals">Reversals</a></li>
 <li><a href="#freeze">Frozen profiles</a></li>
 <li><a href="#runs">Run accounting</a></li>
 <li><a href="#labels">Claim labels</a></li>
@@ -134,9 +134,9 @@
 <div class="toc-out"><a href="/research/">Research record</a></div>
 </nav>
 <article class="article">
-<h2 id="stack"><span class="sec">01</span>Authoring stack</h2>
-<p>The active native graph-authoring path is <strong>SwiftMIL</strong>: Swift code emits typed MILSpec <code>Program</code>, <code>Function</code>, <code>Block</code> and <code>Operation</code> structures, serializes them as a Core ML <code>.mlpackage</code> with a manifest and external weights, and compiles through Apple's public <code>coremlcompiler</code>.</p>
-<p>A separate <strong>ANERECore</strong> path operates on existing MIL text and weight files: parsing, printing, transactional rewrites, weight-file analysis and blob-offset audits. We distinguish new-graph authoring from surgery on an already emitted graph. Python-based conversion tools serve as external reference; they are not a required local runtime dependency.</p>
+<h2 id="stack">What I build with</h2>
+<p>My current native path for writing graphs is <strong>SwiftMIL</strong>. I write Swift code that emits typed MILSpec <code>Program</code>, <code>Function</code>, <code>Block</code> and <code>Operation</code> structures. That code serializes them as a Core ML <code>.mlpackage</code> with a manifest and external weights, then compiles them through Apple’s public <code>coremlcompiler</code>.</p>
+<p>A separate <strong>ANERECore</strong> path works on MIL text and weight files that already exist: parsing, printing, transactional rewrites, weight-file analysis and blob-offset audits. I keep new-graph authoring separate from surgery on a graph that’s already been emitted. Python-based conversion tools are an external reference for me. They aren’t a required local runtime dependency.</p>
 <pre tabindex="0"><code>SwiftMIL  → MILSpec protobuf → .mlpackage
                                 │
                                 ▼
@@ -148,82 +148,82 @@
                                 ▼
               native Swift inference + parity</code></pre>
 
-<h2 id="placement"><span class="sec">02</span>Placement audit</h2>
-<p>Every relevant function and per-op assignment is inspected using <code>MLComputePlan</code> with the expected compiled artifact identity. A device preference such as <code>.all</code> is not treated as proof. Operators are classified by assigned compute unit, and the result names both the computation graph and the functions examined.</p>
-<p>On the Qwen path, FP16 four-dimensional tensor shape <code>(1,H,1,S)</code> is a practical lowering constraint. A standalone normalization subgraph can be sent to CPU while a normalization embedded inside a convolution/matmul-anchored block can be assigned to ANE. The surrounding graph matters as much as the operator name.</p>
-<p>KV-state operations require their own placement audit. A failing isolated <code>slice_update</code> experiment did not prove state writes were inherently CPU-bound; inspecting the production state pattern falsified that inference.</p>
-<p>One such audit is published with its tools and recorded output as <a href="/evidence/qwen-placement/">evidence bundle E/001</a>. Placement is also checked when a graph is numerically correct: <a href="/notes/graft-costs/">N/005</a> describes a correct ring-buffer graft that MLComputePlan placed 0 of 115 operations on the ANE.</p>
+<h2 id="placement">Where the compiler assigns operations</h2>
+<p>For every relevant function, I inspect each per-op assignment with <code>MLComputePlan</code>, using the expected compiled artifact identity. A device preference such as <code>.all</code> doesn’t count as proof. I sort operators by the compute unit they’re assigned to. Each result names the computation graph and the functions I examined.</p>
+<p>On the Qwen path, an FP16 four-dimensional tensor with the shape <code>(1,H,1,S)</code> is a practical constraint on lowering. A standalone normalization subgraph can be sent to the CPU. A normalization embedded inside a convolution/matmul-anchored block can be assigned to the ANE. The surrounding graph matters as much as the operator’s name.</p>
+<p>KV-state operations need their own placement audit. A failing isolated <code>slice_update</code> experiment didn’t prove that state writes were inherently CPU-bound. Inspecting the production state pattern ruled that inference out.</p>
+<p>I’ve published one such audit, with its tools and recorded output, as <a href="/evidence/qwen-placement/">evidence bundle E/001</a>. I also check placement when a graph is numerically correct. <a href="/notes/graft-costs/">N/005</a> describes a correct ring-buffer graft that MLComputePlan placed 0 of 115 operations on the ANE.</p>
 
-<h2 id="parity"><span class="sec">03</span>Numerical parity</h2>
-<p>For a sealed artifact, compare on-device outputs against a pinned reference tensor fixture. Read <code>MLMultiArray</code> in logical stride order, reject NaN/Inf, normalize documented layout permutations, and compare each exposed output rather than a single final-token guess.</p>
-<div class="proof"><span class="label">Parity contract · example</span><dl>
+<h2 id="parity">Are the numbers right?</h2>
+<p>For a sealed artifact, I check numerical parity by comparing the on-device outputs against a pinned reference tensor fixture. I read <code>MLMultiArray</code> in logical stride order, reject NaN/Inf, normalize documented layout permutations, and compare every exposed output. I don’t stop at a single final-token guess.</p>
+<div class="proof"><span class="label">Example parity contract</span><dl>
 <dt>Relative L2</dt><dd>‖y_device − y_ref‖₂ / ‖y_ref‖₂</dd>
 <dt>Cosine</dt><dd>dot(y_device, y_ref) / (‖y_device‖₂ ‖y_ref‖₂)</dd>
 <dt>Non-finite</dt><dd>Reject NaN and ±Inf before scoring</dd>
 <dt>Identity</dt><dd>Hash source, fixture, package, binary and report</dd>
 </dl></div>
-<p>Thresholds belong to a specific test contract, not global correctness guarantees. A diagnostic graph with extra output taps may cause the compiler to lower the program differently; its numerical differences must be reported separately from production inference.</p>
+<p>Each threshold belongs to one specific test contract. It isn’t a global correctness guarantee. A diagnostic graph with extra output taps may make the compiler lower the program differently, so its numerical differences have to be reported separately from production inference.</p>
 
-<h2 id="throughput"><span class="sec">04</span>Performance qualification</h2>
-<p>Report input shape and what the numerator counts. For aggregate batch throughput, divide actual generated tokens across all active lanes by measured elapsed time. Avoid assigning a batch size merely by dividing a single-token dispatch latency by B or K; the compiled program must itself contain the matching dimension.</p>
-<p>Separate cold compilation, model loading, warmup and steady-state inference. State whether a result is single-stream, aggregate batch, speculative verification or a micrograph probe; they are not interchangeable. Track thermal state and memory pressure on the 8 GB A18 Pro test machine.</p>
+<h2 id="throughput">Checking speed numbers</h2>
+<p>I report the input shape and what the numerator counts. For aggregate batch throughput, I divide the tokens actually generated, across all active lanes, by the measured elapsed time. I don’t assign a batch size just by dividing a single-token dispatch latency by B or K. The compiled program itself has to contain the matching dimension.</p>
+<p>I keep cold compilation, model loading, warmup and steady-state inference separate. I say whether a result is single-stream, aggregate batch, speculative verification or a micrograph probe. Those aren’t interchangeable. I track thermal state and memory pressure on the 8 GB A18 Pro test machine.</p>
 
-<h2 id="reversals"><span class="sec">05</span>Negative results stay visible</h2>
-<p>Early work proposed a 57.3 tok/s bandwidth ceiling inferred from a compiler-reported DRAM budget and compressed model size. A K sweep contradicted the prediction; reducing weights to LUT2 also failed to improve throughput. Later observations refined the explanation again: at shallow depth, fixed dispatch cost dominates; at 28 layers, per-layer compute becomes the larger contributor.</p>
-<p>Such reversals are part of the result. A model should be rejected as a causal explanation when it fails a straightforward counter-experiment.</p>
+<h2 id="reversals">Where I was wrong</h2>
+<p>Early on, I proposed a 57.3 tok/s bandwidth ceiling, inferred from a compiler-reported DRAM budget and compressed model size. A K sweep contradicted that prediction. Reducing the weights to LUT2 also failed to improve throughput. Later observations refined the explanation again. At shallow depth, fixed dispatch cost dominates. At 28 layers, per-layer compute becomes the larger contributor.</p>
+<p>Reversals like these are part of the result. A model should be rejected as a causal explanation when it fails a straightforward counter-experiment.</p>
 
-<h2 id="freeze"><span class="sec">06</span>Frozen profiles</h2>
-<p>A reproducibility claim starts with a profile: a JSON declaration of the binary, inputs, parameters and number of runs. The profile's identity is the SHA-256 of its canonical JSON as read from the git commit that holds it. A hash of a working copy, or a self-declared &ldquo;frozen&rdquo; flag, is not accepted.</p>
-<p>A profile is frozen in two steps, and both must come before the first counted run. First it is committed to version control, with a commit time earlier than that run's start. Then the clean-room tool writes a freeze manifest that names the profile hash, the tool commit and the inputs. A run that starts before the freeze manifest exists is not counted. It is disclosed as a pre-freeze execution.</p>
+<h2 id="freeze">How a profile gets frozen</h2>
+<p>A reproducibility claim starts with a profile. That’s a JSON declaration of the binary, inputs, parameters and number of runs. The profile’s identity is the SHA-256 of its canonical JSON, as read from the git commit that holds it. A hash of a working copy, or a self-declared &ldquo;frozen&rdquo; flag, isn’t accepted.</p>
+<p>A profile gets frozen in two steps, and both have to happen before the first counted run. First, it’s committed to version control, with a commit time earlier than that run’s start. Then the clean-room tool writes a freeze manifest that names the profile hash, the tool commit and the inputs. A run that starts before the freeze manifest exists gets disclosed as a pre-freeze execution, and it isn’t counted.</p>
 
-<h2 id="runs"><span class="sec">07</span>Run accounting</h2>
-<p>Every execution of a profile on the measurement device is written to an append-only execution log for that device. A start entry is made durable before the run begins, and a completion entry records the exit status. The clean-room tool refuses to start if the start entry cannot be made durable. It also refuses to reuse a run directory that holds any earlier artifact. These guards were merged on 3 November 2026, and the clean-room build in use includes them.</p>
-<p>Accounting is per profile and per device, not per output folder. Every execution is listed, passed or failed. A counted run is one made after the freeze under the same tool commit. One failed counted run blocks a reproducibility claim, and disclosing the failure does not rescue it. Executions under a different tool commit, and runs that started without completing, are disclosed and not counted.</p>
-<p>A published record states the profile hash, the number of counted runs and the total number of executions, and it lists each execution when the total exceeds the count. Record v0.2.0 discloses eight executions of profile <code>2f0cc0c9</code>: five counted and three made before the freeze. One of the eight had its run folder deleted. That execution remains in the execution log and in the record.</p>
+<h2 id="runs">Logging every run</h2>
+<p>Every execution of a profile on the measurement device goes into an append-only execution log for that device. A start entry is made durable before the run begins, and a completion entry records the exit status. The clean-room tool refuses to start if the start entry can’t be made durable. It also refuses to reuse a run directory that holds any earlier artifact. These guards were merged on 3 November 2026, and the clean-room build in use includes them.</p>
+<p>Accounting is per profile and per device, not per output folder. Every execution is listed, whether it passed or failed. A counted run is one made after the freeze, under the same tool commit. One failed counted run blocks a reproducibility claim. Disclosing the failure doesn’t rescue it. Executions under a different tool commit, and runs that started but didn’t complete, are disclosed and not counted.</p>
+<p>A published record gives the profile hash, the number of counted runs and the total number of executions. If the total is higher than the count, it lists each execution. Record v0.2.0 discloses eight executions of profile <code>2f0cc0c9</code>: five counted and three made before the freeze. One of the eight had its run folder deleted. That execution stays in the execution log and in the record.</p>
 
-<h2 id="labels"><span class="sec">08</span>Claim scope and evidence labels</h2>
-<p>Each claim carries one of four labels. <strong>PROVEN</strong> means directly observed in a receipt from the measurement device. <strong>INFERRED</strong> means it follows from proven evidence but was not itself observed. <strong>SUSPECTED</strong> means plausible but not established. <strong>UNKNOWN</strong> means the evidence is insufficient.</p>
-<p>Core ML compute-plan placement is a compiler assignment, not a hardware trace. Neural Engine execution is therefore stated as INFERRED from placement unless a hardware execution trace exists. No published record has one.</p>
-<p>Reruns on the measurement machine are labeled as same-chip clean-room reruns on one device. They are never presented as cross-device replication, and no published record claims cross-device replication. The claim scope names the chip, hardware model, OS build and Core ML version, and each field must match the run receipts. No novelty is claimed unless a completed prior-art search supports it.</p>
+<h2 id="labels">How I label claims</h2>
+<p>Each claim gets one of four labels. <strong>PROVEN</strong> means directly observed in a receipt from the measurement device. <strong>INFERRED</strong> means it follows from proven evidence but wasn’t itself observed. <strong>SUSPECTED</strong> means plausible but not established. <strong>UNKNOWN</strong> means the evidence isn’t enough.</p>
+<p>Core ML compute-plan placement is a compiler assignment. It isn’t a hardware trace. So I state Neural Engine execution as INFERRED from placement, unless a hardware execution trace exists. No published record has one.</p>
+<p>I label reruns on the measurement machine as same-chip clean-room reruns on one device. I never present them as cross-device replication. No published record claims cross-device replication. The claim scope names the chip, hardware model, OS build and Core ML version. Each field has to match the run receipts. I don’t claim novelty unless a completed prior-art search supports it.</p>
 
-<h2 id="review"><span class="sec">09</span>Review before release</h2>
-<p>A finding reaches publication as one package: a canonical JSON manifest, identified by its SHA-256, that binds the finding, the evidence bundle hash, the policy digest, the receipts and the reviews. A package is never edited after submission. Any change produces a new hash and a new review. Three checks apply, in order.</p>
+<h2 id="review">How a finding gets reviewed</h2>
+<p>A finding reaches publication as one package. The package is a canonical JSON manifest, identified by its SHA-256, and it binds the finding, the evidence bundle hash, the policy digest, the receipts and the reviews. A package is never edited after submission. Any change produces a new hash and a new review. Three checks apply, in order.</p>
 <ul>
-<li><strong>Two independent AI reviews.</strong> An evidence reviewer and a skeptical reviewer, each a pinned model, review the exact bundle. Each review is bound to the policy digest, the bundle hash and the finding, and records its session and usage. A split verdict is a hold. Model verdicts are advisory and cannot override the gate.</li>
-<li><strong>A deterministic gate.</strong> A versioned policy module with a fixed digest checks freeze provenance, run accounting, claim scope, receipt integrity, an exact independent recompute of the published value, and prior-art coverage. Any failed check holds the package with a named reason.</li>
-<li><strong>A final reviewer.</strong> A separate reviewer, never the submitter, returns INCLUDE or HOLD for the exact package hash. The first review walks a versioned checklist item by item and reports every blocker at once. A second round checks only the listed fixes, and there is no third round. The submitter must run the reviewer's cumulative adversarial probe suite against the exact package and attach the passing output, or the package is rejected unopened. Probes are added after every miss and are never weakened to fit a package.</li>
+<li><strong>Two independent AI reviews.</strong> An evidence reviewer and a skeptical reviewer review the exact bundle. Each one is a pinned model. Each review is bound to the policy digest, the bundle hash and the finding, and it records its session and usage. A split verdict means the package is held. Model verdicts are advisory, and they can’t override the gate.</li>
+<li><strong>A deterministic gate.</strong> A versioned policy module with a fixed digest checks freeze provenance, run accounting, claim scope, receipt integrity, an exact independent recompute of the published value, and prior-art coverage. Any failed check holds the package and names the reason.</li>
+<li><strong>A final reviewer.</strong> A separate reviewer, never the submitter, returns INCLUDE or HOLD for the exact package hash. The first review walks a versioned checklist item by item and reports every blocker at once. A second round checks only the listed fixes, and there’s no third round. The submitter has to run the reviewer’s cumulative adversarial probe suite against the exact package and attach the passing output. Otherwise the package is rejected unopened. Probes get added after every miss, and they’re never weakened to fit a package.</li>
 </ul>
-<p>A held package hash, and its evidence bundle, are blocked permanently. They are never resubmitted or republished.</p>
+<p>A held package hash and its evidence bundle are blocked permanently. Neither one gets resubmitted or republished.</p>
 
-<h2 id="publication"><span class="sec">10</span>Publication and verification</h2>
-<p>Only a final INCLUDE releases a package. The publication manager then issues a new semantic version: a release in the public records repository, a new version under the series concept DOI on Zenodo, an updated citation file, and a record page and feed entry on this site. Earlier tags and their bytes are never altered.</p>
-<p>A publication is complete only when it is verified live. The tag and every asset digest must match the records index. The deposited archive must match its checksum, and its contents must equal the tagged tree. The version DOI must resolve and be registered as findable, the record must appear on the author's ORCID profile, and the record page must be served with its DOI. The manager writes a receipt of these checks and acknowledges the hand-off. A daily drift check compares every public surface with the records index, and the <a href="/publications/">Publications</a> feed re-derives each record's verification about every six hours.</p>
+<h2 id="publication">How a record gets published</h2>
+<p>Only a final INCLUDE releases a package. Then the publication manager issues a new semantic version. That includes a release in the public records repository, a new version under the series concept DOI on Zenodo, an updated citation file, and a record page and feed entry on this site. Earlier tags and their bytes are never altered.</p>
+<p>A publication only counts as complete once it’s verified live. The tag and every asset digest must match the records index. The deposited archive has to match its checksum, and its contents have to equal the tagged tree. The version DOI has to resolve and be registered as findable. The record has to appear on my ORCID profile, and the record page has to be served with its DOI. The publication manager writes a receipt of these checks and acknowledges the hand-off. A daily drift check compares every public surface with the records index. The <a href="/publications/">Publications</a> feed re-derives each record’s verification about every six hours.</p>
 
-<h2 id="intake"><span class="sec">11</span>Intake: what is automated</h2>
-<p>Packages move as files, not messages. Each package is written as a read-only drop named by its hash, with a checksum sidecar and an append-only ledger entry. The receiver re-hashes the drop before acting and records its outcome. A hold, retirement or invalid verdict blocks that hash and its bundle permanently.</p>
-<p>Since 3 November 2026 the front half runs on a schedule. Every fifteen minutes an intake scan picks up findings staged on the measurement device and runs any requested same-chip reruns of a frozen profile. It then runs both reviews, the gate and the full probe suite on the exact pipeline commit, and drops the resulting package for the publication manager. The intake never publishes.</p>
-<div class="proof"><span class="label">Still in progress</span><dl>
+<h2 id="intake">What’s automated at intake</h2>
+<p>Packages move as files, not messages. Each package is written as a read-only drop named by its hash. It comes with a checksum sidecar and an append-only ledger entry. The receiver re-hashes the drop before acting, then records its outcome. A hold, retirement or invalid verdict blocks that hash and its bundle permanently.</p>
+<p>Since 3 November 2026 the front half runs on a schedule. Every fifteen minutes, an intake scan picks up findings staged on the measurement device. It runs any requested same-chip reruns of a frozen profile. Then it runs both reviews, the gate and the full probe suite on the exact pipeline commit. It drops the resulting package for the publication manager. The intake never publishes.</p>
+<div class="proof"><span class="label">Still open</span><dl>
 <dt>Staging</dt><dd>Findings and rerun requests are still prepared by hand on the measurement device.</dd>
-<dt>Live lane</dt><dd>Enabled 3 November 2026 and proven end to end on dry-run passing and failing rerun sets. No live finding has passed through it yet.</dd>
-<dt>Recompute, prior art</dt><dd>Not automated. A live finding holds until both are supplied.</dd>
-<dt>Execution evidence</dt><dd>Neural Engine execution remains INFERRED. No cross-device replication.</dd>
+<dt>Live lane</dt><dd>Enabled 3 November 2026 and proven end to end on dry-run passing and failing rerun sets. No live finding has gone through it yet.</dd>
+<dt>Recompute, prior art</dt><dd>Not automated. A live finding stays on hold until both are supplied.</dd>
+<dt>Execution evidence</dt><dd>Neural Engine execution is still INFERRED. There’s no cross-device replication.</dd>
 </dl></div>
 
-<h2 id="records"><span class="sec">12</span>Published records</h2>
-<p>The ANE Research Records series is archived under the concept DOI <a href="https://doi.org/10.5281/zenodo.23798036">10.5281/zenodo.23798036</a>, which resolves to the latest version. Current verification status for each record is on <a href="/publications/">Publications</a>.</p>
+<h2 id="records">Published records</h2>
+<p>The ANE Research Records series is archived under the concept DOI <a href="https://doi.org/10.5281/zenodo.23798036">10.5281/zenodo.23798036</a>, which resolves to the latest version. Each record’s current verification status is on <a href="/publications/">Publications</a>.</p>
 <div class="proof"><span class="label">Versions</span><dl>
-<dt>v0.1.0</dt><dd>Baseline archive &middot; <a href="https://doi.org/10.5281/zenodo.23798037">10.5281/zenodo.23798037</a></dd>
-<dt>v0.2.0</dt><dd><a href="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">LFM3-1.7B layer-14 diagnostic, same chip</a> &middot; <a href="https://doi.org/10.5281/zenodo.23905811">10.5281/zenodo.23905811</a> &middot; the first record released through this procedure</dd>
-<dt>v0.3.0</dt><dd><a href="https://macbrainslabs.org/research/records/ane-record-b8f78a146608021d974dcdec/">ANERECore cross-repo MIL parity, same chip</a> &middot; <a href="https://doi.org/10.5281/zenodo.24034510">10.5281/zenodo.24034510</a></dd>
+<dt>v0.1.0</dt><dd>Baseline archive, DOI <a href="https://doi.org/10.5281/zenodo.23798037">10.5281/zenodo.23798037</a></dd>
+<dt>v0.2.0</dt><dd><a href="https://macbrainslabs.org/research/records/ane-record-c188def1e88a0d94018dfe99/">LFM3-1.7B layer-14 diagnostic, same chip</a>, DOI <a href="https://doi.org/10.5281/zenodo.23905811">10.5281/zenodo.23905811</a>. It was the first record released through this procedure.</dd>
+<dt>v0.3.0</dt><dd><a href="https://macbrainslabs.org/research/records/ane-record-b8f78a146608021d974dcdec/">ANERECore cross-repo MIL parity, same chip</a>, DOI <a href="https://doi.org/10.5281/zenodo.24034510">10.5281/zenodo.24034510</a>.</dd>
 </dl></div>
 
-<h2 id="scope"><span class="sec">13</span>Authorized and bounded research</h2>
-<p>MacBrains Labs experiments on owned Apple Silicon systems and software artifacts with a lawful basis for analysis. The research includes system performance qualification, compiler output examination, binary-format inspection, native-runtime debugging, defensive code review, and validation of software and infrastructure under the operator's control. Work is conducted through public APIs and authorized userspace inspection paths; the lab does not claim privileged firmware access or unbounded authorization to assess third-party systems.</p>
-<p>Private measurements and internal repositories are not automatically published. We publish bounded technical summaries, identify instrumentation limits, and make supporting details available for legitimate technical correspondence when shareable.</p>
-<div class="proof"><span class="label">Evidence references · internal</span><dl>
+<h2 id="scope">What I work on, and its limits</h2>
+<p>I experiment on Apple Silicon systems I own, and on software artifacts I have a lawful basis to analyze. My research covers system performance qualification, compiler output examination, binary-format inspection, native-runtime debugging, defensive code review, and validation of software and infrastructure under my control. I work through public APIs and authorized userspace inspection paths. I don’t claim privileged firmware access, and I don’t claim unbounded authorization to assess third-party systems.</p>
+<p>Private measurements and internal repositories aren’t published automatically. I publish bounded technical summaries, identify instrumentation limits, and make supporting details available for legitimate technical correspondence when they can be shared.</p>
+<div class="proof"><span class="label">Internal evidence references</span><dl>
 <dt>Consolidation</dt><dd>ane-re/docs/FINDINGS.md</dd>
 <dt>Benchmark</dt><dd>D028 interleaved B sweep</dd>
-<dt>Model quality</dt><dd>D263 · WikiText-2 perplexity</dd>
+<dt>Model quality</dt><dd>D263, WikiText-2 perplexity</dd>
 <dt>Parity</dt><dd>LFM_S2_NATIVE_PARITY_2026-07-18.md</dd>
 <dt>Hardware</dt><dd>Apple A18 Pro / MacBook Neo</dd>
 </dl></div>
@@ -235,26 +235,26 @@
 <div class="footer-grid">
 <div>
 <span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
-<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. I’m not affiliated with Apple.</p>
 </div>
 <div>
-<span class="label">Correspondence</span>
+<span class="label">Email me</span>
 <a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
-<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+<p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p>
 </div>
 <div>
-<span class="label">Index</span>
+<span class="label">Pages</span>
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>
 </ul>
 </div>
 </div>
-<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs. Independent research, no Apple affiliation.</span><span>Static site. No cookies, tracking or analytics.</span></div>
 </div>
 </footer>
 </body>

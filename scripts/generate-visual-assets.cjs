@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Dev-only asset generation. Site runtime stays dependency-free.
 // Requires "sharp" in the Node resolution path (npm install --no-save sharp).
+// --card-only regenerates assets/social-card.* and leaves the icons untouched.
 const fs = require('node:fs');
 const path = require('node:path');
 let sharp;
@@ -39,7 +40,14 @@ function ico(pngs) {
   return Buffer.concat([entries, ...pngs.map(p => p.content)]);
 }
 
+const cardOnly = process.argv.includes('--card-only');
+
 async function run() {
+  if (!cardOnly) await icons();
+  await socialCard();
+}
+
+async function icons() {
   const small = [];
   for (const size of [16, 32, 48, 192, 512]) {
     const sourceSvg = size >= 192 ? fill : source;
@@ -56,7 +64,9 @@ async function run() {
   const fav = ico(small);
   fs.writeFileSync(path.join(root, 'favicon.ico'), fav);
   console.log(`favicon.ico ${fav.length} bytes`);
+}
 
+async function socialCard() {
   // Social sharing card mirrors the actual dark homepage and approved MB mark.
   const card = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
     <defs>
@@ -69,18 +79,15 @@ async function run() {
     <path d="M54 555 H1150" stroke="#343b34" stroke-width="2"/>
     <g transform="translate(52 42) scale(.156)">${logoInside}</g>
     <text x="150" y="103" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="31" fill="#efede5">MacBrains<tspan fill="#c7cac2" font-weight="400"> Labs</tspan></text>
-    <rect x="55" y="194" width="6" height="6" fill="#ff633a"/>
-    <text x="76" y="201" font-family="monospace" letter-spacing="2.1" font-size="13" fill="#b9c2b4">INDEPENDENT APPLE SILICON RESEARCH</text>
-    <text x="54" y="319" font-family="Arial,Helvetica,sans-serif" font-weight="500" font-size="73" letter-spacing="-3.5" fill="#efede5">Look beneath</text>
-    <text x="54" y="397" font-family="Arial,Helvetica,sans-serif" font-weight="500" font-size="73" letter-spacing="-3.5" fill="#efede5">the <tspan fill="#ff633a">claim.</tspan></text>
-    <text x="56" y="464" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#dedfd8">What ran. Where it ran.</text>
-    <text x="56" y="498" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#dedfd8">And whether it was right.</text>
-    <text x="56" y="594" font-family="monospace" letter-spacing="1.8" font-size="11" fill="#9da698">BUILD / MEASURE / QUESTION / REPEAT</text>
+    <text x="54" y="300" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="76" letter-spacing="-3.4" fill="#efede5">Where did it</text>
+    <text x="54" y="380" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="76" letter-spacing="-3.4" fill="#efede5">really run?</text>
+    <text x="56" y="456" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#dedfd8">I build language models for the Neural Engine</text>
+    <text x="56" y="492" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#dedfd8">and write down what actually happened.</text>
+    <text x="56" y="596" font-family="Arial,Helvetica,sans-serif" font-size="17" fill="#b7bdb2">macbrainslabs.org</text>
     <rect x="764" y="177" width="371" height="352" rx="14" stroke="#435044" fill="#131a16" stroke-width="2"/>
     <path d="M782 198H1117 M782 507H1117" stroke="#3c493e" stroke-width="2" stroke-dasharray="4 8"/>
     <g transform="translate(808 212) scale(.545)">${logoInside}</g>
-    <text x="782" y="574" font-family="monospace" font-size="11" letter-spacing="1.8" fill="#c3c9bf">EVIDENCE BEFORE INFERENCE</text>
-    <path d="M1137 572l0 -18 12 -6" fill="none" stroke="#ff633a" stroke-width="3"/>
+    <text x="764" y="596" font-family="Arial,Helvetica,sans-serif" font-size="17" fill="#b7bdb2">Nayte Wilson · not affiliated with Apple</text>
   </svg>`;
   fs.writeFileSync(path.join(assets, 'social-card.svg'), card);
   const png = await sharp(Buffer.from(card)).png({ compressionLevel: 9 }).toBuffer();

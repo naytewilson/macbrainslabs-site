@@ -105,9 +105,9 @@ async function audit(){
   await exact(imagePath);
  }
  const guide=(await get('/start/')).toString('utf8');
- assert.ok(guide.includes('Before the number')&&guide.includes('What actually ran?'),'start guide incomplete');
+ assert.ok(guide.includes('class="guide-grid"')&&guide.includes('What actually ran?'),'start guide incomplete');
  const explorer=(await get('/research/explore/')).toString('utf8');
- assert.ok(explorer.includes('Find the claim.')&&explorer.includes('id="evidence-list"'),'search explorer incomplete');
+ assert.ok(explorer.includes('id="evidence-controls"')&&explorer.includes('id="evidence-list"'),'search explorer incomplete');
  console.log('PROVEN deployed HTML, open-graph previews, icon set, mobile encodes and manifest match public release');
  console.log('PROVEN '+routes.length+' sitemap pages and '+catalog.items.length+' public evidence entries verified; '+fetchCount+' HTTPS/loopback requests');
 }

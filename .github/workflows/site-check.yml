@@ -16,6 +16,8 @@ jobs:
           node-version: '22'
       - name: Verify local navigation, canonicals, metadata and assets
         run: node scripts/check-site.mjs
+      - name: Keep AI-slop wording out of the site copy (scripts/slop-wording.json)
+        run: node scripts/check-copy.mjs
       - name: Verify publication feed rules and record guards (network stubbed)
         run: |
           node scripts/test-publications-lkg.mjs
