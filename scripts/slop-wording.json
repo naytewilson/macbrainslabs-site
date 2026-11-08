@@ -2,7 +2,7 @@
  "schema": "macbrainslabs.slop-wording/1",
  "generated": "2026-11-08",
  "purpose": "Wording that makes prose read as machine-generated. scripts/check-copy.mjs fails CI on block entries in visible site copy and reports warn entries.",
- "method": "Five independent source sweeps (quantitative excess-vocabulary studies, open-source slop lists, Wikipedia:Signs of AI writing, editorial and practitioner guides for web copy, curated local style registries), merged and deduplicated, then adversarially verified: sources reopened, regexes compiled and probed against technical prose, false-positive risks for an Apple Neural Engine measurement site downgraded or narrowed. Every entry cites at least one source that was opened.",
+ "method": "Five independent source sweeps (quantitative excess-vocabulary studies, open-source slop lists, Wikipedia:Signs of AI writing, editorial and practitioner guides for web copy, curated local style registries), merged and deduplicated, then adversarially verified: sources reopened, regexes compiled and probed against technical prose, false-positive risks for an Apple Neural Engine measurement site downgraded or narrowed. Every entry cites at least one source: a published source opened during the sweeps (the verify pass reopened a sample of 31 and found 26 supporting), a curated local style registry (local:), or the owner's direct instruction (owner:).",
  "counts": {
   "entries": 159,
   "block": 98,

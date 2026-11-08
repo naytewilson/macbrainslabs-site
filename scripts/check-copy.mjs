@@ -21,6 +21,7 @@ const SKIP_PREFIX = ['research/records/'];
 export function visibleProse(html) {
   return html
     .replace(/<!-- publications-latest:start -->[\s\S]*?<!-- publications-latest:end -->/g, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
     .replace(/<head[\s\S]*?<\/head>/g, ' ')
     .replace(/<script[\s\S]*?<\/script>/g, ' ')
     .replace(/<style[\s\S]*?<\/style>/g, ' ')

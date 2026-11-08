@@ -8,7 +8,7 @@ import {socialPathForRoute} from './social-path.mjs';
 const require=createRequire(import.meta.url);
 let sharp;
 try {sharp=require('sharp');}
-catch {sharp=require('/home/nayte/.npm-global/lib/node_modules/@wonderwhy-er/desktop-commander/node_modules/sharp');}
+catch {console.error('Install dev-only sharp (npm install --no-save sharp@0.35.5) or put it on NODE_PATH.');process.exit(2);}
 const root=path.resolve(import.meta.dirname,'..');
 const verify=process.argv.includes('--check');
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');

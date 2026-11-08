@@ -251,9 +251,12 @@ async function run() {
     console.log('PASS mobile Notch selects optimized intro/loop and keeps native playback');
 
 
-    assert.equal(pixelFailures.length, 0, `${pixelFailures.length} screen(s) changed beyond the threshold; review tests/visual/current and run --update: ` + pixelFailures.join('; '));
     fs.writeFileSync(path.join(root, 'tests/visual/last-run.json'), JSON.stringify({ mode: update ? 'update' : 'verify', results, motion: { mediaRequests: motion.mediaRequests } }, null, 2) + '\n');
+    assert.equal(pixelFailures.length, 0, `${pixelFailures.length} screen(s) changed beyond the threshold; review tests/visual/current and run --update: ` + pixelFailures.join('; '));
     console.log(`Visual QA: ${results.length}/${results.length} responsive screenshots and interaction checks passed`);
+  } catch (e) {
+    if (pixelFailures.length) console.error('Pixel changes recorded before this failure: ' + pixelFailures.join('; '));
+    throw e;
   } finally {
     try { await browser('close'); } catch (e) { console.error('Owned browser cleanup warning:', e.message); }
     await new Promise(resolve => server.close(resolve));
