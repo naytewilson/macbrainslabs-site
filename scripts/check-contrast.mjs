@@ -26,12 +26,15 @@ const pairs=[
   ['research folio topic', 'home.css', '#a9371b', '#f4f5f4'],
   ['research boundary copy', 'home.css', '#4a5246', '#eaebe5'],
   ['research paper copy', 'home.css', '#4a5246', '#e4e5df'],
-  ['inner page light primary', 'styles.css', '#16191b', '#f5f3ed'],
-  ['inner page light secondary', 'styles.css', '#454b4f', '#f5f3ed'],
-  ['inner page light subdued', 'styles.css', '#5d6367', '#f5f3ed'],
-  ['inner page dark subdued', 'styles.css', '#9c988e', '#111315'],
-  ['inner page dark secondary', 'styles.css', '#b4b0a6', '#111315'],
-  ['inner page dark highlight', 'styles.css', '#ff8a5c', '#111315']
+  ['inner page light primary', 'styles.css', '#16191b', '#f3f4f1'],
+  ['inner page light secondary', 'styles.css', '#3d4347', '#f3f4f1'],
+  ['inner page light subdued', 'styles.css', '#565c60', '#f3f4f1'],
+  ['inner page light secondary on surface', 'styles.css', '#3d4347', '#e9ebe6'],
+  ['inner page light signal', 'styles.css', '#a9371b', '#f3f4f1'],
+  ['inner page dark subdued', 'styles.css', '#9da696', '#0d0f0f'],
+  ['inner page dark secondary', 'styles.css', '#b7bdb2', '#0d0f0f'],
+  ['inner page dark secondary on surface', 'styles.css', '#b7bdb2', '#151a18'],
+  ['inner page dark highlight', 'styles.css', '#ff8a5c', '#0d0f0f']
 ];
 
 export function assertReviewedTextContrast(root) {
