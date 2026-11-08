@@ -77,69 +77,69 @@
 <main id="main">
 <section class="shell hero" aria-labelledby="hero-title">
 <div class="hero-copy">
-<p class="eyebrow"><i></i> Independent Apple Silicon research</p>
-<h1 id="hero-title">Look beneath<br> the <em>claim.</em></h1>
-<p class="lede">What ran. Where it ran.<br> And whether it was right.</p>
-<p class="intro">An open research notebook on the Apple Neural Engine, native execution and numerical correctness. Every number on this site names the artifact it was measured on.</p>
-<div class="hero-actions"><a class="button orange" href="#research">Open the research <span aria-hidden="true">↘</span></a><a class="quiet-link" href="#method">How we work</a></div>
-<p class="intro-entry"><span>New to the Neural Engine?</span> <a href="/start/">Read the one-minute field guide <span aria-hidden="true">↗</span></a></p>
-<p class="small-note">Build / Measure / Question / Repeat</p>
+<h1 id="hero-title">Where did it really run?</h1>
+<p class="lede">I run language models on the Neural Engine in my MacBook and write down what actually happened.</p>
+<p class="intro">Where the work ran, whether the numbers came out right, and what I still can’t prove. Every number here names the exact model build it was measured on, and the failures stay in.</p>
+<div class="hero-actions"><a class="button orange" href="#research">See what I found</a><a class="quiet-link" href="#method">How I work</a></div>
+<p class="intro-entry">New to the Neural Engine? <a href="/start/">Start with the one-minute guide</a></p>
 </div>
 <figure class="notch-stage">
 <div class="notch-frame" role="img" aria-label="Notch walks across a responsive floor, folds into a folio, and reveals a suspended etched MacBrains emblem swaying above its reflection."><video class="notch-video" muted playsinline preload="none" disablepictureinpicture disableremoteplayback width="1350" height="1890" poster="/assets/notch-first.webp" aria-hidden="true"><source src="/assets/notch-v13-mobile.mp4" type="video/mp4" media="(max-width: 700px)"><source src="/assets/notch-v13.mp4" type="video/mp4"></video><img class="notch-still" src="/assets/notch-still.webp" width="1350" height="1890" alt="Notch's finished folio: the etched MacBrains emblem suspended above its reflection." loading="lazy" decoding="async"></div>
-<figcaption><span class="eyebrow">Meet Notch</span><span class="notch-caption">A little curiosity, made visible. Silent, and still if your device asks for reduced motion.</span></figcaption>
+<figcaption><span class="notch-caption">That’s Notch, the lab dog. No sound, and Notch holds still if your device asks for reduced motion.</span></figcaption>
 </figure>
 </section>
-<div class="shell opening-foot"><span>Research, not a victory lap.</span><a href="#research">Findings and their boundaries <span aria-hidden="true">↓</span></a></div>
 
 <section class="paper-section" id="research" aria-labelledby="research-title">
 <div class="shell research-layout">
 <aside class="research-index">
-<p class="eyebrow">The open folio / 01</p>
-<h2 id="research-title">Follow the<br> evidence.</h2>
-<p>Three questions.<br> Different kinds of proof.</p>
-<nav aria-label="Research folios"><a href="#placement"><span>01</span> Placement</a><a href="#parity"><span>02</span> Correctness</a><a href="#performance"><span>03</span> Performance</a></nav>
-<div class="index-rule"></div>
-<p class="index-note">A compiler plan is not a hardware trace. A passing slice is not a passing model. A faster run is not a better answer.</p>
+<h2 id="research-title">What I found</h2>
+<p>Three questions I keep asking. Each one needs a different kind of proof.</p>
+<nav aria-label="Research findings"><a href="#placement">Where did it run?</a><a href="#parity">Was the math right?</a><a href="#performance">Is it actually faster?</a></nav>
+<p class="index-note">I keep those three apart on purpose. What the compiler planned, what the model got right and how fast it went are different questions, and mixing them up is how bad claims happen.</p>
 </aside>
 <div class="folios">
 
 <article class="folio" id="placement" aria-labelledby="placement-h">
-<div class="folio-top"><span>Research folio / 001</span><span>Compiler placement</span></div>
-<p class="topic">Qwen2.5 · 1.5B · 28 layers · LUT4</p>
-<h3 id="placement-h">A preference is not<br> a placement proof.</h3>
-<p class="folio-intro">Inspect the compiler’s assignment before making a claim about the hardware.</p>
-<div class="placement-numbers"><div><strong>2,090</strong><span>ANE-assigned operations</span></div><div><strong>79</strong><span>CPU-assigned operations</span></div></div>
+<p class="topic">Where did it run? · Qwen2.5 1.5B, 28 layers, LUT4</p>
+<h3 id="placement-h">Mostly on the Neural Engine.</h3>
+<p class="folio-intro">Before I say anything about the hardware, I check where the compiler actually put each operation.</p>
+<div class="placement-numbers"><div><strong>2,090</strong><span>operations assigned to the Neural Engine</span></div><div><strong>79</strong><span>operations assigned to the CPU</span></div></div>
 <figure class="ledger-figure">
 <svg class="ledger ledger-wide" shape-rendering="crispEdges" viewBox="0 0 814.5 94.5" role="img" aria-labelledby="lw-t" data-ane="2090" data-cpu="79" data-rows="16"><title id="lw-t">2,169 cells, one per operation: 2,090 assigned to the Neural Engine, 79 assigned to the CPU.</title><defs><pattern id="lw-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="lw-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="780" height="96" fill="url(#lw-ane)"/><rect x="780" y="0" width="6" height="60" fill="url(#lw-ane)"/><rect x="780" y="60" width="6" height="36" fill="url(#lw-cpu)"/><rect x="786" y="0" width="24" height="96" fill="url(#lw-cpu)"/><rect x="810" y="0" width="6" height="54" fill="url(#lw-cpu)"/></svg>
 <svg class="ledger ledger-narrow" shape-rendering="crispEdges" viewBox="0 0 328.5 238.5" role="img" aria-labelledby="ln-t" data-ane="2090" data-cpu="79" data-rows="40"><title id="ln-t">2,169 cells, one per operation: 2,090 assigned to the Neural Engine, 79 assigned to the CPU.</title><defs><pattern id="ln-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="ln-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="312" height="240" fill="url(#ln-ane)"/><rect x="312" y="0" width="6" height="60" fill="url(#ln-ane)"/><rect x="312" y="60" width="6" height="180" fill="url(#ln-cpu)"/><rect x="318" y="0" width="6" height="240" fill="url(#ln-cpu)"/><rect x="324" y="0" width="6" height="54" fill="url(#ln-cpu)"/></svg>
 <figcaption class="bar-label"><span>June 2026 compute plan · <code>infer</code> function · one cell per operation</span><span>96.4% / 3.6%</span></figcaption>
 </figure>
-<div class="finding"><p class="eyebrow">What this establishes</p><p>MLComputePlan classified these operations as ANE- or CPU-assigned on the named compiled artifact. The 79 CPU-assigned operations are the language-model-head argmax output tail. The later shipped <code>infer</code> build reports <strong>2,147 ANE / 82 CPU</strong>; it is a different build, not a replacement label for this measurement.</p></div>
-<div class="limit"><p class="limit-h">Boundary of the claim</p><p>Compiler assignment does not establish runtime residency, throughput or end-to-end model quality.</p></div>
-<a class="source-link" href="/evidence/qwen-placement/">Read the placement record <span aria-hidden="true">↗</span></a>
+<div class="finding"><p class="finding-h">What this shows</p><p>Apple’s MLComputePlan reports which device each operation is assigned to, in this exact compiled model. The 79 on the CPU are the argmax at the very end of the language-model head, the step that picks the output token. The later shipped <code>infer</code> build reports <strong>2,147 ANE / 82 CPU</strong>. That’s a different build, so it doesn’t replace this number.</p></div>
+<figure class="fragment" data-ui><div class="fragment-bar">ane_compute_plan.swift, lines 14 to 21</div><pre><code>if let usage = plan.deviceUsage(for: op) {
+    switch usage.preferred {
+    case .cpu: name = "CPU"
+    case .gpu: name = "GPU"
+    case .neuralEngine: name = "ANE"
+    @unknown default: name = "?"
+    }
+} else { name = "none" }</code></pre><figcaption>This is the part of my tool that asks Core ML where each operation goes. Note the word <code>preferred</code>. It’s the plan, not a trace. <a href="/evidence/qwen-placement/ane_compute_plan.swift">Full source</a></figcaption></figure>
+<div class="limit"><p class="limit-h">What it doesn’t prove</p><p>An assignment isn’t proof the work stayed on the Neural Engine while it ran. It also says nothing about speed, or about whether the model’s answers are any good.</p></div>
+<a class="source-link" href="/evidence/qwen-placement/">See the placement evidence</a>
 </article>
 
 <article class="folio" id="parity" aria-labelledby="parity-h">
-<div class="folio-top"><span>Research folio / 002</span><span>Numerical parity</span></div>
-<p class="topic">LFM2.5 · 1.2B · Layer slices → full chain</p>
-<h3 id="parity-h">Every slice passed.<br> The chain did not.</h3>
-<p class="folio-intro">A useful negative result changes what gets tested next.</p>
+<p class="topic">Was the math right? · LFM2.5 1.2B, single layers and the full 16-layer chain</p>
+<h3 id="parity-h">Every slice passed. The chain didn’t.</h3>
+<p class="folio-intro">That failure was useful. It changed what I tested next.</p>
 <div class="chain-diagram" role="img" aria-label="Individual layer slices pass, but the composed 16-layer chain does not meet the parity gate"><div><span class="chain-node">Slice</span><span class="chain-node">Slice</span><span class="chain-node">Slice</span><span class="chain-ellipsis">…</span></div><div class="chain-result"><span>16-layer chain</span><strong>Parity gate missed</strong></div></div>
-<div class="finding"><p class="eyebrow">What was observed</p><p>Individual layer slices and the final head meet a 0.005 relative-L2 parity gate on the Neural Engine. The composed 16-layer chain and its token logits do not.</p></div>
-<div class="limit"><p class="limit-h">Boundary of the claim</p><p>Local numerical agreement cannot be promoted into a claim of complete-model correctness.</p></div>
-<a class="source-link" href="/notes/lfm-chain/">Read the chain investigation <span aria-hidden="true">↗</span></a>
+<div class="finding"><p class="finding-h">What happened</p><p>Each layer slice on its own, and the final head, matched the reference within a 0.005 relative-L2 gate on the Neural Engine. Put all 16 layers together and the chain and its token logits didn’t.</p></div>
+<div class="limit"><p class="limit-h">What it doesn’t prove</p><p>Layers that pass one at a time don’t add up to a correct model. The whole chain has to be tested.</p></div>
+<a class="source-link" href="/notes/lfm-chain/">Read the chain investigation</a>
 </article>
 
 <article class="folio" id="performance" aria-labelledby="performance-h">
-<div class="folio-top"><span>Research folio / 003</span><span>Performance</span></div>
-<p class="topic">A18 Pro · Decode · Batch sweeps</p>
-<h3 id="performance-h">The limit that<br> wasn’t the limit.</h3>
-<p class="folio-intro">When the measurements disagree with the explanation, change the explanation.</p>
-<div class="hypothesis"><p class="hyp-h">Initial hypothesis</p><p><s>A 57.3 tok/s bandwidth ceiling.</s></p><p class="hyp-h">What the measurements showed</p><p>Smaller weights did not speed it up.<br> More work per dispatch did.</p></div>
-<div class="finding"><p class="eyebrow">The investigation</p><p>The ceiling came from dividing a compiler planning figure by the weight-file size. Smaller LUT2 weights gave no matching speedup, and a per-dispatch batch sweep moved past the supposed limit, so it was retracted. At 28-layer production depth, per-layer compute dominates more of each step than fixed dispatch cost.</p></div>
-<div class="limit"><p class="limit-h">Boundary of the claim</p><p>The batch sweep timed probe artifacts whose output quality was not validated. A performance result belongs to its device, build and execution conditions, not to every model or workload.</p></div>
-<a class="source-link" href="/notes/decode-regimes/">Read the measurement notes <span aria-hidden="true">↗</span></a>
+<p class="topic">Is it actually faster? · A18 Pro, decode speed, batch sweeps</p>
+<h3 id="performance-h">I was wrong about the speed limit.</h3>
+<p class="folio-intro">The measurements didn’t match my explanation, so the explanation had to go.</p>
+<div class="hypothesis"><p class="hyp-h">What I thought</p><p><s>A 57.3 tok/s ceiling set by memory bandwidth.</s></p><p class="hyp-h">What the measurements showed</p><p>Smaller weights didn’t speed it up. More work per dispatch did.</p></div>
+<div class="finding"><p class="finding-h">How I got it wrong</p><p>I got that ceiling by dividing a compiler planning figure by the size of the weight file. Then smaller LUT2 weights gave no matching speedup, and putting more work in each dispatch went right past the supposed limit. So I retracted it. At the full 28-layer production depth, per-layer compute takes up more of each step than the fixed cost of a dispatch.</p></div>
+<div class="limit"><p class="limit-h">What it doesn’t prove</p><p>The batch sweep timed probe builds, and I didn’t check their output quality. A speed result also only holds for its own device, build and run conditions. Not for every model or workload.</p></div>
+<a class="source-link" href="/notes/decode-regimes/">Read the measurement notes</a>
 </article>
 
 </div>
@@ -147,17 +147,28 @@
 </section>
 
 <section class="method-section shell" id="method" aria-labelledby="method-title">
-<div class="section-heading"><p class="eyebrow">The working method / 02</p><h2 id="method-title">Make the question<br> inspectable.</h2><p>Keep the build, the observation and the interpretation separate.</p></div>
+<div class="section-heading"><h2 id="method-title">How I work</h2><p>I keep what I built, what I saw and what I think it means in separate piles.</p>
+<figure class="fragment fragment-dark" data-ui><div class="fragment-bar">Raw output, rerun on 30 October 2026</div><pre><code>model: /tmp/e001-june/qwen25_monolithic_full_lut4.mlmodelc  function: infer
+total ops: 6411
+  none   4242  (66.2%)
+  ANE   2090  (32.6%)
+  CPU     79  (1.2%)
+
+=== assigned-compute ops only (ANE+CPU+GPU = 2169) ===
+  ANE  2090  (96.4% of compute)
+  CPU    79  (3.6% of compute)
+  GPU     0  (0.0% of compute)</code></pre><figcaption>What my compute-plan tool printed for the June build. The 4242 “none” entries are 4028 constants, 213 <code>constexpr_lut_to_dense</code> weight expansions and 1 identity, so none of them gets a device. <a href="/evidence/qwen-placement/june_artifact_rerun_2026-10-30.txt">The whole file</a></figcaption></figure></div>
 <div class="method-list">
-<details open><summary><span>01</span> Build the actual path <i aria-hidden="true">+</i></summary><div><p>Start with the program and its compilation path. Native Swift, hand-authored MIL and Apple’s public Core ML toolchain make the boundaries worth examining explicit. No entitlement bypass or private kernel access.</p><a href="/methods/#stack">Build stack and methods</a></div></details>
-<details><summary><span>02</span> Account for the work <i aria-hidden="true">+</i></summary><div><p>Inspect state access, projections, norms and output tails. Separate compiler classification from evidence of runtime execution.</p><a href="/notes/qwen-lut4/">The placement audit</a></div></details>
-<details><summary><span>03</span> Keep the failed test <i aria-hidden="true">+</i></summary><div><p>Compare numerical results at exposed boundaries. A failed chain, an unexpected tail or an overturned hypothesis belongs in the record alongside the successes.</p><a href="/notes/lfm-parity/">The parity case study</a></div></details>
+<details open><summary>Build the real thing <i aria-hidden="true">+</i></summary><div><p>I start from the actual program and how it gets compiled. Native Swift, MIL I write by hand, and Apple’s public Core ML tools. That keeps every boundary out in the open. No entitlement bypasses and no private kernel access.</p><a href="/methods/#stack">The build stack</a></div></details>
+<details><summary>Count every operation <i aria-hidden="true">+</i></summary><div><p>I go through state reads and writes, projections, norms and the output tail. What the compiler says it planned stays separate from any evidence of what actually ran.</p><a href="/notes/qwen-lut4/">The placement audit</a></div></details>
+<details><summary>Keep the failures <i aria-hidden="true">+</i></summary><div><p>I compare the numbers at every boundary I can expose. When a chain fails, an output tail lands somewhere I didn’t expect, or a hypothesis falls apart, it stays in the record next to what worked.</p><a href="/notes/lfm-parity/">The parity case study</a></div></details>
 </div>
 </section>
 
 <section class="record-section" id="record" aria-labelledby="record-title">
-<div class="shell record-grid">
-<div class="section-heading"><p class="eyebrow">The record / 03</p><h2 id="record-title">Read the<br> whole notebook.</h2><p>Short, source-bound notes on what passed, what diverged and which hypotheses failed, plus archived releases you can verify without trusting us.</p></div>
+<div class="shell">
+<div class="section-heading record-head"><h2 id="record-title">The whole notebook</h2><p>Short notes on what passed, what drifted and which ideas didn’t hold up, each tied to its sources. Plus archived releases you can check yourself, without taking my word for it.</p></div>
+<div class="record-grid">
 <div>
 <p class="list-h">Field notes</p>
 <ul class="notes">
@@ -167,6 +178,8 @@
 <li><a href="/notes/lfm-chain/"><span class="id">N/004</span><div><h3>Every slice passed. The chain did not.</h3><p>LFM2.5-1.2B layer slices meet a strict ANE parity gate; the 16-layer chain and token logits miss it.</p></div><span class="tags">LFM2.5 · Parity · Negative</span></a></li>
 <li><a href="/notes/graft-costs/"><span class="id">N/005</span><div><h3>Correct, placed, paid for</h3><p>A ring-buffer attention graft placed nothing on the ANE; an EAGLE draft head made every call slower and has to earn it back.</p></div><span class="tags">Placement · Dispatch · Grafts</span></a></li>
 </ul>
+</div>
+<div>
 <p class="list-h">Publication archive</p>
 <!-- publications-latest:start -->
 <ul class="notes">
@@ -178,17 +191,17 @@
 <p class="list-more"><a class="more" href="/publications/">Full publication feed</a> · <a class="more" href="/research/explore/">Search the evidence explorer</a></p>
 </div>
 </div>
+</div>
 </section>
 
 <section class="about-section" id="about" aria-labelledby="about-title">
 <div class="shell about-grid">
-<div><p class="eyebrow">Independent by design / 04</p><h2 id="about-title">Build. Experiment.<br> Understand what’s<br> <em>underneath.</em></h2></div>
+<div><h2 id="about-title">Who runs this</h2><a class="button outline" href="/research/">See the full research record</a></div>
 <div class="about-copy">
-<p>MacBrains Labs is an independent research notebook on Apple Silicon: how programs are compiled, where work is assigned, and what the results can actually support. Open methods and explicit limits are part of the work, not footnotes to it.</p>
-<p>We do not claim Apple affiliation, privileged ANE access, or universal placement results. Individual measurements refer to the named artifact, backend, tensor shape and hardware configuration.</p>
-<p>Researcher: <a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson (ORCID iD 0009-0003-4026-8212)</a>. The public measurement summaries are archived at Zenodo under <a href="https://doi.org/10.5281/zenodo.23798037">DOI 10.5281/zenodo.23798037</a>; cite that version DOI. An archived DOI is not peer review.</p>
-<p>The tooling needs evidence, too: <a href="/security/">two defensive research advisories</a> document fixed defects in private research automation.</p>
-<a class="button outline" href="/research/">The full research record <span aria-hidden="true">↗</span></a>
+<p>I’m Nayte Wilson. MacBrains Labs is my independent research notebook on Apple Silicon: how programs get compiled, where the work gets assigned, and what the results can actually back up. The methods are open, and the limits are part of the work, not footnotes.</p>
+<p>I’m not affiliated with Apple, and I don’t have any special access to the Neural Engine. No result here is universal. Each measurement is about the exact model build, backend, tensor shape and hardware it names.</p>
+<p>My ORCID iD is <a href="https://orcid.org/0009-0003-4026-8212">0009-0003-4026-8212</a>. The public measurement summaries are archived on Zenodo under <a href="https://doi.org/10.5281/zenodo.23798037">DOI 10.5281/zenodo.23798037</a>. If you cite them, cite that version DOI. And to be clear, a DOI means it’s archived. It doesn’t mean it was peer reviewed.</p>
+<p>The tools get the same treatment. <a href="/security/">Two security advisories</a> document bugs that were found and fixed in my private research automation.</p>
 </div>
 </div>
 </section>
@@ -196,9 +209,9 @@
 
 <footer class="footer">
 <div class="shell footer-grid">
-<div><a class="brand" href="/"><img src="/assets/brand-mark-96.png" width="36" height="36" alt=""><span>MacBrains <b>Labs</b></span></a><p class="motto">Evidence before inference.</p></div>
-<div><p class="foot-h">Correspondence</p><a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a><p>Model execution, numerical parity, hardware behavior, reproducible tests.</p></div>
-<div><p class="foot-h">Index</p><ul><li><a href="/research/">Research record</a></li><li><a href="/methods/">Methodology</a></li><li><a href="/notes/">Field notes</a></li><li><a href="/publications/">Publications</a></li><li><a href="/security/">Defensive research</a></li><li><a href="/contact/">Contact</a></li></ul></div>
+<div><a class="brand" href="/"><img src="/assets/brand-mark-96.png" width="36" height="36" alt=""><span>MacBrains <b>Labs</b></span></a><p class="motto">If I can’t show it, I don’t claim it.</p></div>
+<div><p class="foot-h">Email me</p><a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a><p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p></div>
+<div><p class="foot-h">Pages</p><ul><li><a href="/research/">Research record</a></li><li><a href="/methods/">Methodology</a></li><li><a href="/notes/">Field notes</a></li><li><a href="/publications/">Publications</a></li><li><a href="/security/">Defensive research</a></li><li><a href="/contact/">Contact</a></li></ul></div>
 </div>
 <div class="shell footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
 </footer>
