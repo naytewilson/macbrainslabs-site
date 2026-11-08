@@ -161,7 +161,8 @@
   "kept, source re-checked by integrator: synergy-word",
   "kept, source re-checked by integrator: built-for-the-modern",
   "kept, source re-checked by integrator: say-goodbye-to",
-  "kept, source re-checked by integrator: click-here"
+  "kept, source re-checked by integrator: click-here",
+  "integrator: field-notes-label widened to the singular after a manual read found \"field note\" labels the plural pattern missed"
  ],
  "dropped_during_merge": [
   "NOTE: Source lists are trimmed to 1-5 URLs per entry for output size; source_count matches the listed URLs, not the full raw union. I did not re-open the sources in this merge step; sourcing is as reported by the five sweeps. Entries whose only source is the owner statement are kept and labelled owner:2026-11-08 rather than a fetched URL.",
@@ -2761,7 +2762,7 @@
   },
   {
    "id": "field-notes-label",
-   "pattern": "\\bfield notes\\b",
+   "pattern": "\\bfield notes?\\b",
    "is_regex": true,
    "kind": "phrase",
    "category": "performative-label",

@@ -8,7 +8,7 @@
   "classification": {
     "planner": "Public planner/API assignment observations; not a physical ANE trace",
     "measured": "Specific experiment measurements, not general benchmark guarantees",
-    "note": "Source-bound field note, possibly a negative result or interpretation",
+    "note": "Source-bound note, possibly a negative result or interpretation",
     "archive": "Published release integrity, not peer review or independent replication"
   },
   "items": [
@@ -82,55 +82,55 @@
       "id": "note-N/001",
       "kind": "note",
       "title": "Which device did the compiler pick?",
-      "observation": "Research field note",
+      "observation": "Research note",
       "value": "Qwen2.5, MIL, KV state",
       "limitation": "State reads, indexed slices, weight.bin offsets and the non-ANE tail.",
       "url": "/notes/qwen-lut4/",
-      "source": "Public field note N/001",
+      "source": "Public note N/001",
       "tag": "Qwen2.5, MIL, KV state"
     },
     {
       "id": "note-N/002",
       "kind": "note",
       "title": "Production passed. Debug diverged.",
-      "observation": "Research field note",
+      "observation": "Research note",
       "value": "LFM, S2, Parity",
       "limitation": "LFM block-pair parity, 743/743 assignment and why probes change the experiment.",
       "url": "/notes/lfm-parity/",
-      "source": "Public field note N/002",
+      "source": "Public note N/002",
       "tag": "LFM, S2, Parity"
     },
     {
       "id": "note-N/003",
       "kind": "note",
       "title": "I got the ceiling wrong.",
-      "observation": "Research field note",
+      "observation": "Research note",
       "value": "A18 Pro, Decode",
       "limitation": "Batch sweeps, dispatch floors and a hypothesis that measurements overturned.",
       "url": "/notes/decode-regimes/",
-      "source": "Public field note N/003",
+      "source": "Public note N/003",
       "tag": "A18 Pro, Decode"
     },
     {
       "id": "note-N/004",
       "kind": "note",
       "title": "The chain missed the gate.",
-      "observation": "Research field note",
+      "observation": "Research note",
       "value": "LFM2.5, Parity, Negative",
       "limitation": "LFM2.5-1.2B layer slices meet a strict ANE parity gate. The 16-layer chain and token logits miss it.",
       "url": "/notes/lfm-chain/",
-      "source": "Public field note N/004",
+      "source": "Public note N/004",
       "tag": "LFM2.5, Parity, Negative"
     },
     {
       "id": "note-N/005",
       "kind": "note",
       "title": "Did either graft pay off?",
-      "observation": "Research field note",
+      "observation": "Research note",
       "value": "Placement, Dispatch, Grafts",
       "limitation": "Both grafts passed their numerical checks. In the timed build, an EAGLE draft head made every call slower, and it has to earn that back.",
       "url": "/notes/graft-costs/",
-      "source": "Public field note N/005",
+      "source": "Public note N/005",
       "tag": "Placement, Dispatch, Grafts"
     },
     {

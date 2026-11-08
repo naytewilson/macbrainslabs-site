@@ -168,7 +168,7 @@
 }
 infer.ops: ANE=2090 | CPU=79
 observation: MLComputePlan assignment</code></pre>
-<p>The compiler constraints that matter most include FP16 rank-four graph geometry, integer gather indices, and append-only handling of Core ML’s external weight blobs. The failure cases that established those rules are in <a href="/notes/qwen-lut4/">the Qwen field note</a>.</p>
+<p>The compiler constraints that matter most include FP16 rank-four graph geometry, integer gather indices, and append-only handling of Core ML’s external weight blobs. The failure cases that established those rules are in <a href="/notes/qwen-lut4/">the Qwen note</a>.</p>
 
 <h2 id="batch">Measured batch throughput</h2>
 <p>The batch sweep measures <strong>aggregate</strong> throughput on the A18 Pro test system. It isn’t the token rate for one interactive user. Each batch value came from a compiled graph with matching physical input dimensions.</p>

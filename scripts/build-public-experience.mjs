@@ -41,7 +41,7 @@ function notes() {
   const html = read('notes/index.html');
   const rx = /<li><a href="(\/notes\/[a-z0-9/_-]+\/)"><span class="id">([^<]+)<\/span><div><h2>([\s\S]*?)<\/h2><p>([\s\S]*?)<\/p><\/div><span class="tags">([\s\S]*?)<\/span><\/a><\/li>/gi;
   const out = [...html.matchAll(rx)].map(m => ({
-    id: 'note-' + plain(m[2]), kind: 'note', title: plain(m[3]), observation: 'Research field note', value: plain(m[5]), limitation: plain(m[4]), url: safePath(m[1]), source: 'Public field note ' + plain(m[2]), tag: plain(m[5])
+    id: 'note-' + plain(m[2]), kind: 'note', title: plain(m[3]), observation: 'Research note', value: plain(m[5]), limitation: plain(m[4]), url: safePath(m[1]), source: 'Public note ' + plain(m[2]), tag: plain(m[5])
   }));
   assert.ok(out.length >= 5, 'public notes list unexpectedly incomplete');
   return out;
@@ -76,7 +76,7 @@ function buildCatalog() {
     classification: {
       planner: 'Public planner/API assignment observations; not a physical ANE trace',
       measured: 'Specific experiment measurements, not general benchmark guarantees',
-      note: 'Source-bound field note, possibly a negative result or interpretation',
+      note: 'Source-bound note, possibly a negative result or interpretation',
       archive: 'Published release integrity, not peer review or independent replication'
     },
     items
@@ -110,7 +110,7 @@ function documentShell(route, title, description, contents, script = '') {
 }
 
 function explorer(catalog) {
-  const types = { planner: 'Planner reported', measured: 'Measured', note: 'Field note', archive: 'Verified archive' };
+  const types = { planner: 'Planner reported', measured: 'Measured', note: 'Note', archive: 'Verified archive' };
   const counts = Object.fromEntries(Object.keys(types).map(x => [x, catalog.items.filter(i => i.kind === x).length]));
   const cards = catalog.items.map(x => {
     const data = escapeHtml([x.title,x.observation,x.value,x.limitation,x.source,x.tag].join(' ').toLocaleLowerCase('en-US'));
@@ -145,10 +145,10 @@ function explorer(catalog) {
 <section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">How to read it</span><h2>Each kind means something different.</h2></div><div>
 <p><strong>Planner reported:</strong> the compute unit Core ML assigns. It isn’t a physical trace of the Neural Engine.</p>
 <p><strong>Measured:</strong> an observed result for a named model, device, compiler and method. It doesn’t generalize automatically.</p>
-<p><strong>Field note:</strong> my engineering interpretation. It includes counterexamples and failed hypotheses.</p>
+<p><strong>Note:</strong> my engineering interpretation. It includes counterexamples and failed hypotheses.</p>
 <p><strong>Verified archive:</strong> release provenance and file integrity. A DOI doesn’t imply peer review or independent replication.</p>
 <a href="/research/">See the full research record ↗</a></div></div></section>`;
-  return documentShell('/research/explore/','Research evidence explorer', 'Browse source-linked Apple Neural Engine measurements, Core ML planner observations, field notes, and verified research archives with clear evidence boundaries.', content, '/explore.js');
+  return documentShell('/research/explore/','Research evidence explorer', 'Browse source-linked Apple Neural Engine measurements, Core ML planner observations, notes, and verified research archives with clear evidence boundaries.', content, '/explore.js');
 }
 
 function guide() {
