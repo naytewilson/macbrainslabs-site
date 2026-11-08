@@ -29,7 +29,7 @@ function metrics() {
   const rows = [...body[1].matchAll(/<tr>([\s\S]*?)<\/tr>/g)];
   assert.ok(rows.length >= 6, 'research summary unexpectedly missing measurements');
   return rows.map((m, i) => {
-    const td = [...m[1].matchAll(/<td(?: [^>]+)?>([\s\S]*?)<\/td>/g)].map(x => plain(x[1].replace(/\s*<a\b[^>]*>[\s\S]*?<\/a>\s*$/i, '')));
+    const td = [...m[1].matchAll(/<td(?: [^>]+)?>([\s\S]*?)<\/td>/g)].map(x => plain(x[1].replace(/\s*(?:See\s+)?<a\b[^>]*>(?:(?!<a\b)[\s\S])*?<\/a>\.?\s*$/i, '')));
     assert.equal(td.length, 4, 'unexpected measurement table format row ' + i);
     const [title, observation, value, limitation] = td;
     const type = classes.get(observation);

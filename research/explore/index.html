@@ -93,11 +93,11 @@
 <p class="evidence-limit">The 79 CPU operations are the lm_head argmax tail. By assigned operations, that’s 96.4% ANE and 3.6% CPU.</p>
 <a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
 </article>
-<article class="evidence-card" data-kind="planner" data-search="qwen2.5-1.5b / kv state path ane-assigned state primitives 394 / 394 june infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ane. in the shipped prefill function, one read_state is assigned to the cpu (56 ane / 1 cpu). see prefill_rerun_2026-10-30.txt. public research summary qwen2.5">
+<article class="evidence-card" data-kind="planner" data-search="qwen2.5-1.5b / kv state path ane-assigned state primitives 394 / 394 june infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ane. in the shipped prefill function, one read_state is assigned to the cpu (56 ane / 1 cpu). public research summary qwen2.5">
 <div class="evidence-meta"><span class="evidence-type evidence-type-planner">Planner reported</span><span>Qwen2.5</span></div>
 <h3>Qwen2.5-1.5B / KV state path</h3>
 <p class="evidence-observation">ANE-assigned state primitives<span class="evidence-value">394 / 394</span></p>
-<p class="evidence-limit">June infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ANE. In the shipped prefill function, one read_state is assigned to the CPU (56 ANE / 1 CPU). See prefill_rerun_2026-10-30.txt.</p>
+<p class="evidence-limit">June infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ANE. In the shipped prefill function, one read_state is assigned to the CPU (56 ANE / 1 CPU).</p>
 <a class="evidence-link" href="/research/#measurements">Public research summary <span aria-hidden="true">↗</span></a>
 </article>
 <article class="evidence-card" data-kind="measured" data-search="qwen2.5 / decode batch sweep aggregate tokens per second 102.1 at b=4 five-round, interleaved, steady-state run on a single-function, batch-shaped probe. throughput only. output quality wasn’t validated. a later perplexity check on the b=4 probe, dated 3 july 2026, found its output logits roughly 1000 times larger than the b=1 model’s. the repository’s current records don’t resolve that (n/003). public research summary qwen2.5">

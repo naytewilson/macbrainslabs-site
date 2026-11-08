@@ -29,7 +29,7 @@
       "title": "Qwen2.5-1.5B / KV state path",
       "observation": "ANE-assigned state primitives",
       "value": "394 / 394",
-      "limitation": "June infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ANE. In the shipped prefill function, one read_state is assigned to the CPU (56 ANE / 1 CPU). See prefill_rerun_2026-10-30.txt.",
+      "limitation": "June infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ANE. In the shipped prefill function, one read_state is assigned to the CPU (56 ANE / 1 CPU).",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "Qwen2.5"

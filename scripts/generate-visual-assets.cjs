@@ -81,7 +81,7 @@ async function socialCard() {
     <text x="150" y="103" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="31" fill="#efede5">MacBrains<tspan fill="#c7cac2" font-weight="400"> Labs</tspan></text>
     <text x="54" y="300" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="76" letter-spacing="-3.4" fill="#efede5">Where did it</text>
     <text x="54" y="380" font-family="Arial,Helvetica,sans-serif" font-weight="600" font-size="76" letter-spacing="-3.4" fill="#efede5">really run?</text>
-    <text x="56" y="456" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#dedfd8">I run language models on the Neural Engine</text>
+    <text x="56" y="456" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#dedfd8">I build language models for the Neural Engine</text>
     <text x="56" y="492" font-family="Arial,Helvetica,sans-serif" font-size="25" fill="#dedfd8">and write down what actually happened.</text>
     <text x="56" y="596" font-family="Arial,Helvetica,sans-serif" font-size="17" fill="#b7bdb2">macbrainslabs.org</text>
     <rect x="764" y="177" width="371" height="352" rx="14" stroke="#435044" fill="#131a16" stroke-width="2"/>

@@ -78,7 +78,7 @@
 <section class="shell hero" aria-labelledby="hero-title">
 <div class="hero-copy">
 <h1 id="hero-title">Where did it really run?</h1>
-<p class="lede">I run language models on the Neural Engine in my MacBook and write down what actually happened.</p>
+<p class="lede">I build language models for the Neural Engine in my MacBook and write down what actually happened.</p>
 <p class="intro">Where the work ran, whether the numbers came out right, and what I still can’t prove. Every number here names the exact model build it was measured on, and the failures stay in.</p>
 <div class="hero-actions"><a class="button orange" href="#research">See what I found</a><a class="quiet-link" href="#method">How I work</a></div>
 <p class="intro-entry">New to the Neural Engine? <a href="/start/">Start with the one-minute guide</a></p>
@@ -101,7 +101,7 @@
 
 <article class="folio" id="placement" aria-labelledby="placement-h">
 <p class="topic">Where did it run? · Qwen2.5 1.5B, 28 layers, LUT4</p>
-<h3 id="placement-h">Mostly on the Neural Engine.</h3>
+<h3 id="placement-h">Mostly assigned to the Neural Engine.</h3>
 <p class="folio-intro">Before I say anything about the hardware, I check where the compiler actually put each operation.</p>
 <div class="placement-numbers"><div><strong>2,090</strong><span>operations assigned to the Neural Engine</span></div><div><strong>79</strong><span>operations assigned to the CPU</span></div></div>
 <figure class="ledger-figure">
@@ -138,7 +138,7 @@
 <p class="folio-intro">The measurements didn’t match my explanation, so the explanation had to go.</p>
 <div class="hypothesis"><p class="hyp-h">What I thought</p><p><s>A 57.3 tok/s ceiling set by memory bandwidth.</s></p><p class="hyp-h">What the measurements showed</p><p>Smaller weights didn’t speed it up. More work per dispatch did.</p></div>
 <div class="finding"><p class="finding-h">How I got it wrong</p><p>I got that ceiling by dividing a compiler planning figure by the size of the weight file. Then smaller LUT2 weights gave no matching speedup, and putting more work in each dispatch went right past the supposed limit. So I retracted it. At the full 28-layer production depth, per-layer compute takes up more of each step than the fixed cost of a dispatch.</p></div>
-<div class="limit"><p class="limit-h">What it doesn’t prove</p><p>The batch sweep timed probe builds, and I didn’t check their output quality. A speed result also only holds for its own device, build and run conditions. Not for every model or workload.</p></div>
+<div class="limit"><p class="limit-h">What it doesn’t prove</p><p>The batch sweep timed probe builds whose output quality wasn’t validated. A later perplexity check on the B=4 probe found its logits roughly 1000 times larger than the B=1 model’s, and the records don’t resolve that. A speed result also only holds for its own device, build and run conditions. Not for every model or workload.</p></div>
 <a class="source-link" href="/notes/decode-regimes/">Read the measurement notes</a>
 </article>
 
@@ -148,8 +148,7 @@
 
 <section class="method-section shell" id="method" aria-labelledby="method-title">
 <div class="section-heading"><h2 id="method-title">How I work</h2><p>I keep what I built, what I saw and what I think it means in separate piles.</p>
-<figure class="fragment fragment-dark" data-ui><div class="fragment-bar">Raw output, rerun on 30 October 2026</div><pre><code>model: /tmp/e001-june/qwen25_monolithic_full_lut4.mlmodelc  function: infer
-total ops: 6411
+<figure class="fragment fragment-dark" data-ui><div class="fragment-bar">Raw output excerpt, rerun on 30 October 2026</div><pre><code>total ops: 6411
   none   4242  (66.2%)
   ANE   2090  (32.6%)
   CPU     79  (1.2%)
@@ -157,7 +156,7 @@ total ops: 6411
 === assigned-compute ops only (ANE+CPU+GPU = 2169) ===
   ANE  2090  (96.4% of compute)
   CPU    79  (3.6% of compute)
-  GPU     0  (0.0% of compute)</code></pre><figcaption>What my compute-plan tool printed for the June build. The 4242 “none” entries are 4028 constants, 213 <code>constexpr_lut_to_dense</code> weight expansions and 1 identity, so none of them gets a device. <a href="/evidence/qwen-placement/june_artifact_rerun_2026-10-30.txt">The whole file</a></figcaption></figure></div>
+  GPU     0  (0.0% of compute)</code></pre><figcaption>What my compute-plan tool printed for the June build of <code>qwen25_monolithic_full_lut4.mlmodelc</code>, <code>infer</code> function. The 4242 “none” entries are 4028 constants, 213 <code>constexpr_lut_to_dense</code> weight expansions and 1 identity, so none of them gets a device. <a href="/evidence/qwen-placement/june_artifact_rerun_2026-10-30.txt">The whole file</a></figcaption></figure></div>
 <div class="method-list">
 <details open><summary>Build the real thing <i aria-hidden="true">+</i></summary><div><p>I start from the actual program and how it gets compiled. Native Swift, MIL I write by hand, and Apple’s public Core ML tools. That keeps every boundary out in the open. No entitlement bypasses and no private kernel access.</p><a href="/methods/#stack">The build stack</a></div></details>
 <details><summary>Count every operation <i aria-hidden="true">+</i></summary><div><p>I go through state reads and writes, projections, norms and the output tail. What the compiler says it planned stays separate from any evidence of what actually ran.</p><a href="/notes/qwen-lut4/">The placement audit</a></div></details>
