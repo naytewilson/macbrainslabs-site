@@ -103,13 +103,13 @@
 <p class="topic">Where did it run? · Qwen2.5 1.5B, 28 layers, LUT4</p>
 <h3 id="placement-h">Mostly assigned to the Neural Engine.</h3>
 <p class="folio-intro">Before I say anything about the hardware, I check where the compiler actually put each operation.</p>
-<div class="placement-numbers"><div><strong>2,090</strong><span>operations assigned to the Neural Engine</span></div><div><strong>79</strong><span>operations assigned to the CPU</span></div></div>
+<div class="placement-numbers"><div><strong>2,147</strong><span>operations assigned to the Neural Engine</span></div><div><strong>82</strong><span>operations assigned to the CPU</span></div></div>
 <figure class="ledger-figure">
-<svg class="ledger ledger-wide" shape-rendering="crispEdges" viewBox="0 0 814.5 94.5" role="img" aria-labelledby="lw-t" data-ane="2090" data-cpu="79" data-rows="16"><title id="lw-t">2,169 cells, one per operation: 2,090 assigned to the Neural Engine, 79 assigned to the CPU.</title><defs><pattern id="lw-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="lw-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="780" height="96" fill="url(#lw-ane)"/><rect x="780" y="0" width="6" height="60" fill="url(#lw-ane)"/><rect x="780" y="60" width="6" height="36" fill="url(#lw-cpu)"/><rect x="786" y="0" width="24" height="96" fill="url(#lw-cpu)"/><rect x="810" y="0" width="6" height="54" fill="url(#lw-cpu)"/></svg>
-<svg class="ledger ledger-narrow" shape-rendering="crispEdges" viewBox="0 0 328.5 238.5" role="img" aria-labelledby="ln-t" data-ane="2090" data-cpu="79" data-rows="40"><title id="ln-t">2,169 cells, one per operation: 2,090 assigned to the Neural Engine, 79 assigned to the CPU.</title><defs><pattern id="ln-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="ln-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="312" height="240" fill="url(#ln-ane)"/><rect x="312" y="0" width="6" height="60" fill="url(#ln-ane)"/><rect x="312" y="60" width="6" height="180" fill="url(#ln-cpu)"/><rect x="318" y="0" width="6" height="240" fill="url(#ln-cpu)"/><rect x="324" y="0" width="6" height="54" fill="url(#ln-cpu)"/></svg>
-<figcaption class="bar-label"><span>June 2026 compute plan, <code>infer</code> function, one cell per operation</span><span>96.4% / 3.6%</span></figcaption>
+<svg class="ledger ledger-wide" shape-rendering="crispEdges" viewBox="0 0 838.5 94.5" role="img" aria-labelledby="lw-t" data-ane="2147" data-cpu="82" data-rows="16"><title id="lw-t">2,229 cells, one per operation: 2,147 assigned to the Neural Engine, 82 assigned to the CPU.</title><defs><pattern id="lw-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="lw-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="804" height="96" fill="url(#lw-ane)"/><rect x="804" y="0" width="6" height="18" fill="url(#lw-ane)"/><rect x="804" y="18" width="6" height="78" fill="url(#lw-cpu)"/><rect x="810" y="0" width="24" height="96" fill="url(#lw-cpu)"/><rect x="834" y="0" width="6" height="30" fill="url(#lw-cpu)"/></svg>
+<svg class="ledger ledger-narrow" shape-rendering="crispEdges" viewBox="0 0 334.5 238.5" role="img" aria-labelledby="ln-t" data-ane="2147" data-cpu="82" data-rows="40"><title id="ln-t">2,229 cells, one per operation: 2,147 assigned to the Neural Engine, 82 assigned to the CPU.</title><defs><pattern id="ln-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="ln-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="318" height="240" fill="url(#ln-ane)"/><rect x="318" y="0" width="6" height="162" fill="url(#ln-ane)"/><rect x="318" y="162" width="6" height="78" fill="url(#ln-cpu)"/><rect x="324" y="0" width="6" height="240" fill="url(#ln-cpu)"/><rect x="330" y="0" width="6" height="174" fill="url(#ln-cpu)"/></svg>
+<figcaption class="bar-label"><span>Shipped build, rerun on 30 October 2026, <code>infer</code> function, one cell per operation</span><span>96.3% / 3.7%</span></figcaption>
 </figure>
-<div class="finding"><p class="finding-h">What this shows</p><p>Apple’s MLComputePlan reports which device each operation is assigned to, in this exact compiled model. The 79 on the CPU are the argmax at the very end of the language-model head, the step that picks the output token. The later shipped <code>infer</code> build reports <strong>2,147 ANE / 82 CPU</strong>. That’s a different build, so it doesn’t replace this number.</p></div>
+<div class="finding"><p class="finding-h">What this shows</p><p>Apple’s MLComputePlan reports which device each operation is assigned to, in this exact compiled model. The 82 on the CPU are the argmax at the very end of the language-model head, the step that picks the output token. An earlier June 2026 build of the same model reported <strong>2,090 ANE / 79 CPU</strong>, with the same argmax tail on the CPU. Both runs are on the evidence page.</p></div>
 <figure class="fragment" data-ui><div class="fragment-bar">ane_compute_plan.swift, lines 14 to 21</div><pre><code>if let usage = plan.deviceUsage(for: op) {
     switch usage.preferred {
     case .cpu: name = "CPU"
@@ -148,15 +148,15 @@
 
 <section class="method-section shell" id="method" aria-labelledby="method-title">
 <div class="section-heading"><h2 id="method-title">How I work</h2><p>I keep what I built, what I saw and what I think it means in separate piles.</p>
-<figure class="fragment fragment-dark" data-ui><div class="fragment-bar">Raw output excerpt, rerun on 30 October 2026</div><pre><code>total ops: 6411
-  none   4242  (66.2%)
-  ANE   2090  (32.6%)
-  CPU     79  (1.2%)
+<figure class="fragment fragment-dark" data-ui><div class="fragment-bar">Raw output excerpt, shipped build, rerun on 30 October 2026</div><pre><code>total ops: 6251
+  none   4022  (64.3%)
+  ANE   2147  (34.3%)
+  CPU     82  (1.3%)
 
-=== assigned-compute ops only (ANE+CPU+GPU = 2169) ===
-  ANE  2090  (96.4% of compute)
-  CPU    79  (3.6% of compute)
-  GPU     0  (0.0% of compute)</code></pre><figcaption>What my compute-plan tool printed for the June build of <code>qwen25_monolithic_full_lut4.mlmodelc</code>, <code>infer</code> function. The 4242 “none” entries are 4028 constants, 213 <code>constexpr_lut_to_dense</code> weight expansions and 1 identity, so none of them gets a device. <a href="/evidence/qwen-placement/june_artifact_rerun_2026-10-30.txt">The whole file</a></figcaption></figure></div>
+=== assigned-compute ops only (ANE+CPU+GPU = 2229) ===
+  ANE  2147  (96.3% of compute)
+  CPU    82  (3.7% of compute)
+  GPU     0  (0.0% of compute)</code></pre><figcaption>What my compute-plan tool printed for the shipped build of <code>qwen25_monolithic_full_lut4.mlmodelc</code>, <code>infer</code> function. The 4022 “none” entries are 3808 constants, 213 <code>constexpr_lut_to_dense</code> weight expansions and 1 identity, so none of them gets a device. <a href="/evidence/qwen-placement/rerun_2026-10-30.txt">The whole file</a></figcaption></figure></div>
 <div class="method-list">
 <details open><summary>Build the real thing <i aria-hidden="true">+</i></summary><div><p>I start from the actual program and how it gets compiled. Native Swift, MIL I write by hand, and Apple’s public Core ML tools. That keeps every boundary out in the open. No entitlement bypasses and no private kernel access.</p><a href="/methods/#stack">The build stack</a></div></details>
 <details><summary>Count every operation <i aria-hidden="true">+</i></summary><div><p>I go through state reads and writes, projections, norms and the output tail. What the compiler says it planned stays separate from any evidence of what actually ran.</p><a href="/notes/qwen-lut4/">The placement audit</a></div></details>

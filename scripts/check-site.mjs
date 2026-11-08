@@ -251,7 +251,9 @@ check('evidence bundle tools match their recorded hashes and counts', () => {
   const r = prov.recorded_result;
   assert.equal(r.none + r.ANE + r.CPU + r.GPU, r.total_ops);
   assert.equal(r.ANE + r.CPU + r.GPU, r.assigned_compute_ops);
-  assert.ok(read('/').includes(`data-ane="${r.ANE}" data-cpu="${r.CPU}"`), 'home figure disagrees with provenance.json');
+  // The home figure shows the shipped build (the June result stays in the evidence bundle and on /research/).
+  const shipped = prov.rerun_2026_10_30.result;
+  assert.ok(read('/').includes(`data-ane="${shipped.ANE}" data-cpu="${shipped.CPU}"`), 'home figure disagrees with the shipped-build rerun in provenance.json');
   const runs = [prov.rerun_2026_10_30, prov.archived_june_copy_rerun_2026_10_30, prov.shipped_prefill_rerun_2026_10_30];
   for (const q of runs) {
     const raw = fs.readFileSync(path.join(dir, q.raw_output.file));
