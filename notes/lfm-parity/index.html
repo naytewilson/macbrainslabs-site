@@ -47,7 +47,7 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Field notes",
+          "name": "Notes",
           "item": "https://macbrainslabs.org/notes/"
         },
         {
@@ -61,7 +61,7 @@
     {
       "@type": "TechArticle",
       "@id": "https://macbrainslabs.org/notes/lfm-parity/#article",
-      "headline": "One graph passed. The probe diverged.",
+      "headline": "Production passed. Debug diverged.",
       "alternativeHeadline": "LFM: a passing graph and failing diagnostic taps",
       "description": "LFM native Swift CPU/ANE parity: 743/743 placement in the sealed S2 production graph, relative L2 gates, and a divergent 46-output diagnostic build.",
       "url": "https://macbrainslabs.org/notes/lfm-parity/",
@@ -86,7 +86,7 @@
         "url": "https://macbrainslabs.org/"
       },
       "datePublished": "2026-10-29T20:29:10-04:00",
-      "dateModified": "2026-10-30T02:54:25-04:00",
+      "dateModified": "2026-11-08T17:30:00-05:00",
       "keywords": [
         "LFM",
         "S2",
@@ -115,9 +115,9 @@
 <main id="main">
 <header class="page-head">
 <div class="wrap">
-<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Field notes</a> / N/002</p>
-<h1>One graph passed. The probe diverged.</h1>
-<p class="lede">The instrument used to observe a graph can change the graph. A diagnostic output tap may be a compiler intervention, not a passive sensor.</p>
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Notes</a> / N/002</p>
+<h1>Production passed. Debug diverged.</h1>
+<p class="lede">Measuring a graph can change the graph. A diagnostic output tap may be a compiler intervention, not a passive sensor.</p>
 <dl class="facts">
 <div><dt>Note</dt><dd>N/002</dd></div>
 <div><dt>Artifact</dt><dd>LFM S2</dd></div>
@@ -125,24 +125,24 @@
 <div><dt>Placement</dt><dd>743 of 743</dd></div>
 <div><dt>Method</dt><dd>Native Swift</dd></div>
 <div><dt>Published</dt><dd><time datetime="2026-10-29T20:29:10-04:00">29 Oct 2026</time></dd></div>
-<div><dt>Revised</dt><dd><time datetime="2026-10-30T02:54:25-04:00">30 Oct 2026</time></dd></div>
+<div><dt>Revised</dt><dd><time datetime="2026-11-08T17:30:00-05:00">8 Nov 2026</time></dd></div>
 </dl>
 </div>
 </header>
 <div class="wrap article-layout">
-<nav class="toc" aria-label="Field note N/002">
-<span class="label">Field note N/002</span>
+<nav class="toc" aria-label="Note N/002">
+<span class="label">Note N/002</span>
 <ol>
 <li><a href="#production">Production</a></li>
-<li><a href="#debug">Diagnostic</a></li>
+<li><a href="#debug">Debug build</a></li>
 <li><a href="#measurement">Runner</a></li>
 <li><a href="#integrity">Integrity</a></li>
 </ol>
 <div class="toc-out"><a href="/notes/decode-regimes/">Next: Decode regimes</a></div>
 </nav>
 <article class="article">
-<h2 id="production"><span class="sec">01</span>Sealed production run</h2>
-<p>The sealed LFM block-pair S2 artifact had two declared outputs and an input fixture with shape <code>[1,2,2048]</code>. The native runner loaded it under <code>.cpuOnly</code> and <code>.cpuAndNeuralEngine</code>, rejected non-finite values, and compared both outputs against the same pinned FP16 fixture.</p>
+<h2 id="production">The sealed production run</h2>
+<p>The sealed LFM block-pair S2 artifact had two declared outputs and an input fixture with shape <code>[1,2,2048]</code>. My native runner loaded it under <code>.cpuOnly</code> and <code>.cpuAndNeuralEngine</code>, rejected non-finite values, and compared both outputs against the same pinned FP16 fixture.</p>
 <p>MLComputePlan assigned <strong>743/743 compute operations to ANE</strong> in the production graph. Both outputs met the established ANE tolerance: cosine similarity ≥ 0.999 and relative L2 ≤ 0.03.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Output</th><th scope="col" class="numeric">cos(ANE, fixture)</th><th scope="col" class="numeric">Relative L2</th><th scope="col">Verdict</th></tr></thead>
@@ -151,8 +151,8 @@
 <tr><td><code>lfm_h_after_gqa</code></td><td class="numeric">0.999761005</td><td class="numeric">0.027863104</td><td class="pass">Pass</td></tr>
 </tbody></table></div>
 
-<h2 id="debug"><span class="sec">02</span>Debug variant: a different compiled artifact</h2>
-<p>Recompiling with <code>LFM_PARITY_DEBUG=1</code> introduced 46 output taps instead of two. All 46 outputs passed the CPU-versus-fixture gate, but only <strong>34/46</strong> passed the ANE gate. The first reported ANE-gate failure was <code>liv_14_mlp_output</code>.</p>
+<h2 id="debug">A debug build is a different artifact</h2>
+<p>Recompiling with <code>LFM_PARITY_DEBUG=1</code> added 46 output taps instead of two. All 46 outputs passed the CPU-versus-fixture gate, but only <strong>34/46</strong> passed the ANE gate. The first ANE-gate failure reported was <code>liv_14_mlp_output</code>.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Diagnostic output</th><th scope="col" class="numeric">ANE cosine</th><th scope="col" class="numeric">ANE relative L2</th></tr></thead>
 <tbody>
@@ -160,9 +160,9 @@
 <tr><td><code>gqa_15_head_merge</code></td><td class="numeric">0.098921468</td><td class="numeric">1.342520581</td></tr>
 </tbody></table></div>
 <figure class="figure">
-<div class="figure-head"><p class="figure-title">Fig. 1 — ANE relative L2 against the 0.03 gate</p>
-<ul class="legend"><li><span class="swatch swatch-ane" aria-hidden="true"></span>Production output</li><li><span class="swatch swatch-cpu" aria-hidden="true"></span>Diagnostic tap, over gate</li></ul></div>
-<div role="img" aria-label="Relative L2 versus the 0.03 gate: production lfm_h_after_liv 0.0173 and lfm_h_after_gqa 0.0279 are under the gate; diagnostic liv_14_mlp_output 0.0642 and gqa_15_head_merge 1.3425 are over it.">
+<div class="figure-head"><p class="figure-title">Fig. 1: ANE relative L2 against the 0.03 gate</p>
+<ul class="legend"><li><span class="swatch swatch-ane" aria-hidden="true"></span>Production output</li><li><span class="swatch swatch-cpu" aria-hidden="true"></span>Diagnostic tap, over the gate</li></ul></div>
+<div role="img" aria-label="Relative L2 versus the 0.03 gate: production lfm_h_after_liv 0.0173 and lfm_h_after_gqa 0.0279 are under the gate. Diagnostic liv_14_mlp_output 0.0642 and gqa_15_head_merge 1.3425 are over it.">
 <ul class="gate-chart">
 <li><span class="key">lfm_h_after_liv</span><span class="gate-track"><span class="gate-bar " style="width:24.71%"></span></span><span class="val">0.0173</span></li>
 <li><span class="key">lfm_h_after_gqa</span><span class="gate-track"><span class="gate-bar " style="width:39.80%"></span></span><span class="val">0.0279</span></li>
@@ -170,12 +170,12 @@
 <li><span class="key">gqa_15_head_merge</span><span class="gate-track"><span class="gate-bar off" style="width:100.00%"></span></span><span class="val">1.3425 ▸</span></li>
 </ul>
 </div>
-<figcaption>Scale 0 to 0.07; the dashed line is the 0.03 ANE gate. <code>gqa_15_head_merge</code> (1.3425) runs off the scale. Production and diagnostic rows come from different compiled packages.</figcaption>
+<figcaption>The scale runs from 0 to 0.07. The dashed line marks the 0.03 ANE gate. <code>gqa_15_head_merge</code> (1.3425) runs off the scale. The production and diagnostic rows come from different compiled packages.</figcaption>
 </figure>
-<p>It would be incorrect to treat that diagnostic result as a failing production model. Additional outputs change the compiled graph, so the diagnostic package is a different program from the production one. We retain the negative diagnostic result but bind it to its own model package and compiled identity.</p>
+<p>It would be wrong to treat that diagnostic result as a failing production model. Extra outputs change the compiled graph, so the diagnostic package is a different program from the production one. I keep the negative diagnostic result, but I tie it to its own model package and compiled identity.</p>
 
-<h2 id="measurement"><span class="sec">03</span>The native parity ladder</h2>
-<p>The runner reads the binary FP16 fixture directly, reconstructs logical tensor order from <code>MLMultiArray</code> strides, normalizes documented output layout permutations, and checks for NaN/Inf before computing max absolute error, mean absolute error, cosine similarity and relative L2.</p>
+<h2 id="measurement">How the native runner checks parity</h2>
+<p>The runner reads the binary FP16 fixture directly. It rebuilds the logical tensor order from <code>MLMultiArray</code> strides, normalizes the documented output layout permutations, and checks for NaN and Inf before it computes max absolute error, mean absolute error, cosine similarity and relative L2.</p>
 <pre tabindex="0"><code>production:
     outputs = 2
     assigned_ANE_compute_ops = 743 / 743
@@ -189,10 +189,10 @@ diagnostic:
 
 these are DIFFERENT compiled artifacts</code></pre>
 
-<h2 id="integrity"><span class="sec">04</span>Reproducibility boundary</h2>
-<p>The receipt pins SHA-256 identities for source, runner, fixture tree, emitted model package, compiled graph and report. The sealed production <code>model.mlmodel</code> SHA-256 is <code>3935a7b804d4a9a852faa7fe2ce0457cc2e23789547d22fd3cbe840efe5fd429</code>.</p>
-<div class="callout"><span class="label">Experimental takeaway</span><p>Numerical parity is not a claim about every intermediate value. Compare the exact outputs of the exact compiled program you plan to execute. Use debug taps to localize divergence, not to reclassify another artifact.</p></div>
-<p class="table-caption">Source receipt: ane-re/docs/receipts/LFM_S2_NATIVE_PARITY_2026-07-18.md. Referenced source artifacts are not public downloads.</p>
+<h2 id="integrity">What the receipt pins down</h2>
+<p>The receipt pins SHA-256 identities for the source, the runner, the fixture tree, the emitted model package, the compiled graph and the report. The sealed production <code>model.mlmodel</code> SHA-256 is <code>3935a7b804d4a9a852faa7fe2ce0457cc2e23789547d22fd3cbe840efe5fd429</code>.</p>
+<div class="callout"><span class="label">What I take from this</span><p>Numerical parity isn’t a claim about every intermediate value. Compare the exact outputs of the exact compiled program you plan to run. Use debug taps to find where divergence starts, not to reclassify another artifact.</p></div>
+<p class="table-caption">Source receipt: ane-re/docs/receipts/LFM_S2_NATIVE_PARITY_2026-07-18.md. The referenced source artifacts aren’t public downloads.</p>
 </article>
 </div>
 </main>
@@ -201,19 +201,19 @@ these are DIFFERENT compiled artifacts</code></pre>
 <div class="footer-grid">
 <div>
 <span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
-<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+<p>My independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. I’m not affiliated with Apple.</p>
 </div>
 <div>
-<span class="label">Correspondence</span>
+<span class="label">Email me</span>
 <a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
-<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+<p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p>
 </div>
 <div>
-<span class="label">Index</span>
+<span class="label">Pages</span>
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>

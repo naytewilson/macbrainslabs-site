@@ -18,7 +18,7 @@
       "title": "Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion",
       "observation": "MLComputePlan / infer",
       "value": "2,090 ANE / 79 CPU",
-      "limitation": "CPU residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops. Evidence",
+      "limitation": "The 79 CPU operations are the lm_head argmax tail. By assigned operations, that’s 96.4% ANE and 3.6% CPU.",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "Qwen2.5"
@@ -29,7 +29,7 @@
       "title": "Qwen2.5-1.5B / KV state path",
       "observation": "ANE-assigned state primitives",
       "value": "394 / 394",
-      "limitation": "56 slice_update + 57 read_state + 56 write_state + 225 slice_by_index.",
+      "limitation": "June infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ANE. In the shipped prefill function, one read_state is assigned to the CPU (56 ANE / 1 CPU). See prefill_rerun_2026-10-30.txt.",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "Qwen2.5"
@@ -40,7 +40,7 @@
       "title": "Qwen2.5 / decode batch sweep",
       "observation": "Aggregate tokens per second",
       "value": "102.1 at B=4",
-      "limitation": "Five-round interleaved steady-state run on a single-function, batch-shaped probe. Throughput only; output quality not validated.",
+      "limitation": "Five-round, interleaved, steady-state run on a single-function, batch-shaped probe. Throughput only. Output quality wasn’t validated. A later perplexity check on the B=4 probe, dated 3 July 2026, found its output logits roughly 1000 times larger than the B=1 model’s. The repository’s current records don’t resolve that (N/003).",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "Qwen2.5"
@@ -51,7 +51,7 @@
       "title": "Qwen2.5 / LUT4 model quality",
       "observation": "WikiText-2 perplexity",
       "value": "16.8033",
-      "limitation": "Hand-authored 28L quantized model, run as two 14L halves sharing KV, with position-correct RoPE. Full 12,000-token validation set.",
+      "limitation": "A hand-written 28L quantized model, run as two 14L halves that share KV, with position-correct RoPE. Full 12,000-token validation set.",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "Qwen2.5"
@@ -62,7 +62,7 @@
       "title": "LFM S2 sealed production graph",
       "observation": "ANE compute placement",
       "value": "743 / 743",
-      "limitation": "MLComputePlan for two-output artifact, not separately compiled debug graph.",
+      "limitation": "MLComputePlan on the two-output artifact, not on a separately compiled debug graph.",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "LFM"
@@ -73,7 +73,7 @@
       "title": "LFM S2 / output parity",
       "observation": "ANE vs fixture relative L2",
       "value": "0.01730 / 0.02786",
-      "limitation": "Two declared production outputs. ANE gate relative L2 ≤ 0.03.",
+      "limitation": "Two declared production outputs. The ANE gate is relative L2 ≤ 0.03.",
       "url": "/research/#measurements",
       "source": "Public research summary",
       "tag": "LFM"
@@ -81,57 +81,57 @@
     {
       "id": "note-N/001",
       "kind": "note",
-      "title": "28 layers, LUT4, and the cost of exact placement",
+      "title": "Which device did the compiler pick?",
       "observation": "Research field note",
-      "value": "Qwen2.5 · MIL · KV state",
+      "value": "Qwen2.5, MIL, KV state",
       "limitation": "State reads, indexed slices, weight.bin offsets and the non-ANE tail.",
       "url": "/notes/qwen-lut4/",
       "source": "Public field note N/001",
-      "tag": "Qwen2.5 · MIL · KV state"
+      "tag": "Qwen2.5, MIL, KV state"
     },
     {
       "id": "note-N/002",
       "kind": "note",
-      "title": "A passing production graph and a failing diagnostic one",
+      "title": "Production passed. Debug diverged.",
       "observation": "Research field note",
-      "value": "LFM · S2 · Parity",
-      "limitation": "LFM block-pair parity, 743/743 assignment and why probes alter the experiment.",
+      "value": "LFM, S2, Parity",
+      "limitation": "LFM block-pair parity, 743/743 assignment and why probes change the experiment.",
       "url": "/notes/lfm-parity/",
       "source": "Public field note N/002",
-      "tag": "LFM · S2 · Parity"
+      "tag": "LFM, S2, Parity"
     },
     {
       "id": "note-N/003",
       "kind": "note",
-      "title": "The bandwidth limit that was not a limit",
+      "title": "I got the ceiling wrong.",
       "observation": "Research field note",
-      "value": "A18 Pro · Decode",
-      "limitation": "Batch sweeps, dispatch floors and a hypothesis overturned by measurement.",
+      "value": "A18 Pro, Decode",
+      "limitation": "Batch sweeps, dispatch floors and a hypothesis that measurements overturned.",
       "url": "/notes/decode-regimes/",
       "source": "Public field note N/003",
-      "tag": "A18 Pro · Decode"
+      "tag": "A18 Pro, Decode"
     },
     {
       "id": "note-N/004",
       "kind": "note",
-      "title": "Every slice passed. The chain did not.",
+      "title": "The chain missed the gate.",
       "observation": "Research field note",
-      "value": "LFM2.5 · Parity · Negative",
-      "limitation": "LFM2.5-1.2B layer slices meet a strict ANE parity gate; the 16-layer chain and token logits miss it.",
+      "value": "LFM2.5, Parity, Negative",
+      "limitation": "LFM2.5-1.2B layer slices meet a strict ANE parity gate. The 16-layer chain and token logits miss it.",
       "url": "/notes/lfm-chain/",
       "source": "Public field note N/004",
-      "tag": "LFM2.5 · Parity · Negative"
+      "tag": "LFM2.5, Parity, Negative"
     },
     {
       "id": "note-N/005",
       "kind": "note",
-      "title": "Correct, placed, paid for",
+      "title": "Did either graft pay off?",
       "observation": "Research field note",
-      "value": "Placement · Dispatch · Grafts",
-      "limitation": "A ring-buffer attention graft placed nothing on the ANE; an EAGLE draft head made every call slower and has to earn it back.",
+      "value": "Placement, Dispatch, Grafts",
+      "limitation": "Both grafts passed their numerical checks. In the timed build, an EAGLE draft head made every call slower, and it has to earn that back.",
       "url": "/notes/graft-costs/",
       "source": "Public field note N/005",
-      "tag": "Placement · Dispatch · Grafts"
+      "tag": "Placement, Dispatch, Grafts"
     },
     {
       "id": "archive-ane-record-b8f78a146608021d974dcdec",

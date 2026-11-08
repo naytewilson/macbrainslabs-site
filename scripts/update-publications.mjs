@@ -1828,7 +1828,7 @@ ${records}
 <div><h2 id="limits-h">What this feed can and cannot claim.</h2>
 <p>An archived DOI is registration, not peer review. These records republish already-public summaries; the feed itself makes no experimental claims and contains no drafts or locally-unverified data.</p></div>
 </div>
-<p>Numeric results referenced by the records live on this site's own pages with their source receipts — see ${attrsLink(`${BASE}/research/`, 'the research record')} and ${attrsLink(`${BASE}/notes/`, 'the field notes')}. The archiving repository ${attrsLink(`https://github.com/${RELEASES_REPO}`, 'macbrainslabs/ane-research-records')} carries its own integrity documentation. Correspondence is welcome at ${mailLink()}.</p>
+<p>Numeric results referenced by the records live on this site's own pages with their source receipts — see ${attrsLink(`${BASE}/research/`, 'the research record')} and ${attrsLink(`${BASE}/notes/`, 'the notes')}. The archiving repository ${attrsLink(`https://github.com/${RELEASES_REPO}`, 'macbrainslabs/ane-research-records')} carries its own integrity documentation. Correspondence is welcome at ${mailLink()}.</p>
 </div>
 </section>
 </main>
@@ -1849,7 +1849,7 @@ ${records}
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>

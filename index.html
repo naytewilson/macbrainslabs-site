@@ -107,7 +107,7 @@
 <figure class="ledger-figure">
 <svg class="ledger ledger-wide" shape-rendering="crispEdges" viewBox="0 0 814.5 94.5" role="img" aria-labelledby="lw-t" data-ane="2090" data-cpu="79" data-rows="16"><title id="lw-t">2,169 cells, one per operation: 2,090 assigned to the Neural Engine, 79 assigned to the CPU.</title><defs><pattern id="lw-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="lw-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="780" height="96" fill="url(#lw-ane)"/><rect x="780" y="0" width="6" height="60" fill="url(#lw-ane)"/><rect x="780" y="60" width="6" height="36" fill="url(#lw-cpu)"/><rect x="786" y="0" width="24" height="96" fill="url(#lw-cpu)"/><rect x="810" y="0" width="6" height="54" fill="url(#lw-cpu)"/></svg>
 <svg class="ledger ledger-narrow" shape-rendering="crispEdges" viewBox="0 0 328.5 238.5" role="img" aria-labelledby="ln-t" data-ane="2090" data-cpu="79" data-rows="40"><title id="ln-t">2,169 cells, one per operation: 2,090 assigned to the Neural Engine, 79 assigned to the CPU.</title><defs><pattern id="ln-ane" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-ane" width="4.5" height="4.5"/></pattern><pattern id="ln-cpu" width="6" height="6" patternUnits="userSpaceOnUse"><rect class="c-cpu" width="4.5" height="4.5"/></pattern></defs><rect x="0" y="0" width="312" height="240" fill="url(#ln-ane)"/><rect x="312" y="0" width="6" height="60" fill="url(#ln-ane)"/><rect x="312" y="60" width="6" height="180" fill="url(#ln-cpu)"/><rect x="318" y="0" width="6" height="240" fill="url(#ln-cpu)"/><rect x="324" y="0" width="6" height="54" fill="url(#ln-cpu)"/></svg>
-<figcaption class="bar-label"><span>June 2026 compute plan · <code>infer</code> function · one cell per operation</span><span>96.4% / 3.6%</span></figcaption>
+<figcaption class="bar-label"><span>June 2026 compute plan, <code>infer</code> function, one cell per operation</span><span>96.4% / 3.6%</span></figcaption>
 </figure>
 <div class="finding"><p class="finding-h">What this shows</p><p>Apple’s MLComputePlan reports which device each operation is assigned to, in this exact compiled model. The 79 on the CPU are the argmax at the very end of the language-model head, the step that picks the output token. The later shipped <code>infer</code> build reports <strong>2,147 ANE / 82 CPU</strong>. That’s a different build, so it doesn’t replace this number.</p></div>
 <figure class="fragment" data-ui><div class="fragment-bar">ane_compute_plan.swift, lines 14 to 21</div><pre><code>if let usage = plan.deviceUsage(for: op) {
@@ -170,13 +170,13 @@ total ops: 6411
 <div class="section-heading record-head"><h2 id="record-title">The whole notebook</h2><p>Short notes on what passed, what drifted and which ideas didn’t hold up, each tied to its sources. Plus archived releases you can check yourself, without taking my word for it.</p></div>
 <div class="record-grid">
 <div>
-<p class="list-h">Field notes</p>
+<p class="list-h">Notes</p>
 <ul class="notes">
-<li><a href="/notes/qwen-lut4/"><span class="id">N/001</span><div><h3>28 layers, LUT4, and the cost of exact placement</h3><p>State reads, indexed slices, weight.bin offsets and the non-ANE tail.</p></div><span class="tags">Qwen2.5 · MIL · KV state</span></a></li>
-<li><a href="/notes/lfm-parity/"><span class="id">N/002</span><div><h3>A passing production graph and a failing diagnostic one</h3><p>LFM block-pair parity, 743/743 assignment and why probes alter the experiment.</p></div><span class="tags">LFM · S2 · Parity</span></a></li>
-<li><a href="/notes/decode-regimes/"><span class="id">N/003</span><div><h3>The bandwidth limit that was not a limit</h3><p>Batch sweeps, dispatch floors and a hypothesis overturned by measurement.</p></div><span class="tags">A18 Pro · Decode</span></a></li>
-<li><a href="/notes/lfm-chain/"><span class="id">N/004</span><div><h3>Every slice passed. The chain did not.</h3><p>LFM2.5-1.2B layer slices meet a strict ANE parity gate; the 16-layer chain and token logits miss it.</p></div><span class="tags">LFM2.5 · Parity · Negative</span></a></li>
-<li><a href="/notes/graft-costs/"><span class="id">N/005</span><div><h3>Correct, placed, paid for</h3><p>A ring-buffer attention graft placed nothing on the ANE; an EAGLE draft head made every call slower and has to earn it back.</p></div><span class="tags">Placement · Dispatch · Grafts</span></a></li>
+<li><a href="/notes/qwen-lut4/"><span class="id">N/001</span><div><h3>Which device did the compiler pick?</h3><p>State reads, indexed slices, weight.bin offsets and the non-ANE tail.</p></div><span class="tags">Qwen2.5, MIL, KV state</span></a></li>
+<li><a href="/notes/lfm-parity/"><span class="id">N/002</span><div><h3>Production passed. Debug diverged.</h3><p>LFM block-pair parity, 743/743 assignment and why probes change the experiment.</p></div><span class="tags">LFM, S2, Parity</span></a></li>
+<li><a href="/notes/decode-regimes/"><span class="id">N/003</span><div><h3>I got the ceiling wrong.</h3><p>Batch sweeps, dispatch floors and a hypothesis that measurements overturned.</p></div><span class="tags">A18 Pro, Decode</span></a></li>
+<li><a href="/notes/lfm-chain/"><span class="id">N/004</span><div><h3>The chain missed the gate.</h3><p>LFM2.5-1.2B layer slices meet a strict ANE parity gate. The 16-layer chain and token logits miss it.</p></div><span class="tags">LFM2.5, Parity, Negative</span></a></li>
+<li><a href="/notes/graft-costs/"><span class="id">N/005</span><div><h3>Did either graft pay off?</h3><p>Both grafts passed their numerical checks. In the timed build, an EAGLE draft head made every call slower, and it has to earn that back.</p></div><span class="tags">Placement, Dispatch, Grafts</span></a></li>
 </ul>
 </div>
 <div>
@@ -209,9 +209,9 @@ total ops: 6411
 
 <footer class="footer">
 <div class="shell footer-grid">
-<div><a class="brand" href="/"><img src="/assets/brand-mark-96.png" width="36" height="36" alt=""><span>MacBrains <b>Labs</b></span></a><p class="motto">If I can’t show it, I don’t claim it.</p></div>
+<div><a class="brand" href="/"><img src="/assets/brand-mark-96.png" width="36" height="36" alt=""><span>MacBrains <b>Labs</b></span></a><p class="motto">Independent Apple Silicon research by Nayte Wilson.</p></div>
 <div><p class="foot-h">Email me</p><a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a><p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p></div>
-<div><p class="foot-h">Pages</p><ul><li><a href="/research/">Research record</a></li><li><a href="/methods/">Methodology</a></li><li><a href="/notes/">Field notes</a></li><li><a href="/publications/">Publications</a></li><li><a href="/security/">Defensive research</a></li><li><a href="/contact/">Contact</a></li></ul></div>
+<div><p class="foot-h">Pages</p><ul><li><a href="/research/">Research record</a></li><li><a href="/methods/">Methodology</a></li><li><a href="/notes/">Notes</a></li><li><a href="/publications/">Publications</a></li><li><a href="/security/">Defensive research</a></li><li><a href="/contact/">Contact</a></li></ul></div>
 </div>
 <div class="shell footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
 </footer>

@@ -109,14 +109,14 @@
 <header class="page-head">
 <div class="wrap">
 <p class="crumbs"><a href="/">MacBrains Labs</a> / Research record</p>
-<h1>Claims with their operating conditions.</h1>
-<p class="lede">Results are useful only when the exact model, graph, compiler path, device and test geometry are attached. These are selected, bounded records from ANE-RE and associated native inference work.</p>
-<p class="research-entry"><a href="/research/explore/">Search the public evidence explorer <span aria-hidden="true">↗</span></a><a href="/start/">New to the research? Start here <span aria-hidden="true">↗</span></a></p>
+<h1>What I measured, and how</h1>
+<p class="lede">A result is useful only when the exact model, graph, compiler path, device and test geometry are attached. These are records I selected from ANE-RE and the related native inference work. Each one is bounded by the setup it was measured on.</p>
+<p class="research-entry"><a href="/research/explore/">Search the public evidence explorer <span aria-hidden="true">↗</span></a><a href="/start/">New to this? Start with the guide <span aria-hidden="true">↗</span></a></p>
 <dl class="facts">
 <div><dt>Platform</dt><dd>A18 Pro</dd></div>
 <div><dt>Compiler</dt><dd>Core ML</dd></div>
 <div><dt>Language</dt><dd>Swift</dd></div>
-<div><dt>Classification</dt><dd>Measured / planner-reported</dd></div>
+<div><dt>Result type</dt><dd>Measured / planner-reported</dd></div>
 </dl>
 </div>
 </header>
@@ -125,40 +125,41 @@
 <span class="label">On this page</span>
 <ol>
 <li><a href="#measurements">Measurements</a></li>
-<li><a href="#qwen">Quantized execution</a></li>
+<li><a href="#qwen">The quantized Qwen model</a></li>
 <li><a href="#batch">Batch throughput</a></li>
 <li><a href="#lfm">LFM parity</a></li>
-<li><a href="#scope">Claim limits</a></li>
+<li><a href="#scope">What this doesn’t prove</a></li>
 </ol>
-<div class="toc-out"><a href="/methods/">Methodology</a><a href="/notes/">Field notes</a></div>
+<div class="toc-out"><a href="/methods/">Methodology</a><a href="/notes/">Notes</a></div>
 </nav>
 <article class="article">
-<h2 id="measurements"><span class="sec">01</span>Selected measurements</h2>
-<p>These results do not describe one universal build. They are specific to separate model artifacts and test procedures. <strong>Placement</strong> means MLComputePlan-assigned compute operations; it is not a direct trace of ANE firmware micro-operations.</p>
+<h2 id="measurements">Selected measurements</h2>
+<p>These results don’t describe one universal build. Each one belongs to a specific model artifact and test procedure. <strong>Placement</strong> means the compute operations MLComputePlan assigned to a device. It isn’t a direct trace of ANE firmware micro-operations.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Artifact / experiment</th><th scope="col">Observation</th><th scope="col" class="numeric">Result</th><th scope="col">Scope</th></tr></thead>
 <tbody>
-<tr><td>Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion</td><td>MLComputePlan / <code>infer</code></td><td class="numeric">2,090 ANE<br>79 CPU</td><td>CPU residual: lm_head / argmax tail. 96.4% / 3.6% by assigned ops. <a href="/evidence/qwen-placement/">Evidence</a></td></tr>
-<tr><td>Qwen2.5-1.5B / KV state path</td><td>ANE-assigned state primitives</td><td class="numeric">394 / 394</td><td>56 slice_update + 57 read_state + 56 write_state + 225 slice_by_index.</td></tr>
-<tr><td>Qwen2.5 / decode batch sweep</td><td>Aggregate tokens per second</td><td class="numeric">102.1 at B=4</td><td>Five-round interleaved steady-state run on a single-function, batch-shaped probe. Throughput only; output quality not validated.</td></tr>
-<tr><td>Qwen2.5 / LUT4 model quality</td><td>WikiText-2 perplexity</td><td class="numeric">16.8033</td><td>Hand-authored 28L quantized model, run as two 14L halves sharing KV, with position-correct RoPE. Full 12,000-token validation set.</td></tr>
-<tr><td>LFM S2 sealed production graph</td><td>ANE compute placement</td><td class="numeric">743 / 743</td><td>MLComputePlan for two-output artifact, not separately compiled debug graph.</td></tr>
-<tr><td>LFM S2 / output parity</td><td>ANE vs fixture relative L2</td><td class="numeric">0.01730<br>0.02786</td><td>Two declared production outputs. ANE gate relative L2 ≤ 0.03.</td></tr>
+<tr><td>Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion</td><td>MLComputePlan / <code>infer</code></td><td class="numeric">2,090 ANE<br>79 CPU</td><td>The 79 CPU operations are the lm_head argmax tail. By assigned operations, that’s 96.4% ANE and 3.6% CPU. <a href="/evidence/qwen-placement/">See the placement evidence</a></td></tr>
+<tr><td>Qwen2.5-1.5B / KV state path</td><td>ANE-assigned state primitives</td><td class="numeric">394 / 394</td><td>June infer function: 56 slice_update, 57 read_state, 56 write_state and 225 slice_by_index, all on ANE. In the shipped prefill function, one read_state is assigned to the CPU (56 ANE / 1 CPU). See <a href="/evidence/qwen-placement/prefill_rerun_2026-10-30.txt">prefill_rerun_2026-10-30.txt</a>.</td></tr>
+<tr><td>Qwen2.5 / decode batch sweep</td><td>Aggregate tokens per second</td><td class="numeric">102.1 at B=4</td><td>Five-round, interleaved, steady-state run on a single-function, batch-shaped probe. Throughput only. Output quality wasn’t validated. A later perplexity check on the B=4 probe, dated 3 July 2026, found its output logits roughly 1000 times larger than the B=1 model’s. The repository’s current records don’t resolve that (N/003).</td></tr>
+<tr><td>Qwen2.5 / LUT4 model quality</td><td>WikiText-2 perplexity</td><td class="numeric">16.8033</td><td>A hand-written 28L quantized model, run as two 14L halves that share KV, with position-correct RoPE. Full 12,000-token validation set.</td></tr>
+<tr><td>LFM S2 sealed production graph</td><td>ANE compute placement</td><td class="numeric">743 / 743</td><td>MLComputePlan on the two-output artifact, not on a separately compiled debug graph.</td></tr>
+<tr><td>LFM S2 / output parity</td><td>ANE vs fixture relative L2</td><td class="numeric">0.01730<br>0.02786</td><td>Two declared production outputs. The ANE gate is relative L2 ≤ 0.03.</td></tr>
 </tbody></table></div>
-<p class="table-caption">Source receipts: ANE-RE FINDINGS §2, §7–§12; D028 / D262 / D263; LFM S2 native parity receipt dated 2026-07-18. Public summary, not a release of private model files or raw logs.</p>
-<p><strong>Machine-readable public summaries:</strong> The <a href="https://github.com/macbrainslabs/ane-research-records">MacBrains Labs ANE Research Records</a> repository supplies five source-pinned CSV summaries, SHA-256 provenance and a verification script. These derived tables do not include raw experimental data, private fixtures or model weights. The <a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0">published v0.1.0 release</a> is independently archived at Zenodo under the verified <a href="https://doi.org/10.5281/zenodo.23798037">version DOI 10.5281/zenodo.23798037</a> (<a href="https://doi.org/10.5281/zenodo.23798036">all-versions DOI</a>).</p>
+<p class="table-caption">Sources: ANE-RE FINDINGS §2, §7–§12, D028, D262, D263, and the LFM S2 native parity receipt dated 2026-07-18. This is a public summary. It doesn’t release private model files or raw logs.</p>
+<p><strong>Machine-readable public summaries:</strong> The <a href="https://github.com/macbrainslabs/ane-research-records">MacBrains Labs ANE Research Records</a> repository includes five source-pinned CSV summaries, SHA-256 provenance and a verification script. These derived tables don’t include raw experimental data, private fixtures or model weights. The <a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/v0.1.0">published v0.1.0 release</a> is independently archived at Zenodo under the verified <a href="https://doi.org/10.5281/zenodo.23798037">version DOI 10.5281/zenodo.23798037</a> (<a href="https://doi.org/10.5281/zenodo.23798036">all-versions DOI</a>).</p>
 
-<p><strong>Verify the public archive:</strong> <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/PUBLIC_EVIDENCE_AUDIT.md">Run the source and archive integrity checks</a> or inspect the <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/receipts/publication-audit-2026-10-31.json">machine-readable verification receipt</a>. Both the GitHub release tarball and Zenodo source ZIP were compared file-by-file with the original Git tag. This establishes public archive integrity, <strong>not</strong> independent replication, the correctness of private measurements, or physical ANE execution.</p>
+<p><strong>Verify the public archive:</strong> <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/PUBLIC_EVIDENCE_AUDIT.md">Run the source and archive integrity checks</a> or read the <a href="https://github.com/macbrainslabs/ane-research-records/blob/main/docs/receipts/publication-audit-2026-10-31.json">machine-readable verification receipt</a>. Both the GitHub release tarball and the Zenodo source ZIP were compared file by file with the original Git tag. That establishes public archive integrity. It <strong>doesn’t</strong> prove independent replication, the correctness of private measurements, or physical ANE execution.</p>
 
-<p><strong>Diagnostic research records:</strong> <a href="/research/records/ane-record-c188def1e88a0d94018dfe99/">LFM3-1.7B layer-14 diagnostic, record v0.2.0</a>. Same chip, single device; ANE execution inferred from compute-plan placement; no novelty claim. Every execution of its setup profile is disclosed, including one counted run whose output was deleted.</p>
+<p><strong>Diagnostic research records:</strong> <a href="/research/records/ane-record-c188def1e88a0d94018dfe99/">LFM3-1.7B layer-14 diagnostic, record v0.2.0</a>. Same chip, single device. ANE execution is inferred from compute-plan placement, and I’m not claiming novelty. Every execution of its setup profile is disclosed, including one counted run whose output was deleted.</p>
 
-<p><strong>Researcher attribution:</strong> <a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson (ORCID iD 0009-0003-4026-8212)</a>. The registered researcher identifier is associated with these source-pinned public summaries, not a claim of external validation.</p>
+<p><strong>Researcher:</strong> <a href="https://orcid.org/0009-0003-4026-8212">Nayte Wilson (ORCID iD 0009-0003-4026-8212)</a>. That ORCID iD is attached to these source-pinned public summaries. It isn’t a claim of external validation.</p>
 
-<p><strong>Defensive engineering:</strong> the separate <a href="/security/">project-owner security advisories</a> document two repaired flaws in private research automation, with source identities, control comparisons and downloadable observation summaries.</p>
+<p><strong>Defensive research:</strong> my separate <a href="/security/">security advisories</a> document two repaired flaws in private research automation. They include source identities, control comparisons and downloadable observation summaries.</p>
 
-<h2 id="qwen"><span class="sec">02</span>Quantized transformer execution</h2>
-<p>A central experiment builds a <strong>28-layer Qwen2.5-1.5B-Instruct</strong> path around four-bit lookup-table weights and native Core ML graph generation. The objective is more precise than “use the Neural Engine”: keep attention, projection, normalization and KV-state machinery in ANE-compatible tensor form and demonstrate the exact assigned device for the resulting operations.</p>
-<p>Two Qwen artifacts appear in this record. Placement was read from MLComputePlan on the production ANEMLL Core ML conversion of the 28-layer LUT4 model (<code>qwen25_monolithic_full_lut4</code>); perplexity was measured on the hand-authored SwiftMIL model, which runs as two 14-layer halves sharing KV. The production model's infer function had 2,090 operations assigned to ANE and 79 assigned to CPU. Those counts are from the June 2026 measurement. A later shipped build of the same model line, recorded as converted on 21 October 2026, gave 2,147 ANE and 82 CPU in its <code>infer</code> function; <a href="/evidence/qwen-placement/#oct30">E/001</a> reports both builds side by side. The residual CPU assignments belong to the language-model-head argmax tail. Separately, the tested stateful KV primitives (<code>slice_update</code>, <code>read_state</code>, <code>write_state</code> and <code>slice_by_index</code>) were assigned to ANE. A CPU tail does not invalidate a measured ANE-resident state path, and the state path does not justify calling the whole graph 100% ANE.</p>
+<h2 id="qwen">The quantized Qwen model</h2>
+<p>A central experiment builds a 28-layer Qwen2.5-1.5B-Instruct path around four-bit lookup-table weights and native Core ML graph generation. The goal is more specific than just running on the Neural Engine. I want to keep the attention, projection, normalization and KV-state machinery in ANE-compatible tensor form. I also want to show the exact device each resulting operation is assigned to.</p>
+<p>There are two Qwen artifacts in this record. I read placement from MLComputePlan on the production ANEMLL Core ML conversion of the 28-layer LUT4 model (<code>qwen25_monolithic_full_lut4</code>). I measured perplexity on the hand-written SwiftMIL model, which runs as two 14-layer halves that share KV. The production model’s infer function had 2,090 operations assigned to ANE and 79 assigned to CPU. Those counts are from the June 2026 measurement. A later shipped build of the same model line, recorded as converted on 21 October 2026, gave 2,147 ANE and 82 CPU in its <code>infer</code> function. <a href="/evidence/qwen-placement/#oct30">E/001</a> shows both builds side by side. The residual CPU assignments belong to the language-model-head argmax tail.</p>
+<p>Separately, the KV-state primitives I tested (<code>slice_update</code>, <code>read_state</code>, <code>write_state</code> and <code>slice_by_index</code>) were all assigned to ANE in the June infer function, 394 of 394. In the shipped prefill function, one <code>read_state</code> op is assigned to the CPU (56 ANE / 1 CPU), as shown on the <a href="/evidence/qwen-placement/">placement evidence page</a>. A CPU tail doesn’t invalidate a measured ANE-resident state path. The state path also doesn’t justify calling the whole graph 100% ANE.</p>
 <pre tabindex="0"><code>state_ops = {
   slice_update:    56 / 56  # ANE / total
   read_state:      57 / 57
@@ -167,13 +168,13 @@
 }
 infer.ops: ANE=2090 | CPU=79
 observation: MLComputePlan assignment</code></pre>
-<p>Critical compiler constraints include FP16 rank-four graph geometry, integer gather indices, and append-only handling of Core ML's external weight blobs. See <a href="/notes/qwen-lut4/">the Qwen field note</a> for the failure cases that established those rules.</p>
+<p>The compiler constraints that matter most include FP16 rank-four graph geometry, integer gather indices, and append-only handling of Core ML’s external weight blobs. The failure cases that established those rules are in <a href="/notes/qwen-lut4/">the Qwen field note</a>.</p>
 
-<h2 id="batch"><span class="sec">03</span>Measured batch throughput</h2>
-<p>The batch sweep measures <strong>aggregate</strong> throughput on the A18 Pro test system, not individual interactive-user token rate. Each batch value came from a compiled graph with matching physical input dimensions.</p>
+<h2 id="batch">Measured batch throughput</h2>
+<p>The batch sweep measures <strong>aggregate</strong> throughput on the A18 Pro test system. It isn’t the token rate for one interactive user. Each batch value came from a compiled graph with matching physical input dimensions.</p>
 <figure class="figure">
-<div class="figure-head"><p class="figure-title">Fig. 1 — Aggregate tokens per second by real batch shape (D028)</p></div>
-<div role="img" aria-label="Measured aggregate throughput: B=1 45.4, B=2 68.1, B=4 102.1, B=8 125.8 tokens per second">
+<div class="figure-head"><p class="figure-title">Fig. 1: Aggregate tokens per second by real batch shape (D028)</p></div>
+<div role="img" aria-label="Measured aggregate throughput: B=1 45.4, B=2 68.1, B=4 102.1, B=8 125.8 tokens per second. The B=4 bar has a caveat, described below the figure.">
 <ul class="bars">
 <li><span class="key">B=1</span><span class="bar-track"><span class="bar" style="width:32.43%"></span></span><span class="val">45.4</span></li>
 <li><span class="key">B=2</span><span class="bar-track"><span class="bar" style="width:48.64%"></span></span><span class="val">68.1</span></li>
@@ -182,24 +183,25 @@ observation: MLComputePlan assignment</code></pre>
 </ul>
 <div class="axis"><span></span><span class="axis-ticks"><span style="left:0">0</span><span style="left:35.71%">50</span><span style="left:71.43%">100</span></span><span>tok/s</span></div>
 </div>
-<figcaption>Five interleaved rounds, steady-state; Qwen2.5 ANE decode substrate. Batch=8 yields higher aggregate throughput at a higher memory cost.</figcaption>
+<figcaption>Five interleaved rounds, steady state, on the Qwen2.5 ANE decode substrate. Batch=8 gives higher aggregate throughput at a higher memory cost. The B=4 caveat is below.</figcaption>
 </figure>
-<p>Batch=4 is the measured efficiency knee for this setup. The sweep timed single-function probe artifacts; their output quality was not validated, and the batch geometry had not yet been carried into a deployable model. A previously proposed “57.3 tok/s bandwidth ceiling” was later falsified by a batch-K-per-dispatch sweep on a probe model and by a LUT2 experiment that reduced weights without increasing throughput. The updated result distinguishes low-depth dispatch overhead from compute cost at 28 layers. <a href="/notes/decode-regimes/">Read the analysis.</a></p>
+<p>B=4 is the measured efficiency knee for this setup. The sweep timed single-function probe artifacts. Their output quality wasn’t validated, and the batch geometry hadn’t yet been carried into a deployable model. A later perplexity check on the B=4 probe, dated 3 July 2026, found its output logits roughly 1000 times larger than the B=1 model’s. The repository’s current records don’t resolve that (N/003).</p>
+<p>I first proposed a 57.3 tok/s bandwidth ceiling. A batch-K-per-dispatch sweep on a probe model ruled it out, and so did a LUT2 experiment that cut the weights without increasing throughput. The updated result separates low-depth dispatch overhead from compute cost at 28 layers. <a href="/notes/decode-regimes/">Read the full analysis.</a></p>
 
-<h2 id="lfm"><span class="sec">04</span>Liquid architecture parity</h2>
-<p>A separate <strong>LFM block-pair S2 production artifact</strong> was evaluated under <code>.cpuOnly</code> and <code>.cpuAndNeuralEngine</code> and compared with a pinned FP16 fixture. Placement classified 743/743 compute operations on ANE for that sealed artifact. The native runner rejected non-finite output values and evaluated cosine similarity, max absolute difference and relative L2 error.</p>
+<h2 id="lfm">Liquid architecture parity</h2>
+<p>I evaluated a separate <strong>LFM block-pair S2 production artifact</strong> under <code>.cpuOnly</code> and <code>.cpuAndNeuralEngine</code>, then compared it with a pinned FP16 fixture. Placement assigned 743/743 compute operations to ANE for that sealed artifact. The native runner rejected non-finite output values, then computed cosine similarity, max absolute difference and relative L2 error.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Declared output</th><th scope="col" class="numeric">ANE cosine</th><th scope="col" class="numeric">ANE relative L2</th><th scope="col">Gate</th></tr></thead>
 <tbody>
 <tr><td><code>lfm_h_after_liv</code></td><td class="numeric">0.999886220</td><td class="numeric">0.017295585</td><td class="pass">Pass</td></tr>
 <tr><td><code>lfm_h_after_gqa</code></td><td class="numeric">0.999761005</td><td class="numeric">0.027863104</td><td class="pass">Pass</td></tr>
 </tbody></table></div>
-<p>The diagnostic artifact exposed 46 outputs, changing the compiled graph; only 34 of them satisfied the ANE gate. The diagnostic divergence is a separate result, not evidence that the sealed two-output production graph failed. <a href="/notes/lfm-parity/">Examine both cases.</a></p>
-<p>A later LFM2.5-1.2B experiment is a separate case: layer slices that each passed a stricter ANE gate (relative L2 ≤ 0.005) failed it once chained. <a href="/notes/lfm-chain/">See N/004.</a></p>
+<p>The diagnostic artifact exposed 46 outputs. That changed the compiled graph, and only 34 of them passed the ANE gate. The diagnostic divergence is a separate result. It isn’t evidence that the sealed two-output production graph failed. <a href="/notes/lfm-parity/">Read both cases.</a></p>
+<p>A later LFM2.5-1.2B experiment is a separate case. Its layer slices each passed a stricter ANE gate (relative L2 ≤ 0.005), but they failed it once chained. <a href="/notes/lfm-chain/">See N/004.</a></p>
 
-<h2 id="scope"><span class="sec">05</span>What the results do not say</h2>
-<div class="callout"><span class="label">Boundary conditions</span><p>These findings do not establish ANE residency for arbitrary transformer architectures, every token-processing operation, or every Core ML/compiler release. Assigned compute unit is an API-visible planner result. Numeric parity and measured end-to-end speed are distinct experiments with their own conditions.</p></div>
-<p>Research is ongoing. Hypotheses, performance projections, and experimental surrogate shapes are kept separate from hardware-qualified measurements. Negative results and retractions remain part of the record, rather than being silently replaced by favorable headlines.</p>
+<h2 id="scope">What this doesn’t prove</h2>
+<div class="callout"><span class="label">Limits</span><p>These results don’t establish ANE residency for arbitrary transformer architectures, for every token-processing operation, or for every Core ML or compiler release. The assigned compute unit is a planner result that the API exposes. Numerical parity and measured end-to-end speed are separate experiments, each with its own conditions.</p></div>
+<p>This research is still going. I keep hypotheses, performance projections and experimental stand-in shapes apart from hardware-qualified measurements. Negative results and retractions stay in the record. I don’t quietly replace them with flattering headlines.</p>
 </article>
 </div>
 </main>
@@ -208,19 +210,19 @@ observation: MLComputePlan assignment</code></pre>
 <div class="footer-grid">
 <div>
 <span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
-<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+<p>My independent research covers Apple Neural Engine execution, Core ML graph construction and on-device inference. I’m not affiliated with Apple.</p>
 </div>
 <div>
-<span class="label">Correspondence</span>
+<span class="label">Email me</span>
 <a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
-<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+<p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p>
 </div>
 <div>
-<span class="label">Index</span>
+<span class="label">Pages</span>
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>

@@ -47,7 +47,7 @@
         {
           "@type": "ListItem",
           "position": 2,
-          "name": "Field notes",
+          "name": "Notes",
           "item": "https://macbrainslabs.org/notes/"
         },
         {
@@ -61,7 +61,7 @@
     {
       "@type": "TechArticle",
       "@id": "https://macbrainslabs.org/notes/qwen-lut4/#article",
-      "headline": "28 layers. LUT4. Count every op.",
+      "headline": "Which device did the compiler pick?",
       "alternativeHeadline": "Qwen LUT4: placement, KV state and blob integrity",
       "description": "Technical field note on 28-layer Qwen2.5-1.5B LUT4 on the Apple Neural Engine: operation assignment, KV-state lowering, RoPE gather types, and external weight blob integrity.",
       "url": "https://macbrainslabs.org/notes/qwen-lut4/",
@@ -86,7 +86,7 @@
         "url": "https://macbrainslabs.org/"
       },
       "datePublished": "2026-10-29T20:29:10-04:00",
-      "dateModified": "2026-10-30T21:21:13-04:00",
+      "dateModified": "2026-11-08T17:30:00-05:00",
       "keywords": [
         "Qwen2.5",
         "MIL",
@@ -115,9 +115,9 @@
 <main id="main">
 <header class="page-head">
 <div class="wrap">
-<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Field notes</a> / N/001</p>
-<h1>28 layers. LUT4. Count every op.</h1>
-<p class="lede">Qwen2.5-1.5B LUT4 work on A18 Pro showed that ANE residency is an operator-level claim, not a marketing description.</p>
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/notes/">Notes</a> / N/001</p>
+<h1>Which device did the compiler pick?</h1>
+<p class="lede">My Qwen2.5-1.5B LUT4 work on the A18 Pro showed that ANE residency is an operator-level claim, not a marketing description.</p>
 <dl class="facts">
 <div><dt>Note</dt><dd>N/001</dd></div>
 <div><dt>Model</dt><dd>Qwen2.5-1.5B</dd></div>
@@ -125,25 +125,25 @@
 <div><dt>Backend</dt><dd>Core ML</dd></div>
 <div><dt>State</dt><dd>KV</dd></div>
 <div><dt>Published</dt><dd><time datetime="2026-10-29T20:29:10-04:00">29 Oct 2026</time></dd></div>
-<div><dt>Revised</dt><dd><time datetime="2026-10-30T21:21:13-04:00">30 Oct 2026</time></dd></div>
+<div><dt>Revised</dt><dd><time datetime="2026-11-08T17:30:00-05:00">8 Nov 2026</time></dd></div>
 </dl>
 </div>
 </header>
 <div class="wrap article-layout">
-<nav class="toc" aria-label="Field note N/001">
-<span class="label">Field note N/001</span>
+<nav class="toc" aria-label="Note N/001">
+<span class="label">Note N/001</span>
 <ol>
 <li><a href="#result">Placement</a></li>
 <li><a href="#typing">Gather types</a></li>
 <li><a href="#blob">Blob integrity</a></li>
-<li><a href="#fidelity">Fidelity</a></li>
+<li><a href="#fidelity">Quality</a></li>
 <li><a href="#scope">Limits</a></li>
 </ol>
 <div class="toc-out"><a href="/notes/lfm-parity/">Next: LFM parity</a></div>
 </nav>
 <article class="article">
-<h2 id="result"><span class="sec">01</span>Observed production placement</h2>
-<p>The measured <code>infer</code> graph of the production ANEMLL Core ML conversion (<code>qwen25_monolithic_full_lut4</code>) assigned <strong>2,090 operators to ANE</strong> and <strong>79 to CPU</strong> (96.4% versus 3.6%). Those counts are from the June 2026 measurement. A later shipped build of the same model line, recorded as converted on 21 October 2026, gave 2,147 ANE and 82 CPU in its <code>infer</code> function; <a href="/evidence/qwen-placement/#oct30">E/001</a> reports both builds side by side. The CPU-assigned operations were in the language-model-head argmax/output tail. This distinction matters: the layer stack and KV machinery can be ANE-resident without the output selection tail being ANE-resident.</p>
+<h2 id="result">Placement in the production graph</h2>
+<p>The measured <code>infer</code> graph of the production ANEMLL Core ML conversion (<code>qwen25_monolithic_full_lut4</code>) assigned <strong>2,090 operators to ANE</strong> and <strong>79 to CPU</strong> (96.4% versus 3.6%). Those counts come from the June 2026 measurement. A later shipped build of the same model line, recorded as converted on 21 October 2026, gave 2,147 ANE and 82 CPU in its <code>infer</code> function. <a href="/evidence/qwen-placement/#oct30">E/001</a> reports both builds side by side. The CPU-assigned operations sat in the language-model-head argmax/output tail. That split matters. The layer stack and KV machinery can be ANE-resident while the output selection tail is not.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">State primitive</th><th scope="col" class="numeric">ANE</th><th scope="col" class="numeric">CPU</th><th scope="col">Classification</th></tr></thead>
 <tbody>
@@ -152,10 +152,10 @@
 <tr><td><code>write_state</code></td><td class="numeric">56</td><td class="numeric">0</td><td>ANE</td></tr>
 <tr><td><code>slice_by_index</code></td><td class="numeric">225</td><td class="numeric">0</td><td>ANE</td></tr>
 </tbody></table></div>
-<p>The stateful pattern used padded widths, sequence geometry and graph structure compatible with compiler lowering rules. A failing isolated <code>slice_update</code> micrograph was <strong>not</strong> evidence that state writes require CPU execution in the production graph.</p>
+<p>The stateful pattern used padded widths, sequence geometry and graph structure that fit the compiler’s lowering rules. A failing isolated <code>slice_update</code> micrograph was <strong>not</strong> evidence that state writes need CPU execution in the production graph.</p>
 
-<h2 id="typing"><span class="sec">02</span>Gather is a type contract</h2>
-<p>Core ML's ANE lowering accepted FP16 data/output gather tables with integer indices. Floating-point gather indices were not a valid substitute: FP16 cannot represent every integer precisely beyond 2,048, so forcing token IDs through that type creates both compilation and correctness hazards.</p>
+<h2 id="typing">On the ANE, gather needs integer indices</h2>
+<p>Core ML’s ANE lowering accepted FP16 data and output gather tables with integer indices. Floating-point gather indices were not a valid substitute. FP16 can’t represent every integer precisely beyond 2,048, so forcing token IDs through that type creates both compilation and correctness hazards.</p>
 <pre tabindex="0"><code>// Conceptual lowering contract
 position_fp16
   └─ cast(to: uint16)
@@ -164,24 +164,24 @@ position_fp16
 
 // NOT an ANE lowering contract
 gather(data: fp16, index: fp16)</code></pre>
-<p>Model-vocabulary token lookup can stay outside the ANE computation boundary while ANE receives FP16 embedding tensors. The implementation treats this as data movement and does not mislabel it as an ANE compute operation.</p>
+<p>Looking up tokens in the model’s vocabulary can stay outside the ANE computation boundary, while the ANE receives FP16 embedding tensors. I treat that as data movement. I don’t label it as an ANE compute operation.</p>
 
-<h2 id="blob"><span class="sec">03</span>A misleading compiler error</h2>
-<p>One graph failed in <code>CreateBnnsGraphProgramFromMIL</code> with <code>Invalid sentinel in blob_metadata</code>. The message was ambiguous: an unlowerable operator <em>or</em> an external-weight offset landing in the wrong bytes could produce a related failure. The correct diagnostic was a walk of every <code>BLOBFILE</code> offset referenced by MIL.</p>
-<div class="proof"><span class="label">weight.bin · append-only structure</span><dl>
+<h2 id="blob">The compiler error was ambiguous</h2>
+<p>One graph failed in <code>CreateBnnsGraphProgramFromMIL</code> with <code>Invalid sentinel in blob_metadata</code>. The message was ambiguous. An unlowerable operator <em>or</em> an external-weight offset landing in the wrong bytes could produce a related failure. The right check was to walk every <code>BLOBFILE</code> offset that MIL references.</p>
+<div class="proof"><span class="label">weight.bin, append-only structure</span><dl>
 <dt>File header</dt><dd>64 bytes</dd>
 <dt>Per-blob header</dt><dd>64-byte metadata, sentinel 0xDEADBEEF</dd>
 <dt>Data</dt><dd>64-byte aligned</dd>
 <dt>References</dt><dd>Offsets target metadata headers, not blob payloads</dd>
 </dl></div>
-<p>Appending new blobs without rewriting all existing offsets preserves the original graph's references. A “clean” MIL rewrite is insufficient if new weight references never received correctly indexed backing blobs.</p>
+<p>Appending new blobs without rewriting every existing offset keeps the original graph’s references intact. A “clean” MIL rewrite isn’t enough if the new weight references never got correctly indexed backing blobs.</p>
 
-<h2 id="fidelity"><span class="sec">04</span>Fidelity is not placement</h2>
-<p>After RoPE and blob-reference corrections, the hand-authored LUT4 28-layer model, run as two 14-layer halves sharing KV, measured <strong>16.8033 perplexity on WikiText-2</strong> over the full 12,000-token validation set. It differed from an Apple Core AI comparison figure (14.79 macOS) by approximately 2.01 perplexity points; that reference is a distinct model/configuration and does not establish a general quality penalty of four-bit quantization.</p>
+<h2 id="fidelity">Quality is a separate question</h2>
+<p>After the RoPE and blob-reference fixes, the hand-authored LUT4 28-layer model, run as two 14-layer halves that share KV, measured <strong>16.8033 perplexity on WikiText-2</strong> over the full 12,000-token validation set. It differed from an Apple Core AI comparison figure (14.79 macOS) by approximately 2.01 perplexity points. That reference is a different model and configuration. It doesn’t establish a general quality penalty for four-bit quantization.</p>
 
-<h2 id="scope"><span class="sec">05</span>What is actually supported</h2>
-<div class="callout"><span class="label">Claim class · on-device placement</span><p>2,090/79 operations and the four stateful-op counts were obtained using MLComputePlan on the named compiled artifact. They do not prove zero CPU work in the total inference stack, privileged access to ANE firmware, or transferability to a different Core ML build. The tools and recorded output are in <a href="/evidence/qwen-placement/">evidence bundle E/001</a>.</p></div>
-<p class="table-caption">Source records: ane-re/docs/FINDINGS.md (§2, §6, §11–§12); ANE-RE ledger D009, D210, D257, D262, D263. Source and model artifacts remain private; this page publishes a bounded technical account.</p>
+<h2 id="scope">What this covers and what it doesn’t</h2>
+<div class="callout"><span class="label">Claim class: on-device placement</span><p>The 2,090/79 operation counts and the four stateful-op counts came from MLComputePlan, run on the named compiled artifact. They don’t prove zero CPU work in the whole inference stack, privileged access to ANE firmware, or that the result carries over to a different Core ML build. The tools and recorded output are in <a href="/evidence/qwen-placement/">evidence bundle E/001</a>.</p></div>
+<p class="table-caption">Source records: ane-re/docs/FINDINGS.md (§2, §6, §11–§12) and ANE-RE ledger D009, D210, D257, D262, D263. The source and model artifacts stay private. This page is a limited technical account.</p>
 </article>
 </div>
 </main>
@@ -190,19 +190,19 @@ gather(data: fp16, index: fp16)</code></pre>
 <div class="footer-grid">
 <div>
 <span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
-<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+<p>My independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. I’m not affiliated with Apple.</p>
 </div>
 <div>
-<span class="label">Correspondence</span>
+<span class="label">Email me</span>
 <a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
-<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+<p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p>
 </div>
 <div>
-<span class="label">Index</span>
+<span class="label">Pages</span>
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>

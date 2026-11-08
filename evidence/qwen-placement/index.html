@@ -61,7 +61,7 @@
     {
       "@type": "TechArticle",
       "@id": "https://macbrainslabs.org/evidence/qwen-placement/#article",
-      "headline": "Placement, with the tools to check it.",
+      "headline": "How to check the placement",
       "alternativeHeadline": "Evidence: Qwen2.5 LUT4 operator placement",
       "description": "Evidence bundle for the Qwen2.5-1.5B LUT4 placement finding: the MLComputePlan tools, the recorded output, the model under test, how to rerun it, and what the record does not contain.",
       "url": "https://macbrainslabs.org/evidence/qwen-placement/",
@@ -86,7 +86,7 @@
         "url": "https://macbrainslabs.org/"
       },
       "datePublished": "2026-10-30T03:26:32-04:00",
-      "dateModified": "2026-10-30T07:30:48-04:00"
+      "dateModified": "2026-11-08T17:30:00-05:00"
     }
   ]
 }
@@ -111,15 +111,15 @@
 <header class="page-head">
 <div class="wrap">
 <p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/research/">Research</a> / Evidence E/001</p>
-<h1>Placement, with the tools to check it.</h1>
-<p class="lede">This bundle holds what is needed to rerun the operator-placement count behind 2,090 ANE / 79 CPU, and says plainly which parts of the original run were not recorded. On 30 October 2026, an archived copy of the June model reproduced those counts exactly.</p>
+<h1>How to check the placement</h1>
+<p class="lede">This bundle has what you need to rerun the operator-placement count behind 2,090 ANE / 79 CPU. It also says plainly which parts of the original run weren’t recorded. On 30 October 2026, an archived copy of the June model reproduced those counts exactly.</p>
 <dl class="facts">
 <div><dt>Bundle</dt><dd>E/001</dd></div>
 <div><dt>Finding</dt><dd>ANE-RE FINDINGS §2</dd></div>
 <div><dt>Method</dt><dd>MLComputePlan</dd></div>
 <div><dt>Function</dt><dd><code>infer</code></dd></div>
 <div><dt>Source</dt><dd>ane-re @ ffd1a3c</dd></div>
-<div><dt>Published</dt><dd><time datetime="2026-10-30T03:26:32-04:00">30 Oct 2026</time></dd></div>
+<div><dt>Published</dt><dd><time datetime="2026-10-30T03:26:32-04:00">30 Oct 2026</time></dd></div><div><dt>Revised</dt><dd><time datetime="2026-11-08T17:30:00-05:00">8 Nov 2026</time></dd></div>
 </dl>
 </div>
 </header>
@@ -138,8 +138,8 @@
 <div class="toc-out"><a href="/notes/qwen-lut4/">Field note N/001</a></div>
 </nav>
 <article class="article">
-<h2 id="claim"><span class="sec">01</span>Recorded result</h2>
-<p>MLComputePlan was loaded for the <code>infer</code> function with compute units set to CPU and Neural Engine. Each operation was counted by the device MLComputePlan reports as preferred for it. Operations with no reported device usage are counted as <code>none</code>.</p>
+<h2 id="claim">Recorded result</h2>
+<p>I loaded MLComputePlan for the <code>infer</code> function, with compute units set to CPU and Neural Engine. I counted each operation under the device MLComputePlan reports as preferred for it. Operations with no reported device usage are counted as <code>none</code>.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Bucket</th><th scope="col" class="numeric">Ops</th><th scope="col" class="numeric">Of all ops</th><th scope="col" class="numeric">Of assigned compute</th></tr></thead>
 <tbody>
@@ -150,8 +150,8 @@
 <tr><td>Total</td><td class="numeric">6,411</td><td class="numeric">100%</td><td class="numeric">2,169 assigned</td></tr>
 </tbody></table></div>
 <p class="table-caption">Recorded in ANE-RE FINDINGS §2 and in the output block reproduced in the ANE-RE structural gate source. The 79 CPU operations are the lm_head argmax tail.</p>
-<p>The same placement and state-primitive counts are published as <code>qwen-placement.csv</code> and <code>qwen-state-primitives.csv</code> in the <a href="https://github.com/macbrainslabs/ane-research-records">MacBrains Labs ANE Research Records</a>, archived at Zenodo under <a href="https://doi.org/10.5281/zenodo.23798037">DOI 10.5281/zenodo.23798037</a>. This bundle adds the tools that produced the counts. Raw experimental data, private fixtures and model weights remain unpublished.</p>
-<p>KV-state machinery in the same function, counted by <code>kv_placement.swift</code>:</p>
+<p>The same counts are published as <code>qwen-placement.csv</code> and <code>qwen-state-primitives.csv</code> in the <a href="https://github.com/macbrainslabs/ane-research-records">MacBrains Labs ANE Research Records</a>, archived at Zenodo under <a href="https://doi.org/10.5281/zenodo.23798037">DOI 10.5281/zenodo.23798037</a>. This bundle adds the tools that produced them. Raw experimental data, private fixtures and model weights remain unpublished.</p>
+<p>The KV-state operators in the same function, counted by <code>kv_placement.swift</code>:</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Operator</th><th scope="col" class="numeric">ANE</th><th scope="col" class="numeric">CPU</th></tr></thead>
 <tbody>
@@ -162,13 +162,13 @@
 </tbody></table></div>
 <p>The recorded output, as transcribed: <a href="/evidence/qwen-placement/recorded_output.txt">recorded_output.txt</a>. Machine-readable provenance: <a href="/evidence/qwen-placement/provenance.json">provenance.json</a>.</p>
 
-<h2 id="model"><span class="sec">02</span>Model under test</h2>
-<p>The measured artifact is <code>qwen25_monolithic_full_lut4.mlmodelc</code>. It is a Core ML conversion of <code>Qwen/Qwen2.5-1.5B-Instruct</code> produced with <a href="https://github.com/Anemll/Anemll">ANEMLL</a>'s Qwen2.5 converter: monolithic export, 512-token context, LUT4 palettization, argmax output. The model's metadata records coremltools 9.0 and ANEMLL v0.3.5.</p>
-<div class="callout"><span class="label">Credit</span><p>The conversion that makes this model ANE-resident is ANEMLL's work. This record measures where that model's operations are assigned and what that says about the KV-state path. It does not claim the converter.</p></div>
-<p>The compiled model is not distributed here. It is derived from the Qwen weights; its stored weight file is about 893 MB.</p>
+<h2 id="model">Model under test</h2>
+<p>The measured artifact is <code>qwen25_monolithic_full_lut4.mlmodelc</code>. It’s a Core ML conversion of <code>Qwen/Qwen2.5-1.5B-Instruct</code>, made with <a href="https://github.com/Anemll/Anemll">ANEMLL</a>'s Qwen2.5 converter: monolithic export, 512-token context, LUT4 palettization and argmax output. The model’s metadata records coremltools 9.0 and ANEMLL v0.3.5.</p>
+<div class="callout"><span class="label">Credit</span><p>The conversion that makes this model ANE-resident is ANEMLL’s work. This record measures where that model’s operations are assigned, and what that says about the KV-state path. It doesn’t claim the converter.</p></div>
+<p>The compiled model isn’t distributed here, and it’s derived from the Qwen weights. The model’s stored weight file is about 893 MB.</p>
 
-<h2 id="tools"><span class="sec">03</span>Tools</h2>
-<p>Both tools are short Swift programs that use only the public MLComputePlan API (macOS 14.4 or later). They are byte-for-byte copies from the ane-re repository at commit <code>ffd1a3c</code>.</p>
+<h2 id="tools">Tools</h2>
+<p>Both tools are short Swift programs that use only the public MLComputePlan API (macOS 14.4 or later). They’re byte-for-byte copies from the ane-re repository at commit <code>ffd1a3c</code>.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">File</th><th scope="col">Counts</th><th scope="col">SHA-256</th></tr></thead>
 <tbody>
@@ -177,25 +177,25 @@
 </tbody></table></div>
 <p class="table-caption">* Full hashes are in provenance.json.</p>
 
-<h2 id="rerun"><span class="sec">04</span>Rerun it</h2>
+<h2 id="rerun">Rerun it</h2>
 <ol>
-<li>Convert <code>Qwen/Qwen2.5-1.5B-Instruct</code> with ANEMLL's <code>convert_monolith.sh</code> at context 512 with LUT4 weights and argmax output, then compile the package with <code>xcrun coremlcompiler compile</code>.</li>
-<li>Build and run both tools against the compiled model's <code>infer</code> function:</li>
+<li>Convert <code>Qwen/Qwen2.5-1.5B-Instruct</code> with ANEMLL’s <code>convert_monolith.sh</code> at context 512 with LUT4 weights and argmax output, then compile the package with <code>xcrun coremlcompiler compile</code>.</li>
+<li>Build and run both tools against the compiled model’s <code>infer</code> function:</li>
 </ol>
 <pre tabindex="0"><code>swiftc -O ane_compute_plan.swift -o ane_compute_plan
 swiftc -O kv_placement.swift -o kv_placement
 ./ane_compute_plan qwen25_monolithic_full_lut4.mlmodelc infer
 ./kv_placement qwen25_monolithic_full_lut4.mlmodelc infer</code></pre>
-<p>Compare the output with recorded_output.txt. These build commands are the standard way to compile a single Swift file. They were not rerun for this bundle.</p>
-<p>Different converter flags can change the graph and therefore the counts. If your counts differ, the model's ANEMLL version, LUT settings and argmax setting are the first things to compare.</p>
+<p>Compare the output with recorded_output.txt. These build commands are the standard way to compile a single Swift file. They weren’t rerun for this bundle.</p>
+<p>Different converter flags can change the graph, and with it the counts. If your counts differ, check the model’s ANEMLL version, LUT settings and argmax setting first.</p>
 
-<h2 id="oct30"><span class="sec">05</span>Reruns, 30 October 2026</h2>
-<p>Three runs were made on 30 October 2026 with the two tools in this bundle, on Mac17,5 (Apple A18 Pro), macOS 27.2 build 26B123, with the tools built by Apple Swift 6.4.2.</p>
+<h2 id="oct30">Reruns, 30 October 2026</h2>
+<p>I made three runs on 30 October 2026 with the two tools in this bundle, on Mac17,5 (Apple A18 Pro), macOS 27.2 build 26B123, with the tools built by Apple Swift 6.4.2.</p>
 <h3>The archived June artifact</h3>
-<p>A copy of <code>qwen25_monolithic_full_lut4.mlmodelc</code> sits in two project archives dated 12 and 23 June 2026, with the same <code>model.mil</code> in both. Its metadata records ANEMLL v0.3.5 and coremltools 9.0, and its weight file is 893,118,592 bytes. Run on the current OS, its <code>infer</code> function gave the recorded June counts exactly, including the KV-state counts.</p>
-<p>The June record holds no model hash, so it cannot confirm that this copy is the file measured on 18 June. That is inferred from the archive dates and the identical counts.</p>
+<p>A copy of <code>qwen25_monolithic_full_lut4.mlmodelc</code> sits in two project archives dated 12 and 23 June 2026. The <code>model.mil</code> is identical in both. Its metadata records ANEMLL v0.3.5 and coremltools 9.0, and its weight file is 893,118,592 bytes. On the current OS, its <code>infer</code> function gave the recorded June counts exactly, KV-state counts included.</p>
+<p>The June record has no model hash, so it can’t confirm that this copy is the file measured on 18 June. That link is inferred from the archive dates and the identical counts.</p>
 <h3>The current shipped build</h3>
-<p>The same tools were also run on the current shipped build of the same model line, which has an <code>infer</code> function and a 64-token <code>prefill</code> function. It is a different artifact from the June one, so its counts are reported beside the June result and do not replace it.</p>
+<p>I also ran the same tools on the current shipped build of the same model line. That build has an <code>infer</code> function and a 64-token <code>prefill</code> function. It’s a different artifact from the June one, so I report its counts beside the June result. They don’t replace it.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Bucket</th><th scope="col" class="numeric">June record</th><th scope="col" class="numeric">June copy, rerun</th><th scope="col" class="numeric">Shipped, <code>infer</code></th><th scope="col" class="numeric">Shipped, <code>prefill</code></th></tr></thead>
 <tbody>
@@ -215,20 +215,20 @@ swiftc -O kv_placement.swift -o kv_placement
 <tr><td>June copy</td><td><code>9c8dccb6…94d4c72f</code></td><td><code>004eef01…a73fa30b94</code></td><td><a href="/evidence/qwen-placement/june_artifact_rerun_2026-10-30.txt">infer</a></td></tr>
 <tr><td>Shipped build</td><td><code>9e8630d4…918e3fef5</code></td><td><code>d465d50b…c5a662a10d</code></td><td><a href="/evidence/qwen-placement/rerun_2026-10-30.txt">infer</a>, <a href="/evidence/qwen-placement/prefill_rerun_2026-10-30.txt">prefill</a></td></tr>
 </tbody></table></div>
-<p class="table-caption">Full hashes, including each output file's, are in provenance.json. Each output file is the tools' stdout as captured; the shipped <code>infer</code> file also carries start and end timestamps and the OS and device lines.</p>
-<p>The shipped artifact's release notes record how it was built: ANEMLL at commit <code>cc818aeb</code>, <code>convert_monolith.sh</code> with context 512, batch 64, LUT 4 and 8, LUT4 embeddings and LM head, and argmax output, converted on 21 October 2026. Its <code>prefill</code> function was post-processed to make the batched KV writes compile for the ANE; <code>infer</code> was not changed. That build record is quoted, not re-derived. Only the file hashes and the counts were checked on these runs.</p>
+<p class="table-caption">Full hashes, including each output file’s, are in provenance.json. Each output file is the tools' stdout as captured. Only the shipped <code>infer</code> file also carries start and end timestamps and the OS and device lines.</p>
+<p>The shipped artifact’s release notes say how it was built: ANEMLL at commit <code>cc818aeb</code>, <code>convert_monolith.sh</code> with context 512, batch 64, LUT 4 and 8, LUT4 embeddings and LM head, and argmax output, converted on 21 October 2026. Its <code>prefill</code> function was post-processed to make the batched KV writes compile for the ANE. infer wasn’t changed. I quote that build record and didn’t re-derive it. On these runs I only checked the file hashes and the counts.</p>
 
-<h2 id="shows"><span class="sec">06</span>What it shows</h2>
-<p>MLComputePlan is the compiler's assignment, not a hardware trace. These counts show where Core ML planned each operation of this build. They do not prove zero CPU work across the whole inference stack, and they do not transfer automatically to a different Core ML build.</p>
-<p>The KV-state counts correct an earlier claim in the same research record. An earlier note said <code>slice_update</code> and <code>write_state</code> were an irreducible CPU floor. That came from a hand-written toy graph, not from a hardware limit. In the <code>infer</code> function of this production graph, all four KV-state operators are assigned to the ANE.</p>
+<h2 id="shows">What it shows</h2>
+<p>MLComputePlan reports the compiler’s assignment. It isn’t a hardware trace. These counts show where Core ML planned each operation in this build. They don’t prove zero CPU work across the whole inference stack. They also don’t carry over automatically to a different Core ML build.</p>
+<p>These KV-state counts correct an earlier claim in the same research record. An earlier note said <code>slice_update</code> and <code>write_state</code> were an irreducible CPU floor. That came from a hand-written toy graph, not from a hardware limit. In the <code>infer</code> function of this production graph, all four KV-state operators are assigned to the ANE. The shipped <code>prefill</code> function differs: one of its 57 <code>read_state</code> operations is assigned to the CPU.</p>
 
-<h2 id="gaps"><span class="sec">07</span>Gaps in the record</h2>
-<p>A reader should know what this bundle cannot supply.</p>
+<h2 id="gaps">Gaps in the record</h2>
+<p>Here’s what this bundle can’t supply.</p>
 <ul>
-<li>No raw, timestamped log of the June run is in the record. Its numbers come from the findings document, the output block reproduced in the gate source, and a project archive entry dated 18 June 2026.</li>
-<li>The archive gives Mac17,5 and macOS 26 beta 26A5353q in the same dated section as the result, but not on the result line itself.</li>
-<li>The exact conversion command and ANEMLL commit for the June artifact were not recorded, and the June record holds no model hash. The archived copy rerun here is identified by its archive dates and matching counts, not by a recorded hash.</li>
-<li>All 30 October runs record their raw output, OS build, device and model hashes. The compiled models themselves are not distributed.</li>
+<li>The record has no raw, timestamped log of the June run. Its numbers come from the ANE-RE FINDINGS document, the output block reproduced in the gate source, and a project archive entry dated 18 June 2026.</li>
+<li>The archive gives Mac17,5 and macOS 26 beta 26A5353q in the same dated section as the result, but not on the result line.</li>
+<li>The exact conversion command and ANEMLL commit for the June artifact weren’t recorded, and the June record has no model hash. The archived copy rerun here is identified by its archive dates and matching counts, not by a recorded hash.</li>
+<li>Each 30 October run has its raw output and model file hashes in provenance.json. That file also lists the device and OS build for each run. Only the shipped <code>infer</code> output carries the OS and device lines itself. The June copy and shipped prefill outputs don’t. The compiled models themselves aren’t distributed.</li>
 </ul>
 <p>Corrections and independent reruns are welcome at <a href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>.</p>
 </article>
@@ -239,19 +239,19 @@ swiftc -O kv_placement.swift -o kv_placement
 <div class="footer-grid">
 <div>
 <span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
-<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+<p>My independent research covers Apple Neural Engine execution, Core ML graph construction and on-device inference. I’m not affiliated with Apple.</p>
 </div>
 <div>
-<span class="label">Correspondence</span>
+<span class="label">Email me</span>
 <a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
-<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+<p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p>
 </div>
 <div>
-<span class="label">Index</span>
+<span class="label">Pages</span>
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>

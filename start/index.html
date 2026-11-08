@@ -70,42 +70,42 @@
 </header>
 <main id="main">
 <header class="experience-hero">
-<div class="wrap"><p class="kicker">START HERE / RESEARCH FIELD GUIDE</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Start here</p>
-<div class="experience-hero-grid"><div><h1>Before the number,<br><em>know the claim.</em></h1>
-<p class="experience-lede">A one-minute map to MacBrains Labs research. You do not need to know Core ML or the Apple Neural Engine to follow the evidence.</p>
-<div class="experience-actions"><a href="/research/explore/">Explore the findings ↗</a><a href="/research/">Open the detailed research ↗</a></div></div>
-<aside class="experience-index" aria-label="Guide overview"><span class="kicker">THE SHORT VERSION</span><strong>4 <span>questions</span></strong><p>What executed? Where was it assigned? Was it correct? Did it actually run faster?</p><p>Each question has a different test. A result from one does not prove the others.</p></aside></div></div></header>
-<section class="wrap guide-section" aria-labelledby="guide-title"><div class="experience-section-head"><span class="kicker">FIRST PRINCIPLES / 01</span><div><h2 id="guide-title">The four questions.</h2><p>Think of the Neural Engine as one possible destination for computational work, not a guarantee of correctness or speed.</p></div></div>
+<div class="wrap"><p class="kicker">Start here</p><p class="crumbs"><a href="/">MacBrains Labs</a> / Start here</p>
+<div class="experience-hero-grid"><div><h1>How to read this research.</h1>
+<p class="experience-lede">A one-minute map of my research. You don’t need Core ML or the Apple Neural Engine to read the evidence.</p>
+<div class="experience-actions"><a href="/research/explore/">Open the evidence explorer ↗</a><a href="/research/">Read the full research record ↗</a></div></div>
+<aside class="experience-index" aria-label="Guide overview"><span class="kicker">The short version</span><strong>4 <span>questions</span></strong><p>What ran? Where was it assigned? Was it correct? Did it actually get faster?</p><p>Each question needs a different test. A result for one doesn’t prove the others.</p></aside></div></div></header>
+<section class="wrap guide-section" aria-labelledby="guide-title"><div class="experience-section-head"><span class="kicker">The basics</span><div><h2 id="guide-title">The four questions.</h2><p>Think of the Neural Engine as one place a computation can run. It doesn’t guarantee correct results or speed.</p></div></div>
 <div class="guide-grid">
-<article><span class="guide-n">01 / BUILD</span><h3>What actually ran?</h3><p>Core ML compiles a model graph. Small changes in graph structure, shape, or diagnostics can change the compiled result. Name the precise artifact and configuration.</p><a href="/methods/">How the artifacts are documented ↗</a></article>
-<article><span class="guide-n">02 / PLACE</span><h3>Where was it assigned?</h3><p>Apple's Core ML planner may report compute operations assigned to ANE, CPU, or GPU. This is useful placement evidence, but not a low-level trace proving each operation physically ran on ANE.</p><a href="/evidence/qwen-placement/">Inspect a placement receipt ↗</a></article>
-<article><span class="guide-n">03 / COMPARE</span><h3>Was the output correct?</h3><p>A model can compile and receive an ANE assignment yet fail an output-parity test. Compare exact outputs against declared fixtures using defined numerical tolerances.</p><a href="/notes/lfm-parity/">Read a passing and failing comparison ↗</a></article>
-<article><span class="guide-n">04 / MEASURE</span><h3>Did it get faster?</h3><p>Throughput depends on batch shape, dispatch cost, memory, and what was timed. A speed measurement does not validate model quality or the claims made about deployment.</p><a href="/notes/decode-regimes/">See a disproven performance hypothesis ↗</a></article>
+<article><span class="guide-n">Build</span><h3>What actually ran?</h3><p>Core ML compiles a model graph. Small changes to the graph’s structure, its shapes or its diagnostics can change the compiled result. So I name the exact artifact and configuration.</p><a href="/methods/">How I document the artifacts ↗</a></article>
+<article><span class="guide-n">Place</span><h3>Where was it assigned?</h3><p>Apple’s Core ML planner may report which operations are assigned to the ANE, the CPU or the GPU. That’s useful placement evidence. It isn’t a low-level trace that proves each operation physically ran on the ANE.</p><a href="/evidence/qwen-placement/">Look at a placement receipt ↗</a></article>
+<article><span class="guide-n">Compare</span><h3>Was the output correct?</h3><p>A model can compile and get an ANE assignment, then still fail an output parity test. I compare exact outputs against declared fixtures, using defined numerical tolerances.</p><a href="/notes/lfm-parity/">Read a passing and failing comparison ↗</a></article>
+<article><span class="guide-n">Measure</span><h3>Did it get faster?</h3><p>Throughput depends on batch shape, dispatch cost, memory and what was timed. A speed measurement doesn’t validate model quality or the claims made about deployment.</p><a href="/notes/decode-regimes/">See a speed hypothesis I got wrong ↗</a></article>
 </div></section>
-<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">TRUST BOUNDARIES / 02</span><h2>Read the labels, not just the headline.</h2></div><div>
-<p><strong>Measured</strong> means an observation under a named setup. <strong>Planner reported</strong> describes the compiler's view, not an ANE hardware trace.</p>
-<p><strong>Source-bound</strong> means the published claim links to its artifacts or documented receipts. <strong>Verified archive</strong> means published files and identifiers passed stated integrity checks, not peer review.</p>
-<p>Negative results, incomplete chains, and changes to an earlier hypothesis belong in the research record.</p>
-<a href="/research/explore/">Search all public entries ↗</a><p class="guide-final-note">Independent Apple Silicon research. MacBrains Labs is not affiliated with Apple.</p></div></div></section>
+<section class="experience-bottom"><div class="wrap experience-bottom-grid"><div><span class="kicker">Labels</span><h2>What each label means.</h2></div><div>
+<p><strong>Measured</strong> means it was observed under a named setup. <strong>Planner reported</strong> describes what the compiler planned, not an ANE hardware trace.</p>
+<p><strong>Source-bound</strong> means the published claim links to its artifacts or documented receipts. <strong>Verified archive</strong> means the published files and identifiers passed the stated integrity checks. That isn’t peer review.</p>
+<p>Negative results, incomplete chains and changes to an earlier hypothesis belong in the research record.</p>
+<a href="/research/explore/">Search all public entries ↗</a><p class="guide-final-note">Independent Apple Silicon research. I’m not affiliated with Apple.</p></div></div></section>
 </main>
 <footer class="site-footer">
 <div class="wrap">
 <div class="footer-grid">
 <div>
 <span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
-<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+<p>My independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. I’m not affiliated with Apple.</p>
 </div>
 <div>
-<span class="label">Correspondence</span>
+<span class="label">Email me</span>
 <a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
-<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+<p>Questions about model execution, numerical parity, hardware behavior, or reproducing one of my tests.</p>
 </div>
 <div>
-<span class="label">Index</span>
+<span class="label">Pages</span>
 <ul>
 <li><a href="/research/">Research record</a></li>
 <li><a href="/methods/">Methodology</a></li>
-<li><a href="/notes/">Field notes</a></li>
+<li><a href="/notes/">Notes</a></li>
 <li><a href="/publications/">Publications</a></li>
 <li><a href="/security/">Defensive research</a></li>
 <li><a href="/contact/">Contact</a></li>
