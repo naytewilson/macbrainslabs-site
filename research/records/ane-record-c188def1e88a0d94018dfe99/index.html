@@ -155,15 +155,15 @@
 </ul>
 
 <h2 id="runs"><span class="sec">04</span>Every execution of the setup profile</h2>
-<p>Setup profile <code>2f0cc0c9371123c7ea4055e755ff9d0ef714ed07e5092ca477581bad14be4042</code> was hashed and committed before the first counted run. The device log lists 8 logged executions of it: 5 counted and git-frozen, 3 before the profile froze and not counted. The output of 1 counted run was deleted from the device; its recovered record and the cause analysis are in <code>deletion-disclosure.md</code>. No execution is omitted.</p>
+<p>Setup profile <code>2f0cc0c9371123c7ea4055e755ff9d0ef714ed07e5092ca477581bad14be4042</code> was hashed and committed before the first counted run. The device log lists 8 logged executions of it: 5 after the profile froze and 3 before it, which are not counted. The record counts the 3 made under tool commit <code>926a78ad</code>; the other 2 ran under earlier tool commits and are disclosed, not counted. The output of 1 frozen run was deleted from the device; its recovered record and the cause analysis are in <code>deletion-disclosure.md</code>. No execution is omitted.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Run</th><th scope="col">Tool commit</th><th scope="col">Started (UTC)</th><th scope="col">Status</th><th scope="col">Counted</th><th scope="col">Output</th></tr></thead>
 <tbody>
 <tr><td><code>pf-baselinebin</code></td><td>none</td><td><code>2026-11-02T19:52:00Z</code></td><td>before freeze, not counted</td><td>no</td><td>kept</td></tr>
 <tr><td><code>pf-freshcompile</code></td><td>none</td><td><code>2026-11-02T19:57:00Z</code></td><td>before freeze, not counted</td><td>no</td><td>kept</td></tr>
 <tr><td><code>pf-toolrun</code></td><td>none</td><td><code>2026-11-02T20:07:00Z</code><br>corrected to <code>2026-11-02T20:03:04Z</code></td><td>before freeze, not counted</td><td>no</td><td>kept</td></tr>
-<tr><td><code>counted-833b3fc8-r4</code></td><td><code>833b3fc8</code></td><td><code>2026-11-02T20:41:39Z</code></td><td>pass</td><td>yes</td><td>deleted; recovered record disclosed</td></tr>
-<tr><td><code>counted-5f827c84-r1</code></td><td><code>5f827c84</code></td><td><code>2026-11-02T22:14:04Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
+<tr><td><code>counted-833b3fc8-r4</code></td><td><code>833b3fc8</code></td><td><code>2026-11-02T20:41:39Z</code></td><td>pass</td><td>no; earlier tool commit, disclosed</td><td>deleted; recovered record disclosed</td></tr>
+<tr><td><code>counted-5f827c84-r1</code></td><td><code>5f827c84</code></td><td><code>2026-11-02T22:14:04Z</code></td><td>pass</td><td>no; earlier tool commit, disclosed</td><td>kept</td></tr>
 <tr><td><code>counted-926a78ad-r1</code></td><td><code>926a78ad</code></td><td><code>2026-11-03T00:04:18Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
 <tr><td><code>counted-926a78ad-r2</code></td><td><code>926a78ad</code></td><td><code>2026-11-03T00:06:17Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>
 <tr><td><code>counted-926a78ad-r3</code></td><td><code>926a78ad</code></td><td><code>2026-11-03T00:08:15Z</code></td><td>pass</td><td>yes</td><td>kept</td></tr>

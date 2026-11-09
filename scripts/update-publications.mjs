@@ -1158,7 +1158,7 @@ function diagCoreKey(rec) {
 }
 
 function diagRunsLine(r) {
-  return `${r.logged} executions logged and disclosed: ${r.counted} counted, ${r.pre_freeze} before the setup profile froze; ${r.deleted} counted output${r.deleted === 1 ? '' : 's'} deleted, recovered record disclosed`;
+  return `${r.logged} executions logged and disclosed: ${r.counted} after the setup profile froze, ${r.pre_freeze} before it; ${r.deleted} frozen run output${r.deleted === 1 ? '' : 's'} deleted, recovered record disclosed`;
 }
 
 export function renderDiagRecord(rec) {

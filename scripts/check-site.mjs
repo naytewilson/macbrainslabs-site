@@ -692,7 +692,7 @@ const pubs = (() => {
       for (const s of [pubEsc(rec.version), pubEsc(rec.title), pubEsc(r.claim), r.profile_hash, rec.review.reviewed_package_sha256, rec.bundle_sha256, rec.attestation_sha256, `href="${rec.record_url}"`]) {
         assert.ok(art.includes(s), `${rec.tag}: ${s.slice(0, 32)} not shown`);
       }
-      assert.ok(art.includes(`${r.logged} executions logged and disclosed: ${r.counted} counted, ${r.pre_freeze} before the setup profile froze`), `${rec.tag}: run accounting not shown`);
+      assert.ok(art.includes(`${r.logged} executions logged and disclosed: ${r.counted} after the setup profile froze, ${r.pre_freeze} before it`), `${rec.tag}: run accounting not shown`);
       if (r.scope === 'same-chip') assert.ok(art.includes('not cross-device replication'), `${rec.tag}: same-chip record lacks its scope label`);
       for (const a of rec.assets) if (a.sha256) assert.ok(art.includes(a.sha256), `${rec.tag}: asset digest not shown`);
       if (rec.verification.state === 'verified') assert.ok(art.includes(`href="https://doi.org/${rec.doi.version_doi}"`), `${rec.tag}: verified version DOI not shown`);

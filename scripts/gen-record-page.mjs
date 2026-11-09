@@ -43,6 +43,14 @@ const scopeLabel = r.crossDeviceReplication ? 'Cross-device replication' : 'Same
 const title = 'LFM3-1.7B layer-14 diagnostic record';
 const description = `Diagnostic research record ${a.version}: LFM3-1.7B layer 14 under Core ML cpuAndNeuralEngine on one A18 Pro device. Same chip only; ANE execution inferred; no novelty claim.`;
 if (description.length > 200) throw new Error('description too long');
+// Which frozen executions the record's claim counts: the bundle's per-execution
+// provenance (hash-checked above) marks them; runs under earlier tool commits are disclosed only.
+const bundle = JSON.parse(bundleRaw.toString('utf8'));
+const inClaim = new Map((bundle.evidence?.byteReproducibility?.runAccountingProvenance?.allDeviceExecutionsOfProfile ?? []).map(x => [x.runId, x.countedInRound2Claim]));
+const claimCounted = bundle.evidence?.byteReproducibility?.runAccounting?.countedRuns ?? r.counted;
+const claimTool = String(bundle.evidence?.provenance?.freeze?.toolCommit ?? '').slice(0, 8);
+if (claimCounted > r.counted || (claimCounted < r.counted && !claimTool)) throw new Error('claim run count does not fit the logged executions');
+const countedCell = x => x.counted !== true ? 'no' : inClaim.get(x.runId) === false ? 'no; earlier tool commit, disclosed' : 'yes';
 const corrections = new Map((a.corrections ?? []).map(c => [c.runId, c]));
 const outputCell = x => x.present === true ? 'kept' : x.present === 'deleted' ? 'deleted; recovered record disclosed' : esc(String(x.present));
 const statusCell = x => x.status === 'pre-freeze' ? 'before freeze, not counted' : esc(x.status);
@@ -50,7 +58,7 @@ const startedCell = x => {
   const c = corrections.get(x.runId);
   return c && c.field === 'runStartedAt' ? `${code(x.runStartedAt)}<br>corrected to ${code(c.corrected)}` : code(x.runStartedAt);
 };
-const runRows = ex.map(x => `<tr><td>${code(x.runId)}</td><td>${x.toolCommit ? code(String(x.toolCommit).slice(0, 8)) : "none"}</td><td>${startedCell(x)}</td><td>${statusCell(x)}</td><td>${x.counted === true ? 'yes' : 'no'}</td><td>${outputCell(x)}</td></tr>`).join('\n');
+const runRows = ex.map(x => `<tr><td>${code(x.runId)}</td><td>${x.toolCommit ? code(String(x.toolCommit).slice(0, 8)) : "none"}</td><td>${startedCell(x)}</td><td>${statusCell(x)}</td><td>${countedCell(x)}</td><td>${outputCell(x)}</td></tr>`).join('\n');
 const fileRows = [{ name: 'attestation.json', sha256: entry.attestationSha256, bytes: attRaw.length }, ...a.files]
   .map(f => `<tr><td><a href="${REPO}/blob/${tag}/records/${tag}/${esc(f.name)}">${esc(f.name)}</a></td><td class="numeric">${f.bytes.toLocaleString('en-US')}</td><td>${code(f.sha256)}</td></tr>`).join('\n');
 const reviews = a.pipelineReviews.map(p => `<li>${esc(p.role.replace('_', ' '))}: ${code(p.model)}, ${esc(p.verdict)} at ${p.score.toFixed(2)}, session ${code(p.sessionId)}, receipt ${code(p.receiptDigest)}</li>`).join('\n');
@@ -170,7 +178,7 @@ ${limits}
 </ul>
 
 <h2 id="runs"><span class="sec">04</span>Every execution of the setup profile</h2>
-<p>Setup profile ${code(r.profileHash)} was hashed and committed before the first counted run. The device log lists ${r.logged} logged executions of it: ${r.counted} counted and git-frozen, ${r.preFreeze} before the profile froze and not counted. The output of ${r.deleted} counted run was deleted from the device; its recovered record and the cause analysis are in ${code('deletion-disclosure.md')}. No execution is omitted.</p>
+<p>Setup profile ${code(r.profileHash)} was hashed and committed before the first counted run. The device log lists ${r.logged} logged executions of it: ${r.counted} after the profile froze and ${r.preFreeze} before it, which are not counted. ${r.counted > claimCounted ? `The record counts the ${claimCounted} made under tool commit ${code(claimTool)}; the other ${r.counted - claimCounted} ran under earlier tool commits and are disclosed, not counted. ` : ''}The output of ${r.deleted} frozen run was deleted from the device; its recovered record and the cause analysis are in ${code('deletion-disclosure.md')}. No execution is omitted.</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Run</th><th scope="col">Tool commit</th><th scope="col">Started (UTC)</th><th scope="col">Status</th><th scope="col">Counted</th><th scope="col">Output</th></tr></thead>
 <tbody>
