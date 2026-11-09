@@ -236,7 +236,7 @@ await t('diagnostic record renders scope label, recorded scope, run accounting, 
   assert.ok(art.includes('Same-chip rerun: repeatability only, not cross-device replication'));
   assert.ok(art.includes(`<q>${esc(SCOPE)}</q>`));
   assert.ok(art.includes(esc("Neo's L14 diagnostic & same chip")) && !art.includes("Neo's L14"), 'title not escaped');
-  assert.ok(art.includes('8 executions logged and disclosed: 5 counted, 3 before the setup profile froze; 1 counted output deleted, recovered record disclosed'));
+  assert.ok(art.includes('8 executions logged and disclosed: 5 after the setup profile froze, 3 before it; 1 frozen run output deleted, recovered record disclosed'));
   for (const h of [PROFILE, 'c1'.repeat(32), '4f'.repeat(32), fx.entry.bundleSha256, fx.entry.attestationSha256]) assert.ok(art.includes(`<code>${h}</code>`), `${h.slice(0, 8)} not shown`);
   for (const a of rec.assets) assert.ok(art.includes(`<code>${a.sha256}</code>`), `asset ${a.name} digest not shown`);
   assert.ok(art.includes(`href="https://doi.org/${fx.versionDoi}"`));
