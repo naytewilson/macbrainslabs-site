@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {socialPathForRoute} from './social-path.mjs';
+import {pkgPassCriterion} from './package-pass-criteria.mjs';
 
 const [recordsRepo, siteRepo, tag, versionDoi] = process.argv.slice(2);
 if (!recordsRepo || !siteRepo || !/^ane-record-[0-9a-f]{24}$/.test(tag ?? '')) throw new Error('usage: node gen-package-record-page.mjs <records-repo> <site-repo> <tag> [versionDoi]');
@@ -29,7 +30,6 @@ const previewRaw = rd('preview.md');
 const pv = a.releaseAssets.find(x => x.name === 'preview.md');
 if (!pv || sha(previewRaw) !== pv.sha256) throw new Error('preview hash differs');
 const r = a.replication;
-const passed = x => x.exitCode === 0 && x.byteIdentical === true && (x.passed === undefined || x.passed === true);
 const armRows = [];
 const logFiles = [];
 for (const arm of r.arms) {
@@ -37,6 +37,8 @@ for (const arm of r.arms) {
   if (sha(raw) !== arm.executionLogSha256) throw new Error('execution log hash differs: ' + arm.arm);
   const lines = raw.toString('utf8').trim().split('\n').map(l => JSON.parse(l));
   const done = lines.filter(x => x.kind === 'run_completed');
+  const passed = pkgPassCriterion(arm.passCriterion);
+  if (!passed) throw new Error('unknown pass criterion: ' + arm.arm);
   if (lines.filter(x => x.kind === 'run_started').length !== arm.started || done.length !== arm.completed || done.filter(passed).length !== arm.passed) throw new Error('recount differs: ' + arm.arm);
   armRows.push(arm);
   logFiles.push({ name: arm.executionLog, sha256: arm.executionLogSha256, bytes: raw.length });
@@ -58,8 +60,28 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const human = d => { const [y, m, dd] = d.split('-'); return `${+dd} ${months[m - 1]} ${y}`; };
 const released = entry.releasedOn;
 const scopeLabel = 'Same-chip rerun: repeatability only, not cross-device replication';
-const title = 'ANERECore cross-repo MIL parity record';
-const description = `Package research record ${a.version}: ANERECore MIL text parity for tap, steer and functionWide on one Mac. Same chip only; ANE execution not claimed; no novelty claim.`;
+// Page copy per record. The default is the v0.3.0 ANERECore MIL parity record,
+// unchanged; a later record adds its own entry keyed by tag.
+const COPY = {
+  'ane-record-10528818ee0e902331b666ee': {
+    title: 'Qwen2.5-1.5B Core ML package dispatch record',
+    description: `Package research record ${a.version}: a published Qwen2.5-1.5B Core ML package gives different greedy output on ANE and GPU, and NaN on CPU only. Same chip; no novelty claim.`,
+    keywords: ['Apple Neural Engine', 'Core ML', 'Qwen2.5', 'compute units'],
+    lede: 'Compute-unit dispatch of one published model package; ANE execution INFERRED from the Core ML compute plan; no novelty claim.',
+    scope: () => `Every counted run in this record ran on one Mac, the same chip, with one runner binary, one model package and one prompt; only the Core ML compute-unit setting changed. No reference output was run, so the record does not say which of the ANE and GPU outputs is correct, and the cause is UNKNOWN. Novelty is ${esc(a.noveltyClaim)}. Probe tiers at ANE-RE ${code(a.verification.aneReCommit.slice(0, 8))}: ${Object.entries(a.verification.probeTiers).map(([k, v]) => esc(k + ' ' + v)).join('; ')}. Recompute: ${esc(a.verification.recompute)}.`,
+    runs: `Each setup profile was hashed and committed before its first counted run. The device-wide execution logs list ${counted} counted runs under ${armRows.length} setup profiles: ${pass} pass, ${counted - pass} fail. A run passes when its completion line has exit code 0 and a passing flag; the log has no byte comparison, so byte identity of each compute unit's dump files across its five runs is shown by the packaged recompute. Across the compute units: ${esc(r.crossArmComparison)}. No run is omitted.`,
+    runsHead: 'Setup profile runs'
+  }
+}[tag] ?? {
+  title: 'ANERECore cross-repo MIL parity record',
+  description: `Package research record ${a.version}: ANERECore MIL text parity for tap, steer and functionWide on one Mac. Same chip only; ANE execution not claimed; no novelty claim.`,
+  keywords: ['Apple Neural Engine', 'Core ML', 'MIL', 'ANERECore'],
+  lede: 'MIL text byte equality only; ANE execution NOT CLAIMED; no novelty claim.',
+  scope: () => `Every counted run in this record ran on one Mac, the same chip. The record compares MIL text produced by two clean-room tool builds for the operations ${a.operations.map(esc).join(', ')}; it makes no claim about Core ML compilation, ANE execution or numerics. Novelty is ${esc(a.noveltyClaim)}. Probe tier at ${code(a.verification.commit.slice(0, 8))}: ${esc(a.verification.probeTier)}.`,
+  runs: `Each arm's setup profile was hashed and committed before its first counted run. The device-wide execution logs list ${counted} counted runs across ${armRows.length} clean-room arms: ${pass} pass, ${counted - pass} fail. A run passes when its completion line has exit code 0 and byte-identical output (and, where the log records one, a passing flag). Across the arms: ${esc(r.crossArmComparison)}. No run is omitted.`
+};
+const title = COPY.title;
+const description = COPY.description;
 if (description.length > 200) throw new Error('description too long');
 const runRows = armRows.map(x => `<tr><td>${esc(x.arm)}</td><td>${code(x.profileHash)}<br>committed at ${code(x.profileCommit.slice(0, 8))}</td><td>${esc(x.tool)}<br>${code(x.toolCommit.slice(0, 8))}</td><td class="numeric">${x.started}</td><td class="numeric">${x.completed}</td><td class="numeric">${x.passed}</td></tr>`).join('\n');
 const fileRows = [
@@ -91,7 +113,7 @@ const ld = {
       isPartOf: { '@type': 'Dataset', name: index.series, identifier: `https://doi.org/${a.conceptDoi}` },
       creator: { '@type': 'Person', name: 'Nayte Wilson', identifier: 'https://orcid.org/0009-0003-4026-8212' },
       license: 'https://creativecommons.org/licenses/by/4.0/', datePublished: released, inLanguage: 'en',
-      keywords: ['Apple Neural Engine', 'Core ML', 'MIL', 'ANERECore'] }
+      keywords: COPY.keywords }
   ]
 };
 const html = `<!DOCTYPE html>
@@ -151,7 +173,7 @@ ${JSON.stringify(ld, null, 2)}
 <div class="wrap">
 <p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/research/">Research record</a> / Record ${esc(a.version)}</p>
 <h1>${esc(a.title)}</h1>
-<p class="lede">A package research record: the reviewed package, republished byte for byte. ${esc(scopeLabel)}. MIL text byte equality only; ANE execution NOT CLAIMED; no novelty claim.</p>
+<p class="lede">A package research record: the reviewed package, republished byte for byte. ${esc(scopeLabel)}. ${esc(COPY.lede)}</p>
 <dl class="facts">
 <div><dt>Version</dt><dd>${esc(a.version)} · released <time datetime="${released}">${human(released)}</time></dd></div>
 <div><dt>Runs</dt><dd>${counted} counted runs, ${pass} pass, ${counted - pass} fail</dd></div>
@@ -176,10 +198,10 @@ ${JSON.stringify(ld, null, 2)}
 <article class="article">
 <h2 id="scope"><span class="sec">01</span>Scope</h2>
 <div class="callout"><span class="label">Scope as reviewed</span><p><q>${esc(a.claimScope)}</q></p></div>
-<p><strong>${esc(scopeLabel)}.</strong> Every counted run in this record ran on one Mac, the same chip. The record compares MIL text produced by two clean-room tool builds for the operations ${a.operations.map(esc).join(', ')}; it makes no claim about Core ML compilation, ANE execution or numerics. Novelty is ${esc(a.noveltyClaim)}. Probe tier at ${code(a.verification.commit.slice(0, 8))}: ${esc(a.verification.probeTier)}.</p>
+<p><strong>${esc(scopeLabel)}.</strong> ${COPY.scope()}</p>
 
 <h2 id="runs"><span class="sec">02</span>Counted runs</h2>
-<p>Each arm's setup profile was hashed and committed before its first counted run. The device-wide execution logs list ${counted} counted runs across ${armRows.length} clean-room arms: ${pass} pass, ${counted - pass} fail. A run passes when its completion line has exit code 0 and byte-identical output (and, where the log records one, a passing flag). Across the arms: ${esc(r.crossArmComparison)}. No run is omitted.</p>
+<p>${COPY.runs}</p>
 <div class="table-scroll" tabindex="0"><table class="data-table">
 <thead><tr><th scope="col">Arm</th><th scope="col">Setup profile</th><th scope="col">Tool</th><th scope="col" class="numeric">Started</th><th scope="col" class="numeric">Completed</th><th scope="col" class="numeric">Passed</th></tr></thead>
 <tbody>

@@ -41,6 +41,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { pathToFileURL } from 'node:url';
+import { pkgPassCriterion } from './package-pass-criteria.mjs';
 
 const BASE = 'https://macbrainslabs.org';
 const RELEASES_REPO = 'macbrainslabs/ane-research-records';
@@ -1237,9 +1238,8 @@ const PKG_LOG_RX = /^package\/execution-log\/([0-9a-f]{64})\.jsonl$/u;
 const PKG_ARM_RX = /^[a-z0-9][a-z0-9-]{0,39}$/u;
 const COMMIT_RX = /^[0-9a-f]{40}$/u;
 const PKG_MAX_ARMS = 8;
-// One pass criterion for every arm: some tool builds log no separate
-// "passed" field, only the exit code and the byte comparison.
-const pkgRunPassed = x => x.exitCode === 0 && x.byteIdentical === true && (x.passed === undefined || x.passed === true);
+// Each arm names its pass criterion (see package-pass-criteria.mjs); an
+// unknown criterion degrades the record and counts no run as a pass.
 
 function pkgIndexEntry(buf, tag) {
   let index;
@@ -1416,7 +1416,9 @@ async function checkPkgAttestation(tag, entry, relAssets) {
     if (st.length + done.length !== lines.length) scope.push(`arm ${x.arm}: execution log has entries that are neither a run start nor a completion`);
     if (!lines.every(l => l && l.profileHash === x.profileHash && l.counted === true)) scope.push(`arm ${x.arm}: a logged run names another setup profile or is not counted`);
     if (!st.every(l => l.profileCommit === x.profileCommit && l.toolCommit === x.toolCommit)) scope.push(`arm ${x.arm}: a run start names another profile or tool commit`);
-    const c = { started: st.length, completed: done.length, passed: done.filter(pkgRunPassed).length };
+    const crit = pkgPassCriterion(x.passCriterion);
+    if (!crit) scope.push(`arm ${x.arm}: pass criterion is not one this site knows`);
+    const c = { started: st.length, completed: done.length, passed: crit ? done.filter(crit).length : 0 };
     const diff = Object.keys(c).filter(k => c[k] !== x[k]);
     if (diff.length) scope.push(`arm ${x.arm}: runs recounted from the log differ on: ${diff.join(', ')}`);
     counted += c.completed; passed += c.passed;

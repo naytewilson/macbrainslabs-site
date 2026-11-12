@@ -718,9 +718,11 @@ const pubs = (() => {
       const tag = route.split('/')[3];
       const html = read(route);
       const pkgPage = html.includes('data-record-kind="package"');
-      for (const s of ['not cross-device replication', pkgPage ? 'ANE execution NOT CLAIMED' : 'ANE execution INFERRED', 'no novelty claim', `data-tag="${tag}"`, `href="https://github.com/macbrainslabs/ane-research-records/releases/tag/${tag}"`]) {
+      for (const s of ['not cross-device replication', 'no novelty claim', `data-tag="${tag}"`, `href="https://github.com/macbrainslabs/ane-research-records/releases/tag/${tag}"`]) {
         assert.ok(html.includes(s), `${route}: missing ${s}`);
       }
+      // A package record states ANE execution as NOT CLAIMED or INFERRED; a diagnostic record as INFERRED.
+      assert.ok(html.includes('ANE execution INFERRED') || (pkgPage && html.includes('ANE execution NOT CLAIMED')), `${route}: ANE execution label missing`);
       assert.ok(read('/sitemap.xml').includes(`<loc>${base}${route}</loc>`), `${route}: not in the sitemap`);
       const rec = d.records.find(x => x.tag === tag);
       if (!rec) continue;
