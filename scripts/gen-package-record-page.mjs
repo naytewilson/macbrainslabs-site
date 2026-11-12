@@ -235,7 +235,7 @@ ${disclosures}
 <tbody>
 ${fileRows}
 </tbody></table></div>
-<p class="table-caption">${code('package/')} holds all ${a.package.fileCount} files byte for byte. The <a href="${REPO}/releases/tag/${tag}">GitHub release ${esc(tag)}</a> also carries the whole package as ${code(tar.name)} (${tar.bytes.toLocaleString('en-US')} bytes, ${code(tar.sha256)}) with <code>SHA256SUMS</code>; <code>scripts/verify.mjs</code> in the <a href="${REPO}">record repository</a> re-checks every hash and count.</p>
+<p class="table-caption">${code('package/')} ${a.package.filesRepublished === undefined ? `holds all ${a.package.fileCount} files byte for byte.` : `holds ${code('FILES.sha256')} and ${a.package.filesRepublished} of the ${a.package.filesListed} files it lists, byte for byte; the other ${a.package.filesListed - a.package.filesRepublished} sit inside ${code('.git')} directories, which a git repository cannot hold, and are in the release archive only.`} The <a href="${REPO}/releases/tag/${tag}">GitHub release ${esc(tag)}</a> also carries the whole package as ${code(tar.name)} (${tar.bytes.toLocaleString('en-US')} bytes, ${code(tar.sha256)}) with <code>SHA256SUMS</code>; <code>scripts/verify.mjs</code> in the <a href="${REPO}">record repository</a> re-checks every hash and count.</p>
 </article>
 </div>
 </main>
