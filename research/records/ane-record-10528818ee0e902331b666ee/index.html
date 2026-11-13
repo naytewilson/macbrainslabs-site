@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#f5f3ed" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111315" media="(prefers-color-scheme: dark)">
+<title>Qwen2.5-1.5B Core ML package dispatch record · MacBrains Labs</title>
+<meta name="description" content="Package research record v0.4.0: a published Qwen2.5-1.5B Core ML package gives different greedy output on ANE and GPU, and NaN on CPU only. Same chip; no novelty claim.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MacBrains Labs">
+<meta property="og:title" content="Qwen2.5-1.5B Core ML package dispatch record">
+<meta property="og:description" content="Package research record v0.4.0: a published Qwen2.5-1.5B Core ML package gives different greedy output on ANE and GPU, and NaN on CPU only. Same chip; no novelty claim.">
+<meta property="og:url" content="https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:image" content="https://macbrainslabs.org/assets/social/research-records-ane-record-10528818ee0e902331b666ee.png">
+<meta property="og:image:secure_url" content="https://macbrainslabs.org/assets/social/research-records-ane-record-10528818ee0e902331b666ee.png">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="MacBrains Labs research: Qwen2.5-1.5B Core ML package dispatch record">
+<meta name="twitter:image" content="https://macbrainslabs.org/assets/social/research-records-ane-record-10528818ee0e902331b666ee.png">
+<meta name="twitter:image:alt" content="MacBrains Labs research: Qwen2.5-1.5B Core ML package dispatch record">
+<link rel="canonical" href="https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/">
+<link rel="icon" href="/assets/brand-mark-96.png" type="image/png" sizes="96x96">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180">
+<meta name="apple-mobile-web-app-title" content="MacBrains Labs">
+<link rel="icon" href="/assets/icon-16.png" type="image/png" sizes="16x16">
+<link rel="icon" href="/assets/icon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="/assets/icon-48.png" type="image/png" sizes="48x48">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="stylesheet" href="/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "MacBrains Labs",
+          "item": "https://macbrainslabs.org/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Research record",
+          "item": "https://macbrainslabs.org/research/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Record v0.4.0",
+          "item": "https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/"
+        }
+      ]
+    },
+    {
+      "@type": "Dataset",
+      "@id": "https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/#dataset",
+      "name": "Published Qwen2.5-1.5B Core ML package: greedy output depends on the compute unit, and cpuOnly returns NaN",
+      "description": "Package research record v0.4.0: a published Qwen2.5-1.5B Core ML package gives different greedy output on ANE and GPU, and NaN on CPU only. Same chip; no novelty claim.",
+      "url": "https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/",
+      "version": "v0.4.0",
+      "identifier": "https://doi.org/10.5281/zenodo.24183178",
+      "sameAs": "https://zenodo.org/records/24183178",
+      "isPartOf": {
+        "@type": "Dataset",
+        "name": "MacBrains Labs ANE Research Records",
+        "identifier": "https://doi.org/10.5281/zenodo.23798036"
+      },
+      "creator": {
+        "@type": "Person",
+        "name": "Nayte Wilson",
+        "identifier": "https://orcid.org/0009-0003-4026-8212"
+      },
+      "license": "https://creativecommons.org/licenses/by/4.0/",
+      "datePublished": "2026-11-13",
+      "inLanguage": "en",
+      "keywords": [
+        "Apple Neural Engine",
+        "Core ML",
+        "Qwen2.5",
+        "compute units"
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="masthead">
+<div class="wrap">
+<a class="wordmark" href="/" aria-label="MacBrains Labs home"><img class="wordmark-icon" src="/assets/brand-mark-96.png" width="42" height="42" alt=""><span class="wordmark-stack"><span class="wordmark-name">MacBrains <span>Labs</span></span><span class="wordmark-desc">Independent Apple Silicon research</span></span></a>
+<nav class="nav" aria-label="Main navigation">
+<a href="/research/" aria-current="page">Research</a>
+<a href="/methods/">Methods</a>
+<a href="/notes/">Notes</a>
+<a href="/publications/">Publications</a>
+<a href="/security/">Security</a>
+<a href="/contact/">Contact</a>
+</nav>
+</div>
+</header>
+<main id="main">
+<header class="page-head" data-tag="ane-record-10528818ee0e902331b666ee" data-record-kind="package">
+<div class="wrap">
+<p class="crumbs"><a href="/">MacBrains Labs</a> / <a href="/research/">Research record</a> / Record v0.4.0</p>
+<h1>Published Qwen2.5-1.5B Core ML package: greedy output depends on the compute unit, and cpuOnly returns NaN</h1>
+<p class="lede">A package research record: the reviewed package, republished byte for byte. Same-chip rerun: repeatability only, not cross-device replication. Compute-unit dispatch of one published model package; ANE execution INFERRED from the Core ML compute plan; no novelty claim.</p>
+<dl class="facts">
+<div><dt>Version</dt><dd>v0.4.0 · released <time datetime="2026-11-13">13 Nov 2026</time></dd></div>
+<div><dt>Runs</dt><dd>15 counted runs, 15 pass, 0 fail</dd></div>
+<div><dt>Tier</dt><dd>Diagnostic · single device</dd></div>
+<div><dt>Cite</dt><dd><a href="https://doi.org/10.5281/zenodo.24183178">DOI 10.5281/zenodo.24183178</a></dd></div>
+</dl>
+</div>
+</header>
+<div class="wrap article-layout">
+<nav class="toc" aria-label="On this page">
+<span class="label">On this page</span>
+<ol>
+<li><a href="#scope">Scope</a></li>
+<li><a href="#runs">Counted runs</a></li>
+<li><a href="#notes">Notes at publication</a></li>
+<li><a href="#disclosures">Disclosures</a></li>
+<li><a href="#review">Review</a></li>
+<li><a href="#files">Files</a></li>
+</ol>
+<div class="toc-out"><a href="/publications/">Publications</a><a href="/methods/">Methodology</a></div>
+</nav>
+<article class="article">
+<h2 id="scope"><span class="sec">01</span>Scope</h2>
+<div class="callout"><span class="label">Scope as reviewed</span><p><q>same-chip, single device (Mac17,5, macOS 27.3 26C5035r,Core ML 3610.2.3); Hugging Face package NayteThaGreat/Qwen2.5-1.5B-Instruct-ANE at 7f9ab466, one prompt, greedy; ANE and GPU differ from the first token, cpuOnly prefill all NaN; no reference output; ANE execution inferred; no novelty claim</q></p></div>
+<p><strong>Same-chip rerun: repeatability only, not cross-device replication.</strong> Every counted run in this record ran on one Mac, the same chip, with one runner binary, one model package and one prompt; only the Core ML compute-unit setting changed. No reference output was run, so the record does not say which of the ANE and GPU outputs is correct, and the cause is UNKNOWN. Novelty is UNCLAIMED. Probe tiers at ANE-RE <code>7d879697</code>: anerecore TIER TOTAL: pass=57 fail=0 info=3 tool=4 superseded=2 probe-files=64 src=/Users/nayte/.local/share/anvil/qwen-dispatch-v040/verify/src-7d879697 finished=2026-11-12T15:58:53Z; cleanroom 7 pass, 0 fail, 2 superseded at 7d879697 and at 5e98f68b; diagnosticTier 24/24; handoffEvent 39/39 with HANDOFF_EVENT_SRC set; intakeRerunR4 every current file passes; FAIL lines only in files the probe README marks superseded; replication 8/8. Recompute: EXACT 15/15; negative test EXACT on unaltered copies, NOT_EXACT on a flipped logits byte and an edited chain winner, both arms.</p>
+
+<h2 id="runs"><span class="sec">02</span>Counted runs</h2>
+<p>Each setup profile was hashed and committed before its first counted run. The device-wide execution logs list 15 counted runs under 2 setup profiles: 15 pass, 0 fail. A run passes when its completion line has exit code 0 and a passing flag; the log has no byte comparison, so byte identity of each compute unit's dump files across its five runs is shown by the packaged recompute. Across the compute units: cpuAndNeuralEngine and cpuAndGPU differ from the first generated token (40 vs 9707); cpuOnly prefill logits all NaN at all 28 prompt positions. No run is omitted.</p>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">Arm</th><th scope="col">Setup profile</th><th scope="col">Tool</th><th scope="col" class="numeric">Started</th><th scope="col" class="numeric">Completed</th><th scope="col" class="numeric">Passed</th></tr></thead>
+<tbody>
+<tr><td>ane-and-gpu</td><td><code>9f2bd532c9beb961fb815639139503f5cbefed57bdca9a59111648ee2420604f</code><br>committed at <code>8186ad8f</code></td><td>cleanroom-246504e8<br><code>246504e8</code></td><td class="numeric">10</td><td class="numeric">10</td><td class="numeric">10</td></tr>
+<tr><td>cpu-only</td><td><code>3de33b648fff4b94ccdb2db407ececbf4b1f043f7ef72c544656bddef4716da1</code><br>committed at <code>8186ad8f</code></td><td>cleanroom-246504e8<br><code>246504e8</code></td><td class="numeric">5</td><td class="numeric">5</td><td class="numeric">5</td></tr>
+</tbody></table></div>
+<p class="table-caption">Recounted from each arm's execution log, republished exactly as reviewed.</p>
+
+<h2 id="notes"><span class="sec">03</span>Notes at publication</h2>
+<p>These notes correct labels in the reviewed files without changing them; any change to those bytes would break the reviewed hash.</p>
+<ul>
+<li>package/ANE_Research_Record_v0.4.0.md is the reviewed record, unchanged. Its header still reads READY FOR REVIEW, NOT PUBLISHED and says no tag, version DOI or release exists: that describes the state when it was reviewed. The reviewed hand-off set publicationAuthorized to false because the record reports a defect in a model package MacBrains Labs itself published on Hugging Face, and left the decision to publish to MacBrains Labs. This record was published after the final reviewer returned INCLUDE (round 1) for hand-off 10528818ee0e902331b666eeab96c42217b8bfbe71ce870b61dba9125986e780 and MacBrains Labs decided to publish it.</li>
+<li>The reviewed package directory holds five symbolic links under package/verification/cleanroom-tier-first-attempt-relative-paths/ (fixtures of a clean-room path probe; one points to /usr/bin/true). They are not files, FILES.sha256 does not list them, and they are not republished in package/. They remain in the reviewed package tar package-v040-20261112.tar, whose hash is unchanged.</li>
+<li>The clean-room tool at 246504e8 logs exitCode and passed for each completed run but no byte comparison. A run counts as passed here when its run_completed line has exitCode 0 and passed true. Byte identity of each compute unit&#39;s three dump files across its five runs is shown by the packaged recompute (EXACT 15/15), not by the log.</li>
+<li>The reviewed record has three compute-unit arms (cpuAndNeuralEngine, cpuAndGPU, cpuOnly) under two setup profiles. The runs are counted here per setup profile, as the device logs record them: ane-and-gpu (cpuAndNeuralEngine and cpuAndGPU, 10 runs) and cpu-only (5 runs).</li>
+<li>FILES.sha256 lists 57 files inside two .git directories: package/pre-freeze/claimscope-test/.git/ and package/verification/cleanroom-tier-first-attempt-relative-paths/pr265-sub-01/gitsrc/.git/, the internals of two small fixture repositories used by clean-room probes. A git repository cannot hold a path with a .git component, so these 57 files are not republished in package/; package/ holds FILES.sha256, unchanged, and the other 780 files it lists. All 837 listed files, these 57 included, are in the reviewed package tar package-v040-20261112.tar, whose hash is unchanged.</li>
+</ul>
+
+<h2 id="disclosures"><span class="sec">04</span>Disclosures, verbatim</h2>
+<ul>
+<li>The finding is a defect in a model package MacBrains Labs published (Hugging Face NayteThaGreat/Qwen2.5-1.5B-Instruct-ANE). Publishing this record is a decision for Nayte.</li>
+<li>All 10 counted receipts carry a stale layer-14 claimScope sentence written by the clean-room tool at 246504e8; no claim rests on it. Fix is ane-re PR #288 (head 5e98f68b), made after the runs; counted runs not repeated because the field enters no hash or verdict.</li>
+<li>The diagnostic-tier policy module fixes its expected device to macOS 27.2 26B123 / Core ML 3600.25.2 (the L14 record), not this device (27.3 26C5035r / 3610.2.3). Its automatic eligibility check was not applied; device fields were checked against the receipts. Updating that scope is for the reviewer.</li>
+<li>Commits 543c3df3 and 8186ad8f carry author &quot;Hyun-woo &lt;hyunwoo@MiniMax.local&gt;&quot; from a repository-local git config in the clone they were made from; pinned by receipts, so not rewritten.</li>
+<li>The first ANERECore tier run gave one FAIL (pr264-B-06 corpus counts lacked UNREADABLE=14) because its rebuilt corpus omitted the 14 iCloud-dataless links of the v0.3.0 corpus. The corpus was rebuilt with those links and the tier rerun; run 1 is kept in verification/anerecore-tier-run1-corpus-missing-14-links/.</li>
+<li>Round 1 (both include) asked for record wording fixes: the step count differs (200 decode steps for ANE and GPU, 4 for cpuOnly); byte-identical covers each arm&#39;s three dump files, not whole runs; cpuOnly all-NaN covers the prefill logits, with the first two infer calls finite; the zip sha256 is tied to a Hugging Face API check added as verification/hf-file-check.txt. The record and package were rebuilt and reviewed again in round 2; the round 1 package, bundle and receipts are kept.</li>
+<li>Analysis tools (recompute, compare, negative test) were committed at 7d879697 after the counted runs; they only read the dumps.</li>
+<li>Two reviewer-probe proposals are filed, not applied: a probes/README cleanroom section (superseded r1-01, r1-02) and HANDOFF_EVENT_SRC being required for the handoff-event harness.</li>
+<li>Not run: fabric-mcp, media-tier, and the Neo zsh probes and deploy gates under rerun/neo, r4/neo, r4/deploy-gates (they test installed intake tools this record does not use).</li>
+</ul>
+
+<h2 id="review"><span class="sec">05</span>Review and bindings</h2>
+<ul>
+<li>Reviewed package <code>10528818ee0e902331b666eeab96c42217b8bfbe71ce870b61dba9125986e780</code>: the hand-off manifest the final reviewer read. It is not republished; it binds the files below by hash.</li>
+<li>Final review: INCLUDE from <code>macbrains-labs-reviewer</code> for that package hash, round 1 of 2, verdict receipt <code>d3c41bcf26f78a021d8fe734385166fcdfb635074ce8efe585710926de48c7df</code>.</li>
+<li>Reviewed record <code>363f37782e0fa515319f6cdc7c1cd490a65e912d1a9411c46e7455c3428361a8</code>; file list <code>d3628555fe2e01975cd386fd1ec2cbdcbad027da97ba27d2d21ea8df14c2b3d9</code> binds 837 files.</li>
+<li>Attestation <code>97aac1a790e7bac6b0fe7ee796be763c859c01d42d63a87d674876ed895a7089</code>.</li>
+</ul>
+<p>A reviewed record and an archived DOI are not peer review. Cite this version as <a href="https://doi.org/10.5281/zenodo.24183178">DOI 10.5281/zenodo.24183178</a>; all versions of the record series share <a href="https://doi.org/10.5281/zenodo.23798036">DOI 10.5281/zenodo.23798036</a>.</p>
+
+<h2 id="files"><span class="sec">06</span>Files</h2>
+<div class="table-scroll" tabindex="0"><table class="data-table">
+<thead><tr><th scope="col">File at the tag</th><th scope="col" class="numeric">Bytes</th><th scope="col">SHA-256</th></tr></thead>
+<tbody>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-10528818ee0e902331b666ee/records/ane-record-10528818ee0e902331b666ee/attestation.json">attestation.json</a></td><td class="numeric">12,577</td><td><code>97aac1a790e7bac6b0fe7ee796be763c859c01d42d63a87d674876ed895a7089</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-10528818ee0e902331b666ee/records/ane-record-10528818ee0e902331b666ee/preview.md">preview.md</a></td><td class="numeric">9,909</td><td><code>5c38f3386132d45993b9d5c627e134caf9a321e44bb7e62d5d59ac92f70e42f4</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-10528818ee0e902331b666ee/records/ane-record-10528818ee0e902331b666ee/package/FILES.sha256">package/FILES.sha256</a></td><td class="numeric">114,899</td><td><code>d3628555fe2e01975cd386fd1ec2cbdcbad027da97ba27d2d21ea8df14c2b3d9</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-10528818ee0e902331b666ee/records/ane-record-10528818ee0e902331b666ee/package/ANE_Research_Record_v0.4.0.md">package/ANE_Research_Record_v0.4.0.md</a></td><td class="numeric">22,667</td><td><code>363f37782e0fa515319f6cdc7c1cd490a65e912d1a9411c46e7455c3428361a8</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-10528818ee0e902331b666ee/records/ane-record-10528818ee0e902331b666ee/package/execution-log/9f2bd532c9beb961fb815639139503f5cbefed57bdca9a59111648ee2420604f.jsonl">package/execution-log/9f2bd532c9beb961fb815639139503f5cbefed57bdca9a59111648ee2420604f.jsonl</a></td><td class="numeric">9,147</td><td><code>8b5552b3afb41828c8f2e04bdc1f8c45440c8aa9c248a173dfb4fa30dba71dfb</code></td></tr>
+<tr><td><a href="https://github.com/macbrainslabs/ane-research-records/blob/ane-record-10528818ee0e902331b666ee/records/ane-record-10528818ee0e902331b666ee/package/execution-log/3de33b648fff4b94ccdb2db407ececbf4b1f043f7ef72c544656bddef4716da1.jsonl">package/execution-log/3de33b648fff4b94ccdb2db407ececbf4b1f043f7ef72c544656bddef4716da1.jsonl</a></td><td class="numeric">4,545</td><td><code>7659769c7e83a1992e829bfe51a17d67746ca3a5943a060afd2469e25d7e873e</code></td></tr>
+</tbody></table></div>
+<p class="table-caption"><code>package/</code> holds <code>FILES.sha256</code> and 780 of the 837 files it lists, byte for byte; the other 57 sit inside <code>.git</code> directories, which a git repository cannot hold, and are in the release archive only. The <a href="https://github.com/macbrainslabs/ane-research-records/releases/tag/ane-record-10528818ee0e902331b666ee">GitHub release ane-record-10528818ee0e902331b666ee</a> also carries the whole package as <code>package-v040-20261112.tar</code> (15,610,880 bytes, <code>8a42b1faa4e44033061d1f311178b59631fe040d4fc2ada73fa931722aa46109</code>) with <code>SHA256SUMS</code>; <code>scripts/verify.mjs</code> in the <a href="https://github.com/macbrainslabs/ane-research-records">record repository</a> re-checks every hash and count.</p>
+</article>
+</div>
+</main>
+<footer class="site-footer">
+<div class="wrap">
+<div class="footer-grid">
+<div>
+<span class="footer-brand"><img src="/assets/brand-mark-96.png" width="30" height="30" alt=""><span>MacBrains Labs</span></span>
+<p>Independent research on Apple Neural Engine execution, Core ML graph construction and on-device inference. Not affiliated with Apple.</p>
+</div>
+<div>
+<span class="label">Correspondence</span>
+<a class="footer-mail" href="mailto:research@macbrainslabs.org">research@macbrainslabs.org</a>
+<p>Model execution, numerical parity, hardware behavior, reproducible tests.</p>
+</div>
+<div>
+<span class="label">Index</span>
+<ul>
+<li><a href="/research/">Research record</a></li>
+<li><a href="/methods/">Methodology</a></li>
+<li><a href="/notes/">Notes</a></li>
+<li><a href="/publications/">Publications</a></li>
+<li><a href="/security/">Defensive research</a></li>
+<li><a href="/contact/">Contact</a></li>
+</ul>
+</div>
+</div>
+<div class="footer-fine"><span>© 2026 MacBrains Labs · Independent research · No Apple affiliation</span><span>Static site. No cookies, tracking or analytics.</span></div>
+</div>
+</footer>
+</body>
+</html>
