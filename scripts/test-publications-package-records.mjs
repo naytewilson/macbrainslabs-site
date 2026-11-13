@@ -18,6 +18,7 @@ import {
   buildAneRecord, coreKey, lastKnownGoodDecision, qualifiesPolicy,
   renderFeedPage, renderIndexBlock, renderPkgRecord, resetZenodoCache
 } from './update-publications.mjs';
+import { PKG_PASS_CRITERIA } from './package-pass-criteria.mjs';
 
 const REPO = 'macbrainslabs/ane-research-records';
 const CONCEPT = '10.5281/zenodo.23798036';
@@ -34,12 +35,13 @@ function canon(x) {
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 const SCOPE = "same-chip, single device (Mac17,5); MIL text byte equality only, one fixture & two arms; no Core ML compile, ANE execution or numerics; no novelty claim";
+const [OLD_CRIT, PASSED_FLAG_CRIT] = Object.keys(PKG_PASS_CRITERIA);
 const ARMS = [
   { arm: 'fugu', profileHash: '09'.repeat(32), profileCommit: '01'.repeat(20), toolCommit: 'd4'.repeat(20), logsPassed: false },
   { arm: 'ane-re', profileHash: '84'.repeat(32), profileCommit: '87'.repeat(20), toolCommit: '0a'.repeat(20), logsPassed: true }
 ];
 
-function fixture({ decision = 'INCLUDE', minted = true, tamper = null, prettyAttestation = false, dropRun = false, failRun = false, tamperLogAtTag = false, tamperListAtTag = false, indexKind = 'package', tagHex = 'b8'.repeat(12) } = {}) {
+function fixture({ decision = 'INCLUDE', minted = true, tamper = null, prettyAttestation = false, dropRun = false, failRun = false, tamperLogAtTag = false, tamperListAtTag = false, indexKind = 'package', tagHex = 'b8'.repeat(12), criterion = OLD_CRIT, logsByteIdentical = true, passedFalseRun = false } = {}) {
   const tag = `ane-record-${tagHex}`;
   const version = 'v0.3.0';
   const siteUrl = `https://macbrainslabs.org/research/records/${tag}/`;
@@ -49,15 +51,16 @@ function fixture({ decision = 'INCLUDE', minted = true, tamper = null, prettyAtt
     const lines = [];
     for (let i = 1; i <= 5; i++) {
       lines.push({ counted: true, kind: 'run_started', profileCommit: a.profileCommit, profileHash: a.profileHash, runStartedAt: `2026-11-07T0${i}:00:00Z`, toolCommit: a.toolCommit });
-      const done = { byteIdentical: true, counted: true, exitCode: failRun && ai === 0 && i === 3 ? 1 : 0, kind: 'run_completed', profileHash: a.profileHash, runIndex: i };
-      if (a.logsPassed) done.passed = true;
+      const done = { counted: true, exitCode: failRun && ai === 0 && i === 3 ? 1 : 0, kind: 'run_completed', profileHash: a.profileHash, runIndex: i };
+      if (logsByteIdentical) done.byteIdentical = true;
+      if (a.logsPassed || criterion !== OLD_CRIT) done.passed = !(passedFalseRun && ai === 1 && i === 2);
       lines.push(done);
     }
     if (dropRun && ai === 1) lines.splice(-2, 2);
     const text = `${lines.map(l => JSON.stringify(l)).join('\n')}\n`;
     const p = `package/execution-log/${a.profileHash}.jsonl`;
     logs.set(p, text);
-    return { arm: a.arm, profileHash: a.profileHash, profileCommit: a.profileCommit, toolCommit: a.toolCommit, executionLog: p, executionLogSha256: sha(text), started: 5, completed: 5, passed: 5, tool: `cleanroom-${a.arm}` };
+    return { arm: a.arm, profileHash: a.profileHash, profileCommit: a.profileCommit, toolCommit: a.toolCommit, executionLog: p, executionLogSha256: sha(text), started: 5, completed: 5, passed: 5, passCriterion: criterion, tool: `cleanroom-${a.arm}` };
   });
   const recordText = '# Fixture reviewed record\n\nNOT PUBLISHED header kept as reviewed.\n';
   const tarText = 'fixture tar bytes\n';
@@ -219,6 +222,31 @@ await t('Zenodo version not minted yet -> degraded, no DOI shown, update held', 
 
 await t('an unknown records index kind is a structural refusal', async () => {
   await assert.rejects(build({ indexKind: 'mystery' }), /records index entry kind is unsupported/);
+});
+
+await t('a log with no byte comparison passes under the passed-flag criterion', async () => {
+  const { rec } = await build({ criterion: PASSED_FLAG_CRIT, logsByteIdentical: false });
+  assert.equal(rec.verification.state, 'verified', JSON.stringify(rec.verification.guards));
+  assert.deepEqual(rec.replication.arms.map(a => [a.arm, a.counted, a.passed]), [['fugu', 5, 5], ['ane-re', 5, 5]]);
+});
+
+await t('under the passed-flag criterion a run logged passed false is not a pass', async () => {
+  const { rec } = await build({ criterion: PASSED_FLAG_CRIT, logsByteIdentical: false, passedFalseRun: true });
+  assert.equal(rec.verification.state, 'degraded');
+  assert.match(guard(rec, 'scope and every counted run').detail, /arm ane-re: runs recounted from the log differ on: passed/);
+});
+
+await t('a log with no byte comparison never passes under the byte-identity criterion', async () => {
+  const { rec } = await build({ logsByteIdentical: false });
+  assert.equal(rec.verification.state, 'degraded');
+  assert.deepEqual(rec.replication.arms.map(a => a.passed), [0, 0]);
+});
+
+await t('an unknown pass criterion counts no pass and degrades the record', async () => {
+  const { rec } = await build({ criterion: 'every run passes' });
+  assert.equal(rec.verification.state, 'degraded');
+  assert.match(guard(rec, 'scope and every counted run').detail, /arm fugu: pass criterion is not one this site knows/);
+  assert.deepEqual(rec.replication.arms.map(a => a.passed), [0, 0]);
 });
 
 await t('feed page and home block show the package record with its bindings and scope label', async () => {
