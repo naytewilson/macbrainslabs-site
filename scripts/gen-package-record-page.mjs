@@ -65,7 +65,7 @@ const scopeLabel = 'Same-chip rerun: repeatability only, not cross-device replic
 const COPY = {
   'ane-record-10528818ee0e902331b666ee': {
     title: 'Qwen2.5-1.5B Core ML package dispatch record',
-    description: `Package research record ${a.version}: a published Qwen2.5-1.5B Core ML package gives different greedy output on ANE and GPU, and NaN on CPU only. Same chip; no novelty claim.`,
+    description: 'One Mac, one prompt: cpuAndNeuralEngine (ANE inferred) and cpuAndGPU differ from the first generated token; cpuOnly prefill logits are all NaN. Correctness unresolved; no novelty claim.',
     keywords: ['Apple Neural Engine', 'Core ML', 'Qwen2.5', 'compute units'],
     lede: 'Compute-unit dispatch of one published model package; ANE execution INFERRED from the Core ML compute plan; no novelty claim.',
     scope: () => `Every counted run in this record ran on one Mac, the same chip, with one runner binary, one model package and one prompt; only the Core ML compute-unit setting changed. No reference output was run, so the record does not say which of the ANE and GPU outputs is correct, and the cause is UNKNOWN. Novelty is ${esc(a.noveltyClaim)}. Probe tiers at ANE-RE ${code(a.verification.aneReCommit.slice(0, 8))}: ${Object.entries(a.verification.probeTiers).map(([k, v]) => esc(k + ' ' + v)).join('; ')}. Recompute: ${esc(a.verification.recompute)}.`,

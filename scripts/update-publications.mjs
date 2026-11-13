@@ -1178,7 +1178,7 @@ export function renderDiagRecord(rec) {
 <article class="pub-record" data-tag="${esc(rec.tag)}" data-kind="${esc(rec.kind)}">
 <h3>${esc(rec.version)} · ${esc(rec.title)}</h3>
 <p class="pub-statusline">${pill}</p>
-<p><time datetime="${esc(rec.published_at)}">${esc(humanDate(rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · diagnostic research record</p>
+<p><time datetime="${esc(rec.released_on ?? rec.published_at)}">${esc(humanDate(rec.released_on ?? rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · diagnostic research record</p>
 <p>${attrsLink(rec.record_url, 'Read the record page')}. ${attrsLink(rec.release_url, 'View this release in the archive repository')}. A reviewed record and an archived DOI are not peer review.</p>
 <div class="pub-dl">
 <div><span class="label">Scope</span><ul>
@@ -1529,7 +1529,7 @@ export function renderPkgRecord(rec) {
 <article class="pub-record" data-tag="${esc(rec.tag)}" data-kind="${esc(rec.kind)}">
 <h3>${esc(rec.version)} · ${esc(rec.title)}</h3>
 <p class="pub-statusline">${pill}</p>
-<p><time datetime="${esc(rec.published_at)}">${esc(humanDate(rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · reviewed package record</p>
+<p><time datetime="${esc(rec.released_on ?? rec.published_at)}">${esc(humanDate(rec.released_on ?? rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · reviewed package record</p>
 <p>${attrsLink(rec.record_url, 'Read the record page')}. ${attrsLink(rec.release_url, 'View this release in the archive repository')}. A reviewed record and an archived DOI are not peer review.</p>
 <div class="pub-dl">
 <div><span class="label">Scope</span><ul>
@@ -1613,7 +1613,7 @@ function renderRecord(rec) {
 <article class="pub-record" data-tag="${esc(rec.tag)}">
 <h3>${esc(rec.release_name)}</h3>
 <p class="pub-statusline">${pill}</p>
-<p><time datetime="${esc(rec.published_at)}">${esc(humanDate(rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · ${esc(rec.record_class)}</p>
+<p><time datetime="${esc(rec.released_on ?? rec.published_at)}">${esc(humanDate(rec.released_on ?? rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · ${esc(rec.record_class)}</p>
 <p>${attrsLink(rec.release_url, 'View this release in the archive repository')}. ${zenodoLine}</p>
 <div class="pub-dl">
 <div><span class="label">Registered identifiers</span><ul>
@@ -1662,7 +1662,7 @@ export function renderAneRecord(rec) {
 <article class="pub-record" data-tag="${esc(rec.tag)}" data-kind="${esc(rec.kind)}">
 <h3>${esc(rec.version)} · ${esc(rec.title)}</h3>
 <p class="pub-statusline">${pill}</p>
-<p><time datetime="${esc(rec.published_at)}">${esc(humanDate(rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · reviewed research record</p>
+<p><time datetime="${esc(rec.released_on ?? rec.published_at)}">${esc(humanDate(rec.released_on ?? rec.published_at))}</time> · tag <code>${esc(rec.tag)}</code> · reviewed research record</p>
 <p>${attrsLink(rec.record_url, 'Read the record page')}. ${attrsLink(rec.release_url, 'View this release in the archive repository')}. A reviewed record and an archived DOI are not peer review.</p>
 <div class="pub-dl">
 <div><span class="label">Replication</span><ul>
