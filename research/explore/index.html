@@ -75,8 +75,8 @@
 <div class="experience-hero-grid"><div><h1>Search the evidence.</h1>
 <p class="experience-lede">Search my measurements, notes and verified archive releases. Every entry links back to its public source.</p>
 <div class="experience-actions"><a href="/start/">New to the Neural Engine? Start with the guide ↗</a><a href="/methods/">Read my methods ↗</a></div></div>
-<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">What’s indexed</span><strong>14 <span>public entries</span></strong>
-<dl><div><dt>Measured</dt><dd>3</dd></div><div><dt>Planner reported</dt><dd>3</dd></div><div><dt>Notes</dt><dd>5</dd></div><div><dt>Verified archives</dt><dd>3</dd></div></dl>
+<aside class="experience-index" aria-label="Evidence classifications"><span class="kicker">What’s indexed</span><strong>15 <span>public entries</span></strong>
+<dl><div><dt>Measured</dt><dd>3</dd></div><div><dt>Planner reported</dt><dd>3</dd></div><div><dt>Notes</dt><dd>5</dd></div><div><dt>Verified archives</dt><dd>4</dd></div></dl>
 <p>This index comes from the published research summary, the note index and the last known good archive feed. It doesn’t create or validate any experiment.</p></aside></div>
 </div></header>
 <section class="wrap evidence-section" aria-labelledby="index-h"><div class="experience-section-head"><span class="kicker">Public evidence index</span><div><h2 id="index-h">Browse the entries</h2><p>Measurements, compiler assignments, interpretations and archive integrity are different kinds of evidence.</p></div></div>
@@ -85,7 +85,7 @@
 <label for="evidence-filter">Evidence kind</label><select id="evidence-filter" aria-controls="evidence-list">
 <option value="all">All public entries</option><option value="measured">Measured</option><option value="planner">Planner reported</option><option value="note">Notes</option><option value="archive">Verified archives</option>
 </select><button type="reset">Clear</button></form>
-<p class="evidence-count" id="evidence-count" aria-live="polite">14 entries from published sources</p>
+<p class="evidence-count" id="evidence-count" aria-live="polite">15 entries from published sources</p>
 <div class="evidence-grid" id="evidence-list"><article class="evidence-card" data-kind="planner" data-search="qwen2.5-1.5b instruct / 28l lut4, production anemll core ml conversion mlcomputeplan / infer 2,090 ane / 79 cpu the 79 cpu operations are the lm_head argmax tail. by assigned operations, that’s 96.4% ane and 3.6% cpu. public research summary qwen2.5">
 <div class="evidence-meta"><span class="evidence-type evidence-type-planner">Planner reported</span><span>Qwen2.5</span></div>
 <h3>Qwen2.5-1.5B Instruct / 28L LUT4, production ANEMLL Core ML conversion</h3>
@@ -162,6 +162,13 @@
 <p class="evidence-observation">Research note<span class="evidence-value">Placement, Dispatch, Grafts</span></p>
 <p class="evidence-limit">Both grafts passed their numerical checks. In the timed build, an EAGLE draft head made every call slower, and it has to earn that back.</p>
 <a class="evidence-link" href="/notes/graft-costs/">Public note N/005 <span aria-hidden="true">↗</span></a>
+</article>
+<article class="evidence-card" data-kind="archive" data-search="published qwen2.5-1.5b core ml package: greedy output depends on the compute unit, and cpuonly returns nan published archive integrity: verified v0.4.0 same-chip, single device (mac17,5, macos 27.3 26c5035r,core ml 3610.2.3); hugging face package naytethagreat/qwen2.5-1.5b-instruct-ane at 7f9ab466, one prompt, greedy; ane and gpu differ from the first token, cpuonly prefill all nan; no reference output; ane execution inferred; no novelty claim published release and doi 10.5281/zenodo.24183178 qwen2.5">
+<div class="evidence-meta"><span class="evidence-type evidence-type-archive">Verified archive</span><span>Qwen2.5</span></div>
+<h3>Published Qwen2.5-1.5B Core ML package: greedy output depends on the compute unit, and cpuOnly returns NaN</h3>
+<p class="evidence-observation">Published archive integrity: verified<span class="evidence-value">v0.4.0</span></p>
+<p class="evidence-limit">same-chip, single device (Mac17,5, macOS 27.3 26C5035r,Core ML 3610.2.3); Hugging Face package NayteThaGreat/Qwen2.5-1.5B-Instruct-ANE at 7f9ab466, one prompt, greedy; ANE and GPU differ from the first token, cpuOnly prefill all NaN; no reference output; ANE execution inferred; no novelty claim</p>
+<a class="evidence-link" href="https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/">Published release and DOI 10.5281/zenodo.24183178 <span aria-hidden="true">↗</span></a>
 </article>
 <article class="evidence-card" data-kind="archive" data-search="anerecore cross-repo mil parity: tap, steer and functionwide (same chip, single device) published archive integrity: verified v0.3.0 same-chip, single device (mac17,5, macos build 26c5035r); mil text byte equality only, one qwen fixture, operations tap, steer and functionwide; functionwide pin is fugu-referenced; no core ml compile, ane execution or numerics; no novelty claim published release and doi 10.5281/zenodo.24034510 anerecore">
 <div class="evidence-meta"><span class="evidence-type evidence-type-archive">Verified archive</span><span>ANERECore</span></div>

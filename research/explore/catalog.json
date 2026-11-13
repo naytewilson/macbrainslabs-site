@@ -134,6 +134,17 @@
       "tag": "Placement, Dispatch, Grafts"
     },
     {
+      "id": "archive-ane-record-10528818ee0e902331b666ee",
+      "kind": "archive",
+      "title": "Published Qwen2.5-1.5B Core ML package: greedy output depends on the compute unit, and cpuOnly returns NaN",
+      "observation": "Published archive integrity: verified",
+      "value": "v0.4.0",
+      "limitation": "same-chip, single device (Mac17,5, macOS 27.3 26C5035r,Core ML 3610.2.3); Hugging Face package NayteThaGreat/Qwen2.5-1.5B-Instruct-ANE at 7f9ab466, one prompt, greedy; ANE and GPU differ from the first token, cpuOnly prefill all NaN; no reference output; ANE execution inferred; no novelty claim",
+      "url": "https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/",
+      "source": "Published release and DOI 10.5281/zenodo.24183178",
+      "tag": "Qwen2.5"
+    },
+    {
       "id": "archive-ane-record-b8f78a146608021d974dcdec",
       "kind": "archive",
       "title": "ANERECore cross-repo MIL parity: tap, steer and functionWide (same chip, single device)",

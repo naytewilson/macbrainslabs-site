@@ -1,6 +1,6 @@
 {
   "schema": "macbrainslabs.publications.v1",
-  "generated_at": "2026-11-07T11:41:04Z",
+  "generated_at": "2026-11-13T02:29:52Z",
   "source": {
     "release_repository": "macbrainslabs/ane-research-records",
     "release_repository_url": "https://github.com/macbrainslabs/ane-research-records",
@@ -15,6 +15,154 @@
     "refresh": "scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch"
   },
   "records": [
+    {
+      "kind": "ane-package",
+      "tag": "ane-record-10528818ee0e902331b666ee",
+      "version": "v0.4.0",
+      "title": "Published Qwen2.5-1.5B Core ML package: greedy output depends on the compute unit, and cpuOnly returns NaN",
+      "release_name": "ANE research record v0.4.0 (Qwen2.5-1.5B compute-unit dispatch, same chip)",
+      "published_at": "2026-11-13T02:24:33Z",
+      "release_url": "https://github.com/macbrainslabs/ane-research-records/releases/tag/ane-record-10528818ee0e902331b666ee",
+      "released_on": "2026-11-12",
+      "record_url": "https://macbrainslabs.org/research/records/ane-record-10528818ee0e902331b666ee/",
+      "record_repository": "https://github.com/macbrainslabs/ane-research-records",
+      "attestation_sha256": "97aac1a790e7bac6b0fe7ee796be763c859c01d42d63a87d674876ed895a7089",
+      "record_sha256": "363f37782e0fa515319f6cdc7c1cd490a65e912d1a9411c46e7455c3428361a8",
+      "files_list_sha256": "d3628555fe2e01975cd386fd1ec2cbdcbad027da97ba27d2d21ea8df14c2b3d9",
+      "replication": {
+        "scope": "same-chip",
+        "claim": "same-chip, single device (Mac17,5, macOS 27.3 26C5035r,Core ML 3610.2.3); Hugging Face package NayteThaGreat/Qwen2.5-1.5B-Instruct-ANE at 7f9ab466, one prompt, greedy; ANE and GPU differ from the first token, cpuOnly prefill all NaN; no reference output; ANE execution inferred; no novelty claim",
+        "cross_device_replication": false,
+        "profile_hashes": [
+          "9f2bd532c9beb961fb815639139503f5cbefed57bdca9a59111648ee2420604f",
+          "3de33b648fff4b94ccdb2db407ececbf4b1f043f7ef72c544656bddef4716da1"
+        ],
+        "counted": 15,
+        "passed": 15,
+        "failed": 0,
+        "arms": [
+          {
+            "arm": "ane-and-gpu",
+            "profile_hash": "9f2bd532c9beb961fb815639139503f5cbefed57bdca9a59111648ee2420604f",
+            "profile_commit": "8186ad8f4a75d18bdf74705b57f852a70bae01ce",
+            "tool_commit": "246504e8df8d7ee957855e56f6936a46a9c39cee",
+            "counted": 10,
+            "passed": 10
+          },
+          {
+            "arm": "cpu-only",
+            "profile_hash": "3de33b648fff4b94ccdb2db407ececbf4b1f043f7ef72c544656bddef4716da1",
+            "profile_commit": "8186ad8f4a75d18bdf74705b57f852a70bae01ce",
+            "tool_commit": "246504e8df8d7ee957855e56f6936a46a9c39cee",
+            "counted": 5,
+            "passed": 5
+          }
+        ]
+      },
+      "review": {
+        "reviewed_package_sha256": "10528818ee0e902331b666eeab96c42217b8bfbe71ce870b61dba9125986e780",
+        "reviewer": "macbrains-labs-reviewer",
+        "decision": "INCLUDE",
+        "verdict_receipt_sha256": "d3c41bcf26f78a021d8fe734385166fcdfb635074ce8efe585710926de48c7df"
+      },
+      "doi": {
+        "version_doi": "10.5281/zenodo.24183178",
+        "concept_doi": "10.5281/zenodo.23798036",
+        "zenodo_record_url": "https://zenodo.org/records/24183178",
+        "binding_source": "Zenodo version search under the all-versions DOI (tag tree URL, or the archive Zenodo named for the tag)",
+        "registered_state": "registered_verified",
+        "crosscheck": {
+          "state": "pass",
+          "comparisons": {
+            "version_doi": "match",
+            "record_id": "match",
+            "concept_doi": "match",
+            "tag_binding": "match",
+            "record_version": "match",
+            "creator_orcid": "match",
+            "license": "match"
+          },
+          "detail": null
+        }
+      },
+      "assets": [
+        {
+          "name": "attestation.json",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-10528818ee0e902331b666ee/attestation.json",
+          "size": 12577,
+          "digest": "sha256:97aac1a790e7bac6b0fe7ee796be763c859c01d42d63a87d674876ed895a7089",
+          "sha256": "97aac1a790e7bac6b0fe7ee796be763c859c01d42d63a87d674876ed895a7089"
+        },
+        {
+          "name": "preview.md",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-10528818ee0e902331b666ee/preview.md",
+          "size": 9909,
+          "digest": "sha256:5c38f3386132d45993b9d5c627e134caf9a321e44bb7e62d5d59ac92f70e42f4",
+          "sha256": "5c38f3386132d45993b9d5c627e134caf9a321e44bb7e62d5d59ac92f70e42f4"
+        },
+        {
+          "name": "ANE_Research_Record_v0.4.0.md",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-10528818ee0e902331b666ee/ANE_Research_Record_v0.4.0.md",
+          "size": 22667,
+          "digest": "sha256:363f37782e0fa515319f6cdc7c1cd490a65e912d1a9411c46e7455c3428361a8",
+          "sha256": "363f37782e0fa515319f6cdc7c1cd490a65e912d1a9411c46e7455c3428361a8"
+        },
+        {
+          "name": "package-v040-20261112.tar",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-10528818ee0e902331b666ee/package-v040-20261112.tar",
+          "size": 15610880,
+          "digest": "sha256:8a42b1faa4e44033061d1f311178b59631fe040d4fc2ada73fa931722aa46109",
+          "sha256": "8a42b1faa4e44033061d1f311178b59631fe040d4fc2ada73fa931722aa46109"
+        },
+        {
+          "name": "SHA256SUMS",
+          "url": "https://github.com/macbrainslabs/ane-research-records/releases/download/ane-record-10528818ee0e902331b666ee/SHA256SUMS",
+          "size": 348,
+          "digest": "sha256:983e65f9ec0eda57789ceb921acf45ebaa489cec056c2655ef6f3f231d3cf4d5",
+          "sha256": "983e65f9ec0eda57789ceb921acf45ebaa489cec056c2655ef6f3f231d3cf4d5"
+        }
+      ],
+      "verification": {
+        "state": "verified",
+        "guards": [
+          {
+            "name": "published release tag ane-record- plus 24 hex; release shell valid",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "records index at the tag lists this package record once (schema, all-versions DOI, v0.1.0 baseline)",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "exactly five release assets re-downloaded; bytes equal their registered digests and SHA256SUMS",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "attestation at the tag is canonical, hashes to the index entry and binds the assets, file list and reviewed record to the reviewed package",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "final review is INCLUDE from macbrains-labs-reviewer for the reviewed package hash",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "scope and every counted run recounted per arm from the device-wide execution logs at the tag; no novelty claim",
+            "state": "pass",
+            "detail": null
+          },
+          {
+            "name": "Zenodo version under the all-versions DOI bound to this tag (DOI, ORCID, license, version)",
+            "state": "pass",
+            "detail": null
+          }
+        ]
+      }
+    },
     {
       "kind": "ane-package",
       "tag": "ane-record-b8f78a146608021d974dcdec",
