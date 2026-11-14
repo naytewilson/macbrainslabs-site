@@ -60,8 +60,8 @@ const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const human = d => { const [y, m, dd] = d.split('-'); return `${+dd} ${months[m - 1]} ${y}`; };
 const released = entry.releasedOn;
 const scopeLabel = 'Same-chip rerun: repeatability only, not cross-device replication';
-// Page copy per record. The default is the v0.3.0 ANERECore MIL parity record,
-// unchanged; a later record adds its own entry keyed by tag.
+// Page copy per record, keyed by tag. A tag without its own entry fails loudly
+// instead of borrowing another record's copy.
 const COPY = {
   'ane-record-10528818ee0e902331b666ee': {
     title: 'Qwen2.5-1.5B Core ML package dispatch record',
@@ -72,14 +72,15 @@ const COPY = {
     runs: `Each setup profile was hashed and committed before its first counted run. The device-wide execution logs list ${counted} counted runs under ${armRows.length} setup profiles: ${pass} pass, ${counted - pass} fail. A run passes when its completion line has exit code 0 and a passing flag; the log has no byte comparison, so byte identity of each compute unit's dump files across its five runs is shown by the packaged recompute. Across the compute units: ${esc(r.crossArmComparison)}. No run is omitted.`,
     runsHead: 'Setup profile runs'
   }
-}[tag] ?? {
+}[tag] ?? (tag === 'ane-record-b8f78a146608021d974dcdec' ? {
   title: 'ANERECore cross-repo MIL parity record',
-  description: `Package research record ${a.version}: ANERECore MIL text parity for tap, steer and functionWide on one Mac. Same chip only; ANE execution not claimed; no novelty claim.`,
+  description: 'One Mac, one Qwen fixture: ANERECore MIL text parity for tap, steer and functionWide. MIL text only; no Core ML compile, ANE execution or numerics; no novelty claim.',
   keywords: ['Apple Neural Engine', 'Core ML', 'MIL', 'ANERECore'],
   lede: 'MIL text byte equality only; ANE execution NOT CLAIMED; no novelty claim.',
   scope: () => `Every counted run in this record ran on one Mac, the same chip. The record compares MIL text produced by two clean-room tool builds for the operations ${a.operations.map(esc).join(', ')}; it makes no claim about Core ML compilation, ANE execution or numerics. Novelty is ${esc(a.noveltyClaim)}. Probe tier at ${code(a.verification.commit.slice(0, 8))}: ${esc(a.verification.probeTier)}.`,
   runs: `Each arm's setup profile was hashed and committed before its first counted run. The device-wide execution logs list ${counted} counted runs across ${armRows.length} clean-room arms: ${pass} pass, ${counted - pass} fail. A run passes when its completion line has exit code 0 and byte-identical output (and, where the log records one, a passing flag). Across the arms: ${esc(r.crossArmComparison)}. No run is omitted.`
-};
+} : null);
+if (!COPY) throw new Error(`no page copy for ${tag}; add an entry keyed by this tag`);
 const title = COPY.title;
 const description = COPY.description;
 if (description.length > 200) throw new Error('description too long');
