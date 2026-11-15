@@ -1,10 +1,15 @@
 name: Refresh publications feed
+# A rebuilt feed is proposed as a pull request. This file does not push main.
+# publications-feed-bot has no documented exception in README, docs, or
+# CODEOWNERS that would authorize a direct push. workflow_dispatch opens
+# the same kind of pull request; it is not a bypass.
 on:
   schedule:
     - cron: '37 3,9,15,21 * * *'
   workflow_dispatch:
 permissions:
   contents: write
+  pull-requests: write
 jobs:
   recheck-and-rebuild:
     runs-on: ubuntu-latest
@@ -24,6 +29,8 @@ jobs:
         run: node scripts/test-publications-package-records.mjs
       - name: Verify the baseline DOI binding once a later record is cited
         run: node scripts/test-publications-legacy-doi.mjs
+      - name: Verify the workflow opens a pull request and does not push main
+        run: node scripts/test-publications-workflow.mjs
       - name: Re-derive upstream records and rebuild the feed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,14 +47,26 @@ jobs:
           node scripts/build-public-experience.mjs --check
           node scripts/build-social-cards.mjs --check
           node scripts/check-mobile-media.mjs --check
-      - name: Commit the rebuilt feed (last-known-good on any failure)
+      - name: Open a pull request for the rebuilt feed (never push main)
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          set -eu
           git config user.name "publications-feed-bot"
           git config user.email "publications@macbrainslabs.org"
           git add index.html publications research/explore start assets/social
           if git diff --cached --quiet; then
             echo "No record changes to publish; the last-known-good feed is current."
-          else
-            git commit -m "publications: archive feed recheck $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            git push
+            exit 0
           fi
+          branch="publications/recheck-${GITHUB_RUN_ID}"
+          git checkout -b "$branch"
+          git commit -m "publications: archive feed recheck $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push origin "HEAD:refs/heads/${branch}"
+          body_file="$(mktemp)"
+          cat > "$body_file" <<EOF
+          Scheduled rebuild ${GITHUB_RUN_ID} at ${GITHUB_SHA} produced a publications feed diff.
+
+          The last-known-good checks in this workflow passed before this pull request was opened. The previous public snapshot stays on main until this pull request is merged. This workflow does not push main.
+          EOF
+          gh pr create --base main --head "$branch" --title "publications: archive feed recheck ${GITHUB_RUN_ID}" --body-file "$body_file"

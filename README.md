@@ -61,7 +61,7 @@ No tracking scripts, cookies, analytics or external assets. Structured data is i
 
 ## Publication feed
 
-`/publications/` lists published archive releases of the public research record (from the separate `macbrainslabs/ane-research-records` repository). It is **static HTML with no client-side JavaScript**: a dependency-free Node script (`scripts/update-publications.mjs`) regenerates the page and its `publications.json` from upstream, and a scheduled GitHub Actions workflow (`.github/workflows/publications.yml`) reruns it roughly every six hours, committing only when the records change.
+`/publications/` lists published archive releases of the public research record (from the separate `macbrainslabs/ane-research-records` repository). It is **static HTML with no client-side JavaScript**: a dependency-free Node script (`scripts/update-publications.mjs`) regenerates the page and its `publications.json` from upstream, and a scheduled GitHub Actions workflow (`.github/workflows/publications.yml`) reruns it roughly every six hours. When the rebuilt feed differs, that workflow opens a pull request. It does not push `main`.
 
 The feed does not transcribe release text. For every record it **re-derives** at rebuild time:
 
