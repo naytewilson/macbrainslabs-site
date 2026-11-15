@@ -2047,10 +2047,29 @@ const HOLD_DIAG_LIMIT = 64;
 const HOLD_NAME_MAX = 180;
 const HOLD_DETAIL_MAX = 240;
 
+function redactDiagnosticSecrets(value) {
+  return value
+    .replace(/([a-z][a-z0-9+.-]*:\/\/)[^\s/]*@/gi, '$1')
+    .replace(/\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{8,}\b/g, '[redacted]')
+    .replace(/\bgithub_pat_[A-Za-z0-9_]{8,}\b/g, '[redacted]')
+    .replace(/\bBearer\s+[A-Za-z0-9._~+/-]{8,}/gi, 'Bearer [redacted]');
+}
+
 function boundDiagnostic(value, max) {
-  const s = String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  // C0, DEL, C1 (ANSI CSI is U+009B), and Unicode line separators. JSON.stringify
+  // does not escape U+2028/U+2029, so they have to be removed before the line
+  // is written or a later "::" becomes a workflow command on its own line.
+  let s = String(value ?? '')
+    .replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  s = redactDiagnosticSecrets(s).replace(/:{2,}/g, ':');
   if (s.length <= max) return s;
   return `${s.slice(0, max - 1)}…`;
+}
+
+function safeDiagnosticTag(tag) {
+  return /^[A-Za-z0-9._-]{1,80}$/.test(tag) ? tag : '(rejected-tag)';
 }
 
 function coreEqualsPrevious(prevRecords, rec) {
@@ -2069,8 +2088,9 @@ export function formatHoldDiagnostics(prevRecords, newRecords) {
   const records = Array.isArray(newRecords) ? newRecords : [];
   for (const rec of records) {
     if (!rec || rec.verification?.state === 'verified') continue;
-    const tag = boundDiagnostic(typeof rec.tag === 'string' && rec.tag ? rec.tag : '(missing tag)', 80);
-    const core = coreEqualsPrevious(prevRecords, rec);
+    const tag = safeDiagnosticTag(boundDiagnostic(typeof rec.tag === 'string' && rec.tag ? rec.tag : '(missing tag)', 80));
+    const coreRaw = coreEqualsPrevious(prevRecords, rec);
+    const core = /^(yes|no|absent|error)$/.test(coreRaw) ? coreRaw : 'error';
     const guards = Array.isArray(rec.verification?.guards) ? rec.verification.guards : [];
     const failed = guards.filter(g => !g || g.state !== 'pass');
     const emit = failed.length
@@ -2091,7 +2111,14 @@ export function formatHoldDiagnostics(prevRecords, newRecords) {
 
 export function reportHoldDiagnostics(prevRecords, newRecords, write = console.error) {
   const lines = formatHoldDiagnostics(prevRecords, newRecords);
-  for (const line of lines) write(`[publications] HOLD DIAG ${line}`);
+  for (const line of lines) {
+    const rendered = `[publications] HOLD DIAG ${line}`;
+    if (/[\r\n\u2028\u2029]/.test(rendered) || rendered.split(/\r?\n/u).some(part => part.trimStart().startsWith('::'))) {
+      write('[publications] HOLD DIAG record=(suppressed) guard="(unsafe)" state=suppressed detail="diagnostic suppressed" core_equals_previous=error');
+      continue;
+    }
+    write(rendered);
+  }
   return lines;
 }
 

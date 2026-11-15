@@ -246,4 +246,38 @@ t('hold diagnostics stay single-line and bounded', () => {
   assert.equal(many[many.length - 1].includes('state=truncated'), true);
 });
 
+t('hold diagnostics cannot emit credentials, ANSI, or a workflow command', () => {
+  const prev = rec(A);
+  const next = rec(A, { state: 'degraded' });
+  next.verification.guards = [{
+    name: 'DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)\u2028::error::name',
+    state: 'degraded\u009b[31m',
+    detail: 'https://user:ghp_abcdefghijklmnopqrst@github.com/macbrainslabs/ane-research-records\u2028::add-mask::secret Bearer ghp_abcdefghijklmnopqrst'
+  }];
+  assert.equal(coreKey(next), coreKey(prev));
+  const out = lastKnownGoodDecision([prev], [next]);
+  assert.equal(out.decision, 'hold');
+  const logged = [];
+  const lines = reportHoldDiagnostics([prev], [next], msg => logged.push(msg));
+  assert.equal(lines.length, 1);
+  assert.equal(logged.length, 1);
+  assert.equal(logged[0].includes('\n'), false);
+  assert.equal(logged[0].includes('\u2028'), false);
+  assert.equal(logged[0].includes('\u009b'), false);
+  assert.equal(logged[0].includes('::'), false);
+  assert.equal(logged[0].includes('ghp_'), false);
+  assert.equal(logged[0].includes('user:'), false);
+  assert.equal(logged[0].split(/\r?\n/u).some(part => part.trimStart().startsWith('::')), false);
+  assert.ok(logged[0].includes('record=v0.1.0'), logged[0]);
+  assert.ok(logged[0].includes('state=degraded'), logged[0]);
+  const badTag = rec(A, { state: 'degraded' });
+  badTag.tag = '::error::\u2028';
+  badTag.verification.guards = [{ name: 'published release tag', state: 'degraded', detail: 'mismatch' }];
+  const rejected = formatHoldDiagnostics([prev], [badTag]);
+  assert.ok(rejected[0].includes('record=(rejected-tag)'), rejected[0]);
+  assert.equal(rejected[0].includes('::'), false);
+  assert.ok(logged[0].includes('core_equals_previous=yes'), logged[0]);
+  assert.ok(logged[0].includes('https://github.com/macbrainslabs/ane-research-records'), logged[0]);
+});
+
 console.log(`last-known-good rule tests: ${ran - (process.exitCode ? 1 : 0)}/${ran} passed`);
