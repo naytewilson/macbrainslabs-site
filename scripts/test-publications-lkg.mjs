@@ -10,7 +10,7 @@
 //   - genuine data changes and improvements publish.
 // Dependency-free; run: node scripts/test-publications-lkg.mjs
 import assert from 'node:assert/strict';
-import { coreKey, lastKnownGoodDecision } from './update-publications.mjs';
+import { coreKey, formatHoldDiagnostics, lastKnownGoodDecision, reportHoldDiagnostics } from './update-publications.mjs';
 
 const S1 = '1111111111111111111111111111111111111111111111111111111111111111';
 const S2 = '2222222222222222222222222222222222222222222222222222222222222222';
@@ -161,6 +161,123 @@ t('previously degraded record re-verifies (same core) -> publish the improvement
 t('empty prev (first publication of verified records) -> publish', () => {
   const out = lastKnownGoodDecision([], [rec(A)]);
   assert.equal(out.decision, 'publish');
+});
+
+t('transient unreachable guard -> hold, and the diagnostic names that guard with the same core', () => {
+  const prev = rec(A);
+  const guardName = 'DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)';
+  const next = rec(A, { state: 'degraded', crosscheck: 'unreachable', shaOk: false, sumsVerified: false });
+  next.verification.guards = [
+    { name: 'published release tag', state: 'pass' },
+    { name: guardName, state: 'degraded', detail: 'the Zenodo registration could not be fetched at rebuild time' }
+  ];
+  assert.equal(coreKey(next), coreKey(prev), 'an unreachable cross-check must not change the data core');
+  const out = lastKnownGoodDecision([prev], [next]);
+  assert.equal(out.decision, 'hold');
+  assert.ok(out.reasons.some(r => r.includes(A) && r.includes('fail closed')), out.reasons.join('; '));
+  const logged = [];
+  const lines = reportHoldDiagnostics([prev], [next], msg => logged.push(msg));
+  assert.equal(lines.length, 1);
+  assert.equal(logged.length, 1);
+  assert.match(logged[0], /^\[publications\] HOLD DIAG /);
+  assert.ok(lines[0].includes(`record=${A}`), lines[0]);
+  assert.ok(lines[0].includes(JSON.stringify(guardName)), lines[0]);
+  assert.ok(lines[0].includes('state=degraded'), lines[0]);
+  assert.ok(lines[0].includes('could not be fetched at rebuild time'), lines[0]);
+  assert.ok(lines[0].includes('core_equals_previous=yes'), lines[0]);
+  assert.ok(!lines[0].includes('published release tag'), lines[0]);
+});
+
+t('genuine fingerprint mismatch -> hold, and the diagnostic names that guard', () => {
+  const prev = rec(A);
+  const guardName = 'source document fingerprints re-derived at the pinned commit (3/4)';
+  const next = rec(A, { state: 'degraded', fingerprint: 'mismatch' });
+  next.verification.guards = [
+    { name: 'release assets re-downloaded; byte digests and SHA256SUMS agree', state: 'pass', detail: null },
+    { name: guardName, state: 'degraded', detail: '1 mismatch against the pinned commit' }
+  ];
+  assert.equal(coreKey(next), coreKey(prev), 'a fingerprint outcome is not part of the data core');
+  const out = lastKnownGoodDecision([prev], [next]);
+  assert.equal(out.decision, 'hold');
+  const lines = formatHoldDiagnostics([prev], [next]);
+  assert.equal(lines.length, 1);
+  assert.ok(lines[0].includes(`record=${A}`), lines[0]);
+  assert.ok(lines[0].includes(JSON.stringify(guardName)), lines[0]);
+  assert.ok(lines[0].includes('state=degraded'), lines[0]);
+  assert.ok(lines[0].includes('1 mismatch against the pinned commit'), lines[0]);
+  assert.ok(lines[0].includes('core_equals_previous=yes'), lines[0]);
+  assert.ok(!lines[0].includes('unreachable'), lines[0]);
+});
+
+t('genuine registration mismatch with a changed core -> hold, diagnostic says the core differs', () => {
+  const guardName = 'DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)';
+  const next = rec(A, {
+    state: 'degraded',
+    crosscheck: 'mismatch',
+    core: { evidenceLimitsOverride: ['An upstream edit legitimately changed the limits list.'] }
+  });
+  next.verification.guards = [
+    { name: guardName, state: 'degraded', detail: 'registration disagrees on: title' }
+  ];
+  assert.notEqual(coreKey(next), coreKey(rec(A)), 'this fixture must change the data core');
+  const out = lastKnownGoodDecision([rec(A)], [next]);
+  assert.equal(out.decision, 'hold');
+  assert.ok(out.reasons.some(r => r.includes('fail closed')), out.reasons.join('; '));
+  const lines = formatHoldDiagnostics([rec(A)], [next]);
+  assert.equal(lines.length, 1);
+  assert.ok(lines[0].includes(JSON.stringify(guardName)), lines[0]);
+  assert.ok(lines[0].includes('registration disagrees on: title'), lines[0]);
+  assert.ok(lines[0].includes('core_equals_previous=no'), lines[0]);
+});
+
+t('hold diagnostics stay single-line and bounded', () => {
+  const next = rec(A, { state: 'degraded' });
+  const huge = `mismatch\n${'x'.repeat(800)}\u0001`;
+  next.verification.guards = [{ name: `guard\n${'n'.repeat(400)}`, state: 'degraded', detail: huge }];
+  const lines = formatHoldDiagnostics([rec(A)], [next]);
+  assert.equal(lines.length, 1);
+  assert.ok(!lines[0].includes('\n'), 'diagnostic lines must not contain a newline');
+  assert.ok(lines[0].length < 700, `line length ${lines[0].length}`);
+  assert.ok(lines[0].includes('state=degraded'), lines[0]);
+  const flood = rec(B, { state: 'degraded' });
+  flood.verification.guards = Array.from({ length: 80 }, (_, i) => ({ name: `guard ${i}`, state: 'degraded', detail: 'mismatch' }));
+  const many = formatHoldDiagnostics([], [flood]);
+  assert.ok(many.length <= 65, `got ${many.length} lines`);
+  assert.equal(many[many.length - 1].includes('state=truncated'), true);
+});
+
+t('hold diagnostics cannot emit credentials, ANSI, or a workflow command', () => {
+  const prev = rec(A);
+  const next = rec(A, { state: 'degraded' });
+  next.verification.guards = [{
+    name: 'DOI registration cross-checked against Zenodo (identity, title, date, ORCID, license)\u2028::error::name',
+    state: 'degraded\u009b[31m',
+    detail: 'https://user:ghp_abcdefghijklmnopqrst@github.com/macbrainslabs/ane-research-records\u2028::add-mask::secret Bearer ghp_abcdefghijklmnopqrst'
+  }];
+  assert.equal(coreKey(next), coreKey(prev));
+  const out = lastKnownGoodDecision([prev], [next]);
+  assert.equal(out.decision, 'hold');
+  const logged = [];
+  const lines = reportHoldDiagnostics([prev], [next], msg => logged.push(msg));
+  assert.equal(lines.length, 1);
+  assert.equal(logged.length, 1);
+  assert.equal(logged[0].includes('\n'), false);
+  assert.equal(logged[0].includes('\u2028'), false);
+  assert.equal(logged[0].includes('\u009b'), false);
+  assert.equal(logged[0].includes('::'), false);
+  assert.equal(logged[0].includes('ghp_'), false);
+  assert.equal(logged[0].includes('user:'), false);
+  assert.equal(logged[0].split(/\r?\n/u).some(part => part.trimStart().startsWith('::')), false);
+  assert.ok(logged[0].includes('record=v0.1.0'), logged[0]);
+  assert.ok(logged[0].includes('state=degraded'), logged[0]);
+  const badTag = rec(A, { state: 'degraded' });
+  badTag.tag = '::error::\u2028';
+  badTag.verification.guards = [{ name: 'published release tag', state: 'degraded', detail: 'mismatch' }];
+  const rejected = formatHoldDiagnostics([prev], [badTag]);
+  assert.ok(rejected[0].includes('record=(rejected-tag)'), rejected[0]);
+  assert.equal(rejected[0].includes('::'), false);
+  assert.ok(logged[0].includes('core_equals_previous=yes'), logged[0]);
+  assert.ok(logged[0].includes('https://github.com/macbrainslabs/ane-research-records'), logged[0]);
 });
 
 console.log(`last-known-good rule tests: ${ran - (process.exitCode ? 1 : 0)}/${ran} passed`);
