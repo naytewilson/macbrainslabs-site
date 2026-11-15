@@ -37,6 +37,9 @@
 // Exit codes: 0 wrote changed/changed-state output, or already current;
 // 1 structural failure (never commit); 2 upstream unreachable or the
 // last-known-good decision held the update (keep last-known-good).
+// A hold prints one bounded line per non-passing guard before it exits:
+// record tag, guard name, state, safe detail, and whether that record's
+// core key equals the previous snapshot. The decision itself is unchanged.
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
@@ -1938,7 +1941,12 @@ async function main() {
   // transition over unchanged data, hold updates carrying unverified new
   // records, and never publish a verbatim copy of the previous snapshot.
   const outcome = lastKnownGoodDecision(prev?.records ?? [], records);
-  if (outcome.decision === 'hold') die(2, `last-known-good hold: ${outcome.reasons.join('; ')}`);
+  if (outcome.decision === 'hold') {
+    // Name the failing guard before the exit. This does not change the
+    // decision, skip a record, or publish the degraded rebuild.
+    reportHoldDiagnostics(prev?.records ?? [], records);
+    die(2, `last-known-good hold: ${outcome.reasons.join('; ')}`);
+  }
   data.generated_at = outcome.decision === 'no_change' ? (prev?.generated_at ?? data.generated_at) : data.generated_at;
 
   const json = `${JSON.stringify(data, null, 2)}\n`;
@@ -2029,6 +2037,62 @@ export function lastKnownGoodDecision(prevRecords, newRecords) {
 
 function newById(newRecords) {
   return new Map(newRecords.map(r => [r.tag, r]));
+}
+
+// Log lines for a hold. One line per non-passing guard of each record that
+// is not verified. Detail and name are single-line and length-capped so a
+// bad upstream string cannot flood the job log. core_equals_previous is
+// yes, no, absent (no previous record with that tag), or error.
+const HOLD_DIAG_LIMIT = 64;
+const HOLD_NAME_MAX = 180;
+const HOLD_DETAIL_MAX = 240;
+
+function boundDiagnostic(value, max) {
+  const s = String(value ?? '').replace(/[\u0000-\u001f\u007f]/g, ' ').replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  return `${s.slice(0, max - 1)}…`;
+}
+
+function coreEqualsPrevious(prevRecords, rec) {
+  const prevList = Array.isArray(prevRecords) ? prevRecords : [];
+  const prev = prevList.find(p => p && p.tag === rec.tag);
+  if (!prev) return 'absent';
+  try {
+    return coreKey(rec) === coreKey(prev) ? 'yes' : 'no';
+  } catch {
+    return 'error';
+  }
+}
+
+export function formatHoldDiagnostics(prevRecords, newRecords) {
+  const lines = [];
+  const records = Array.isArray(newRecords) ? newRecords : [];
+  for (const rec of records) {
+    if (!rec || rec.verification?.state === 'verified') continue;
+    const tag = boundDiagnostic(typeof rec.tag === 'string' && rec.tag ? rec.tag : '(missing tag)', 80);
+    const core = coreEqualsPrevious(prevRecords, rec);
+    const guards = Array.isArray(rec.verification?.guards) ? rec.verification.guards : [];
+    const failed = guards.filter(g => !g || g.state !== 'pass');
+    const emit = failed.length
+      ? failed
+      : [{ name: '(none)', state: rec.verification?.state ?? 'missing', detail: 'verification.state is not verified and no guard is non-pass' }];
+    for (const g of emit) {
+      const name = boundDiagnostic(typeof g?.name === 'string' && g.name ? g.name : '(unnamed guard)', HOLD_NAME_MAX);
+      const state = boundDiagnostic(typeof g?.state === 'string' && g.state ? g.state : 'missing', 40);
+      const detail = boundDiagnostic(g?.detail, HOLD_DETAIL_MAX);
+      lines.push(`record=${tag} guard=${JSON.stringify(name)} state=${state} detail=${JSON.stringify(detail)} core_equals_previous=${core}`);
+    }
+  }
+  if (lines.length <= HOLD_DIAG_LIMIT) return lines;
+  return lines.slice(0, HOLD_DIAG_LIMIT).concat(
+    'record=(truncated) guard="(bounded)" state=truncated detail="additional hold diagnostics omitted" core_equals_previous=absent'
+  );
+}
+
+export function reportHoldDiagnostics(prevRecords, newRecords, write = console.error) {
+  const lines = formatHoldDiagnostics(prevRecords, newRecords);
+  for (const line of lines) write(`[publications] HOLD DIAG ${line}`);
+  return lines;
 }
 
 const invokedDirectly = process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url;
