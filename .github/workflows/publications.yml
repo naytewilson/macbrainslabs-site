@@ -1,8 +1,11 @@
 name: Refresh publications feed
 # A rebuilt feed is proposed as a pull request. This file does not push main.
-# publications-feed-bot has no documented exception in README, docs, or
-# CODEOWNERS that would authorize a direct push. workflow_dispatch opens
-# the same kind of pull request; it is not a bypass.
+# publications-feed-bot has no documented exception that would authorize a
+# direct push. workflow_dispatch opens the same kind of pull request.
+#
+# GITHUB_TOKEN pull_request runs are created in an approval-required state.
+# This job checks the candidate before pushing it and records that result on
+# the candidate sha. It does not approve those runs and it does not merge.
 on:
   schedule:
     - cron: '37 3,9,15,21 * * *'
@@ -10,10 +13,14 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  statuses: write
+concurrency:
+  group: publications-feed
+  cancel-in-progress: false
 jobs:
   recheck-and-rebuild:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -31,6 +38,8 @@ jobs:
         run: node scripts/test-publications-legacy-doi.mjs
       - name: Verify the workflow opens a pull request and does not push main
         run: node scripts/test-publications-workflow.mjs
+      - name: Verify publication pull request lifecycle against a scratch remote
+        run: node scripts/test-publications-publish-pr.mjs
       - name: Re-derive upstream records and rebuild the feed
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,32 +50,34 @@ jobs:
         run: |
           npm install --no-save --no-package-lock sharp@0.35.5
           node scripts/build-social-cards.mjs
-      - name: Verify the site, public explorer and social cards before publishing
+      - name: Commit the candidate locally without pushing
+        id: candidate
+        run: node scripts/publish-publications-pr.mjs --commit-only
+      - name: Verify the candidate with the site-check suite
+        if: steps.candidate.outputs.has_diff == 'true'
         run: |
           node scripts/check-site.mjs
+          node scripts/check-copy.mjs
+          node scripts/test-publications-lkg.mjs
+          node scripts/test-publications-ane-records.mjs
+          node scripts/test-publications-diagnostic-records.mjs
+          node scripts/test-publications-package-records.mjs
+          node scripts/test-publications-legacy-doi.mjs
+          node scripts/test-publications-workflow.mjs
+          node scripts/test-publications-publish-pr.mjs
+          node scripts/test-live-site-verifier.mjs
           node scripts/build-public-experience.mjs --check
-          node scripts/build-social-cards.mjs --check
           node scripts/check-mobile-media.mjs --check
-      - name: Open a pull request for the rebuilt feed (never push main)
+          node scripts/build-social-cards.mjs --check
+          node scripts/check-site.mjs
+      - name: Push the candidate and open or update the pull request
+        if: steps.candidate.outputs.has_diff == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -eu
-          git config user.name "publications-feed-bot"
-          git config user.email "publications@macbrainslabs.org"
-          git add index.html publications research/explore start assets/social
-          if git diff --cached --quiet; then
-            echo "No record changes to publish; the last-known-good feed is current."
-            exit 0
-          fi
-          branch="publications/recheck-${GITHUB_RUN_ID}"
-          git checkout -b "$branch"
-          git commit -m "publications: archive feed recheck $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          git push origin "HEAD:refs/heads/${branch}"
-          body_file="$(mktemp)"
-          cat > "$body_file" <<EOF
-          Scheduled rebuild ${GITHUB_RUN_ID} at ${GITHUB_SHA} produced a publications feed diff.
-
-          The last-known-good checks in this workflow passed before this pull request was opened. The previous public snapshot stays on main until this pull request is merged. This workflow does not push main.
-          EOF
-          gh pr create --base main --head "$branch" --title "publications: archive feed recheck ${GITHUB_RUN_ID}" --body-file "$body_file"
+          CANDIDATE_SHA: ${{ steps.candidate.outputs.sha }}
+        run: node scripts/publish-publications-pr.mjs --push
+      - name: Close a publication pull request that a fresh rebuild no longer supports
+        if: steps.candidate.outputs.has_diff != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/publish-publications-pr.mjs --no-diff
