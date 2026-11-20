@@ -111,7 +111,7 @@ const ld = {
     ] },
     { '@type': 'Dataset', '@id': `${URL_}#dataset`, name: a.title, description, url: URL_, version: a.version,
       ...(versionDoi ? { identifier: `https://doi.org/${versionDoi}`, sameAs: `https://zenodo.org/records/${versionDoi.split('.').at(-1)}` } : {}),
-      isPartOf: { '@type': 'Dataset', name: index.series, identifier: `https://doi.org/${a.conceptDoi}` },
+      isPartOf: `https://doi.org/${a.conceptDoi}`,
       creator: { '@type': 'Person', name: 'Nayte Wilson', identifier: 'https://orcid.org/0009-0003-4026-8212' },
       license: 'https://creativecommons.org/licenses/by/4.0/', datePublished: released, inLanguage: 'en',
       keywords: COPY.keywords }

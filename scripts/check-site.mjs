@@ -144,7 +144,7 @@ check('research JSON-LD parses and names DOI and ORCID', () => {
   const d = JSON.parse(m[1]);
   assert.equal(d['@type'], 'Dataset');
   assert.equal(d.identifier, 'https://doi.org/10.5281/zenodo.23798037');
-  assert.equal(d.isPartOf && d.isPartOf.identifier, 'https://doi.org/10.5281/zenodo.23798036', 'research JSON-LD must link the all-versions DOI');
+  assert.equal(d.isPartOf, 'https://doi.org/10.5281/zenodo.23798036', 'research JSON-LD must link the all-versions DOI without creating an incomplete nested Dataset');
   assert.equal(d.creator.identifier, 'https://orcid.org/0009-0003-4026-8212');
 });
 check('public advisory files match checksums and recorded observation relationships', () => {
@@ -271,6 +271,25 @@ check('evidence bundle tools match their recorded hashes and counts', () => {
 const jsonLd = route => [...read(route).matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
 const nodes = route => jsonLd(route).flatMap(d => d['@graph'] ?? [d]);
 const plain = s => s.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').trim();
+
+const datasetNodes = value => {
+  const found = [];
+  function walk(node) {
+    if (!node || typeof node !== 'object') return;
+    if (Array.isArray(node)) { node.forEach(walk); return; }
+    const types = Array.isArray(node['@type']) ? node['@type'] : [node['@type']];
+    if (types.includes('Dataset')) found.push(node);
+    Object.values(node).forEach(walk);
+  }
+  walk(value);
+  return found;
+};
+check('record page generators emit the concept DOI URL without a nested Dataset', () => {
+  for (const filename of ['gen-record-page.mjs', 'gen-package-record-page.mjs']) {
+    const source = fs.readFileSync(path.join(root, 'scripts', filename), 'utf8');
+    assert.ok(source.includes('isPartOf: `https://doi.org/${a.conceptDoi}`'), `${filename} must use the concept DOI as an isPartOf URL`);
+  }
+});
 for (const route of pages) {
   check(`structured data ${route} parses, uses schema.org and points at real pages`, () => {
     const docs = jsonLd(route);
@@ -281,6 +300,26 @@ for (const route of pages) {
         const u = new URL(m[1]).pathname;
         assert.ok(fs.existsSync(fileFor(u)), `${m[1]} has no page`);
       }
+    }
+  });
+  const datasets = jsonLd(route).flatMap(datasetNodes);
+  if (datasets.length) check(`Dataset structured data ${route} has complete metadata and preserves provenance`, () => {
+    for (const [i, d] of datasets.entries()) {
+      const key = `${route} Dataset[${i}]`;
+      assert.ok(typeof d.name === 'string' && d.name.trim(), `${key}: missing name`);
+      const description = typeof d.description === 'string' ? d.description.trim() : '';
+      assert.ok(description.length >= 50 && description.length <= 5000, `${key}: missing or invalid description`);
+      assert.ok(typeof d.license === 'string' && d.license.startsWith('https://'), `${key}: missing license URL`);
+      const creators = Array.isArray(d.creator) ? d.creator : [d.creator];
+      assert.ok(creators.length && creators.every(c => c && ['Person', 'Organization'].includes(c['@type']) && typeof c.name === 'string' && c.name.trim()), `${key}: missing creator`);
+    }
+    if (route === '/research/' || recordRoutes.includes(route)) {
+      const d = nodes(route).find(n => n['@type'] === 'Dataset');
+      assert.ok(d, `${route}: no primary Dataset`);
+      assert.match(d.identifier, /^https:\/\/doi\.org\/10\.5281\/zenodo\.\d+$/u, `${route}: version DOI missing`);
+      assert.equal(d.isPartOf, 'https://doi.org/10.5281/zenodo.23798036', `${route}: concept DOI must be an isPartOf URL`);
+      assert.equal(d.creator.identifier, 'https://orcid.org/0009-0003-4026-8212', `${route}: creator ORCID changed`);
+      assert.equal(d.license, 'https://creativecommons.org/licenses/by/4.0/', `${route}: license changed`);
     }
   });
   if (route !== '/') check(`structured data ${route} breadcrumbs match the visible trail`, () => {
