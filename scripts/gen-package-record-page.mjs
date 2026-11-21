@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {socialPathForRoute} from './social-path.mjs';
+import {seriesDataset} from './series-ld.mjs';
 import {pkgPassCriterion} from './package-pass-criteria.mjs';
 
 const [recordsRepo, siteRepo, tag, versionDoi] = process.argv.slice(2);
@@ -111,7 +112,7 @@ const ld = {
     ] },
     { '@type': 'Dataset', '@id': `${URL_}#dataset`, name: a.title, description, url: URL_, version: a.version,
       ...(versionDoi ? { identifier: `https://doi.org/${versionDoi}`, sameAs: `https://zenodo.org/records/${versionDoi.split('.').at(-1)}` } : {}),
-      isPartOf: { '@type': 'Dataset', name: index.series, identifier: `https://doi.org/${a.conceptDoi}` },
+      isPartOf: seriesDataset(index.series, a.conceptDoi),
       creator: { '@type': 'Person', name: 'Nayte Wilson', identifier: 'https://orcid.org/0009-0003-4026-8212' },
       license: 'https://creativecommons.org/licenses/by/4.0/', datePublished: released, inLanguage: 'en',
       keywords: COPY.keywords }
