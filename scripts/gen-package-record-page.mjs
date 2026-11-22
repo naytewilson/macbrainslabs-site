@@ -64,6 +64,15 @@ const scopeLabel = 'Same-chip rerun: repeatability only, not cross-device replic
 // Page copy per record, keyed by tag. A tag without its own entry fails loudly
 // instead of borrowing another record's copy.
 const COPY = {
+  'ane-record-e6d3d80e1ff7d9eb4614f6ad': {
+    title: 'Qwen2.5-1.5B Core ML package against an fp32 reference',
+    description: 'One Mac, one prompt, against an fp32 reference of the original weights: cpuAndGPU matches for 7 tokens, cpuAndNeuralEngine (ANE inferred) differs from the first, cpuOnly gives NaN.',
+    keywords: ['Apple Neural Engine', 'Core ML', 'Qwen2.5', 'compute units', 'fp32 reference'],
+    lede: 'Three Core ML compute units of one published model package compared with an fp32 CPU reference; ANE execution INFERRED from the Core ML compute plan; no novelty claim.',
+    scope: () => `Every counted run in this record ran on one Mac, the same chip, with one model package, one prompt and one clean-room tool build (${code(a.verification.aneReCommitsPinned.cleanroomTool.slice(0, 8))}). The reference is an fp32 CPU forward pass of the original weights; it is not checked against PyTorch or transformers, and the cause of the differences is UNKNOWN. Novelty is ${esc(a.noveltyClaim)}. Probe tiers: ${Object.entries(a.verification.probeTiers).map(([k, v]) => esc(k + ' ' + v)).join('; ')}. Recompute: ${esc(a.verification.recompute)}.`,
+    runs: `Each setup profile was hashed and committed before its first counted run. The device-wide execution logs list ${counted} counted runs under ${armRows.length} setup profiles: ${pass} pass, ${counted - pass} fail. A run passes when its completion line has exit code 0 and byte-identical output. Result: ${esc(r.crossArmComparison)}. No run is omitted.`,
+    runsHead: 'Setup profile runs'
+  },
   'ane-record-10528818ee0e902331b666ee': {
     title: 'Qwen2.5-1.5B Core ML package dispatch record',
     description: 'One Mac, one prompt: cpuAndNeuralEngine (ANE inferred) and cpuAndGPU differ from the first generated token; cpuOnly prefill logits are all NaN. Correctness unresolved; no novelty claim.',
