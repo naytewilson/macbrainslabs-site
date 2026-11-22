@@ -271,6 +271,27 @@ check('evidence bundle tools match their recorded hashes and counts', () => {
 const jsonLd = route => [...read(route).matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map(m => JSON.parse(m[1]));
 const nodes = route => jsonLd(route).flatMap(d => d['@graph'] ?? [d]);
 const plain = s => s.replace(/<[^>]*>/g, '').replace(/&amp;/g, '&').trim();
+const datasetNodes = (v, out = []) => {
+  if (Array.isArray(v)) for (const x of v) datasetNodes(x, out);
+  else if (v && typeof v === 'object') {
+    if ([].concat(v['@type']).includes('Dataset')) out.push(v);
+    for (const x of Object.values(v)) datasetNodes(x, out);
+  }
+  return out;
+};
+check('every Dataset entry, nested ones included, has the fields Google requires and recommends', () => {
+  let n = 0;
+  for (const route of pages) for (const d of datasetNodes(jsonLd(route))) {
+    n++;
+    const where = `${route} Dataset "${d.name}"`;
+    assert.ok(typeof d.name === 'string' && d.name, `${where}: name`);
+    assert.ok(typeof d.description === 'string' && d.description.length >= 50 && d.description.length <= 5000, `${where}: description must be 50-5000 characters`);
+    assert.ok(typeof d.license === 'string' && /^https:\/\//.test(d.license), `${where}: license URL`);
+    for (const c of [].concat(d.creator ?? [])) assert.ok(c && c['@type'] && c.name, `${where}: creator needs @type and name`);
+    assert.ok(d.creator, `${where}: creator`);
+  }
+  assert.ok(n >= 8, `expected Dataset entries on the research and record pages, found ${n}`);
+});
 for (const route of pages) {
   check(`structured data ${route} parses, uses schema.org and points at real pages`, () => {
     const docs = jsonLd(route);
