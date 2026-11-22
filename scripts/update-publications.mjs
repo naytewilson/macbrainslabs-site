@@ -121,8 +121,8 @@ function humanDate(iso) {
 
 function sha256(buf) { return crypto.createHash('sha256').update(buf).digest('hex'); }
 
-function fetchOpts(kind) {
-  const o = { redirect: 'follow', signal: AbortSignal.timeout(20000), headers: { 'User-Agent': 'macbrainslabs-site-publications-feed' } };
+function fetchOpts(kind, timeoutMs = 20000) {
+  const o = { redirect: 'follow', signal: AbortSignal.timeout(timeoutMs), headers: { 'User-Agent': 'macbrainslabs-site-publications-feed' } };
   if (kind === 'gh') {
     o.headers.Accept = 'application/vnd.github+json';
     if (process.env.GITHUB_TOKEN) o.headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
@@ -135,11 +135,11 @@ function fetchOpts(kind) {
   return o;
 }
 
-async function fetchBuf(url, kind) {
+async function fetchBuf(url, kind, timeoutMs) {
   let last;
   for (let i = 0; i < 3; i++) {
     try {
-      const res = await fetch(url, fetchOpts(kind));
+      const res = await fetch(url, fetchOpts(kind, timeoutMs));
       if (res.status === 200) return Buffer.from(await res.arrayBuffer());
       last = new Error(`HTTP ${res.status}${res.headers.get('x-ratelimit-remaining') === '0' ? ' (rate limit exhausted)' : ''}`);
       if (res.status === 404 || res.status === 410) { last.http = res.status; throw last; }
@@ -1273,6 +1273,18 @@ function pkgIndexEntry(buf, tag) {
   return e;
 }
 
+// A reviewed package archive can exceed 64 MiB (v0.5.0's tar is 180 MiB); the
+// small fixed assets keep the 64 MiB bound. GitHub caps release assets at 2 GiB.
+const PKG_SMALL_ASSET_MAX = 64 * 1024 * 1024;
+const PKG_ARCHIVE_ASSET_MAX = 1024 * 1024 * 1024;
+function pkgAssetMaxBytes(name) {
+  return ['attestation.json', 'preview.md', 'SHA256SUMS'].includes(name) ? PKG_SMALL_ASSET_MAX : PKG_ARCHIVE_ASSET_MAX;
+}
+// Download time scales with size: 20 s plus 1 s per MiB, at most 15 minutes.
+function assetTimeoutMs(size) {
+  return Math.min(20000 + Math.ceil(size / (1024 * 1024)) * 1000, 15 * 60 * 1000);
+}
+
 // Fixed names first, then the two record-specific assets by name, SHA256SUMS last.
 function pkgAssetOrder(names) {
   const free = names.filter(n => !['attestation.json', 'preview.md', 'SHA256SUMS'].includes(n)).sort();
@@ -1289,7 +1301,7 @@ async function verifyPkgAssets(rel) {
   const out = [];
   for (const name of pkgAssetOrder(names)) {
     const a = list.find(x => x.name === name);
-    assert.ok(Number.isInteger(a.size) && a.size > 0 && a.size <= 64 * 1024 * 1024, `${tag}: asset ${name} size out of bounds`);
+    assert.ok(Number.isInteger(a.size) && a.size > 0 && a.size <= pkgAssetMaxBytes(name), `${tag}: asset ${name} size out of bounds`);
     assert.ok(typeof a.digest === 'string' && /^sha256:[a-f0-9]{64}$/.test(a.digest), `${tag}: asset ${name} lacks a registered sha256 digest`);
     const url = checkHost(a.browser_download_url, ASSET_HOSTS, `${tag} asset ${name} url`);
     assert.equal(url.href, `https://github.com/${RELEASES_REPO}/releases/download/${tag}/${name}`, `${tag}: asset ${name} url is not this release's download URL`);
@@ -1299,7 +1311,7 @@ async function verifyPkgAssets(rel) {
   const bytesBy = new Map();
   for (const a of out) {
     let bytes;
-    try { bytes = await fetchBuf(a.url, 'asset'); } catch (e) {
+    try { bytes = await fetchBuf(a.url, 'asset', assetTimeoutMs(a.size)); } catch (e) {
       if (e.http) throw new Error(`${tag}: asset ${a.name} acted missing (${e.message}); refusing to publish`);
       reasons.push(`asset ${a.name} could not be downloaded at rebuild`);
       continue;

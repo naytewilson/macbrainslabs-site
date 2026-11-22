@@ -266,5 +266,19 @@ await t('feed page and home block show the package record with its bindings and 
   assert.ok(block.includes(`href="${fx.siteUrl}"`) && block.includes('not cross-device replication') && block.includes('Package record · DOI registered'));
 });
 
+await t('a package archive over 64 MiB is in bounds; the small assets and anything over 1 GiB are not', async () => {
+  const MiB = 1024 * 1024;
+  const sized = (opts, name, size) => { const fx = fixture(opts); fx.release.assets.find(a => a.name === name).size = size; stubFetch(fx.routes); return fx; };
+  // 180 MiB registered archive (v0.5.0 shape): the feed downloads and hashes it instead of a fatal stop.
+  let fx = sized({}, 'package-fixture.tar', 180 * MiB);
+  const rec = await buildAneRecord(fx.release);
+  assert.equal(rec.verification.state, 'degraded');
+  assert.match(guard(rec, 'exactly five release assets').detail, /package-fixture\.tar: downloaded size differs from the registered size/);
+  fx = sized({}, 'package-fixture.tar', 1024 * MiB + 1);
+  await assert.rejects(buildAneRecord(fx.release), /asset package-fixture\.tar size out of bounds/);
+  fx = sized({}, 'attestation.json', 64 * MiB + 1);
+  await assert.rejects(buildAneRecord(fx.release), /asset attestation\.json size out of bounds/);
+});
+
 console.log(`package record feed tests: ${ran - failed}/${ran} passed`);
 if (failed) process.exit(1);
