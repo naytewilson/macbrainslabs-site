@@ -66,7 +66,7 @@ const scopeLabel = 'Same-chip rerun: repeatability only, not cross-device replic
 const COPY = {
   'ane-record-e6d3d80e1ff7d9eb4614f6ad': {
     title: 'Qwen2.5-1.5B Core ML package against an fp32 reference',
-    description: 'One Mac, one prompt, against an fp32 reference of the original weights: cpuAndGPU matches for 7 tokens, cpuAndNeuralEngine (ANE inferred) differs from the first, cpuOnly gives NaN.',
+    description: 'One Mac, one prompt, against an fp32 reference of the original weights: cpuAndGPU matches for 7 tokens, cpuAndNeuralEngine (ANE inferred) differs from the first, cpuOnly gives NaN. No novelty claim.',
     keywords: ['Apple Neural Engine', 'Core ML', 'Qwen2.5', 'compute units', 'fp32 reference'],
     lede: 'Three Core ML compute units of one published model package compared with an fp32 CPU reference; ANE execution INFERRED from the Core ML compute plan; no novelty claim.',
     scope: () => `Every counted run in this record ran on one Mac, the same chip, with one model package, one prompt and one clean-room tool build (${code(a.verification.aneReCommitsPinned.cleanroomTool.slice(0, 8))}). The reference is an fp32 CPU forward pass of the original weights; it is not checked against PyTorch or transformers, and the cause of the differences is UNKNOWN. Novelty is ${esc(a.noveltyClaim)}. Probe tiers: ${Object.entries(a.verification.probeTiers).map(([k, v]) => esc(k + ' ' + v)).join('; ')}. Recompute: ${esc(a.verification.recompute)}.`,
