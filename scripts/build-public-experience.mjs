@@ -61,9 +61,16 @@ function archives() {
       value: r.version || r.tag,
       limitation: r.replication?.claim || (r.record_class ? r.record_class + '; archive integrity is not independent replication or peer review' : 'Published source-bound record. Archive integrity is not independent replication or peer review.'),
       url: link, source: 'Published release and DOI ' + r.doi.version_doi,
-      tag: r.kind === 'ane-diagnostic' ? 'LFM3' : r.kind === 'ane-package' ? ({ 'ane-record-10528818ee0e902331b666ee': 'Qwen2.5' }[r.tag] ?? 'ANERECore') : 'Archive'
+      tag: r.kind === 'ane-diagnostic' ? 'LFM3' : r.kind === 'ane-package' ? packageTopic(r.tag) : 'Archive'
     };
   });
+}
+
+// Topic per package record, keyed by tag; an unknown tag fails instead of borrowing another record's topic.
+function packageTopic(tag) {
+  const topic = { 'ane-record-b8f78a146608021d974dcdec': 'ANERECore', 'ane-record-10528818ee0e902331b666ee': 'Qwen2.5', 'ane-record-e6d3d80e1ff7d9eb4614f6ad': 'Qwen2.5' }[tag];
+  assert.ok(topic, 'no catalog topic for package record ' + tag);
+  return topic;
 }
 
 function buildCatalog() {
