@@ -61,7 +61,7 @@ No tracking scripts, cookies, analytics or external assets. Structured data is i
 
 ## Publication feed
 
-`/publications/` lists published archive releases of the public research record (from the separate `macbrainslabs/ane-research-records` repository). It is **static HTML with no client-side JavaScript**: a dependency-free Node script (`scripts/update-publications.mjs`) regenerates the page and its `publications.json` from upstream, and a scheduled GitHub Actions workflow (`.github/workflows/publications.yml`) reruns it roughly every six hours, committing only when the records change.
+`/publications/` lists published archive releases of the public research record (from the separate `macbrainslabs/ane-research-records` repository). It is **static HTML with no client-side JavaScript**: a dependency-free Node script (`scripts/update-publications.mjs`) regenerates the page and its `publications.json` from upstream, and a scheduled GitHub Actions workflow (`.github/workflows/publications.yml`) reruns it roughly every six hours. When the rebuilt feed differs, that workflow opens one pull request. It does not push `main`. A later rebuild updates that pull request, or closes it when a fresh rebuild matches `main`. Merging it is a human review.
 
 The feed does not transcribe release text. For every record it **re-derives** at rebuild time:
 
@@ -74,7 +74,7 @@ The registered DOI state is always **derived from the verified Zenodo record** (
 
 Every URL is validated against a host allowlist, and upstream text that fails sanitization stops the rebuild rather than being partially rendered.
 
-**Last-known-good:** the feed publishes only independently verified records. A rebuild that fails, is rate-limited, would carry **any** record that is not fully verified — a previously verified record re-deriving degraded (even over changed upstream data), or a new record that is not fully verified — or would remove records silently holds the **whole** update: nothing is published, the previously committed snapshot stays live, and the workflow failure is visible in this repository's Actions history. The rule (`scripts/test-publications-lkg.mjs`, 14 adversarial cases, run as a CI step before every rebuild) compares only the upstream data core (re-derived verification state is excluded from comparison), but a data change never lowers the verification bar. Records never disappear from the feed on their own; removal requires a human-reviewed commit.
+**Last-known-good:** the feed publishes only independently verified records. A rebuild that fails, is rate-limited, would carry **any** record that is not fully verified — a previously verified record re-deriving degraded (even over changed upstream data), or a new record that is not fully verified — or would remove records silently holds the **whole** update: nothing is published, the previously committed snapshot stays live, and the workflow failure is visible in this repository's Actions history. The rule (`scripts/test-publications-lkg.mjs`, 19 adversarial cases, run as a CI step before every rebuild) compares only the upstream data core (re-derived verification state is excluded from comparison), but a data change never lowers the verification bar. Records never disappear from the feed on their own; removal requires a human-reviewed commit.
 
 ## Regression checks
 
