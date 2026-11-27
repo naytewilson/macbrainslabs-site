@@ -1940,7 +1940,7 @@ async function main() {
       qualifies: qualifiesPolicy(records),
       recheck: 'claims are re-derived at rebuild: asset bytes hashed against registered digests and SHA256SUMS; manifest fingerprints compared with pinned-commit bytes; DOI registration cross-checked via the Zenodo API; release prose is never rendered',
       last_known_good: 'the whole update is held (previous snapshot stays deployed) unless EVERY rebuilt record is independently verified: any previously verified record re-deriving degraded holds even when its upstream data changed, and any new record that is not fully verified holds; failed, unreachable and removed-record rebuilds never publish',
-      refresh: 'scheduled GitHub Actions workflow on the site repository; also runnable manually via workflow_dispatch'
+      refresh: 'scheduled GitHub Actions workflow opens a pull request and does not push main; workflow_dispatch opens the same kind of pull request'
     },
     records
   };
